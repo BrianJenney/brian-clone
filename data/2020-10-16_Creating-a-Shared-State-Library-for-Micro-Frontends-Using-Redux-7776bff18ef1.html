@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Creating a Shared State Library for Micro-Frontends Using Redux</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Creating a Shared State Library for Micro-Frontends Using Redux</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Our dev team recently became responsible for building micro front-ends using React for e-commerce sites. After building our second site…
+</section>
+<section data-field="body" class="e-content">
+<section name="4d79" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a59b" id="a59b" class="graf graf--h3 graf--leading graf--title">Creating a Shared State Library for Micro-Frontends Using Redux</h3><figure name="a624" id="a624" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*b2akbdgZiA7IpXdXjtWnUA.jpeg" data-width="1500" data-height="527" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*b2akbdgZiA7IpXdXjtWnUA.jpeg"></figure><p name="d01f" id="d01f" class="graf graf--p graf-after--figure">Our dev team recently became responsible for building micro front-ends using React for e-commerce sites. After building our second site, we noticed there was a lot of duplication among our redux actions and how they handle common backend interactions. For example, a user adding an item to a cart or logging in is the exact same across applications.</p><p name="8652" id="8652" class="graf graf--p graf-after--p">Inevitably, we discovered a bug affecting an action with carts and ended up applying a fix to reducers on both sites… while it’s trivial to copy and paste a fix across two sites, we could only imagine having this problem span dozens. What about refactors? This was not sustainable. There are a lot of articles and opinions about creating shared component libraries but what about shared state management libraries?</p><p name="c7cb" id="c7cb" class="graf graf--p graf-after--p">We knew we needed to create an NPM package that our current and future sites could leverage but there was the question of how to reconcile app-specific logic we want redux to handle. For example, what if site A needs a reducer to handle some specific logic that is scoped only to that site? One approach is to use 2 stores in a React app. This method quickly proved error-prone and would potentially place a lot of cognitive load on developers.</p><p name="6f88" id="6f88" class="graf graf--p graf-after--p">The problem with using 2 stores is the additional boilerplate code you need to use for <code class="markup--code markup--p-code">useDispatch</code> or <code class="markup--code markup--p-code">useSelector</code> to work. In the example below, we are passing context to our redux hooks to identify which store to access. Having two stores means two sets of <code class="markup--code markup--p-code">dispatch</code> <code class="markup--code markup--p-code">useSelector</code> etc…</p><figure name="8c7c" id="8c7c" class="graf graf--figure graf--iframe graf-after--p"><script src="https://gist.github.com/BrianJenney/68fe9fa08f1fae42bdc357554d0b3053.js"></script></figure><p name="d7a2" id="d7a2" class="graf graf--p graf-after--figure">I could already feel the confusion brewing with this approach. What we wanted was simple; the flexibility to use external reducers and actions without having multiple stores 🤔.</p><p name="0273" id="0273" class="graf graf--p graf-after--p">The answer, which seems obvious now, is to use reducer composition via <code class="markup--code markup--p-code">combineReducers</code> allowing us to compose our reducers from myriad different sources if we choose.</p><p name="de79" id="de79" class="graf graf--p graf-after--p">Creating an NPM package that simply exposed reducers and actions that we had already written (twice) was a simple copy paste job. The interesting bit of work was in our bundling and publishing to get our library to work and allow easy importing on the consuming front-ends.</p><figure name="bea0" id="bea0" class="graf graf--figure graf--iframe graf-after--p"><script src="https://gist.github.com/BrianJenney/668b754970d87c31a1a57b3f0962c56d.js"></script></figure><p name="36ac" id="36ac" class="graf graf--p graf-after--figure">In our webpack config we alias the <code class="markup--code markup--p-code">entry</code> points to make it easier for developers to use the specific reducer they need, rather than having to write/some/long/path/to/a/reducer.</p><p name="da75" id="da75" class="graf graf--p graf-after--p">Our <code class="markup--code markup--p-code">externals</code> include packages which our front end already has so they won’t be included twice and will reduce bundle size. You can see in the consuming file<code class="markup--code markup--p-code">frontEndStore.js</code> we simply import the reducers we want and combine them with any local reducers. Voila. Now we don’t need to worry about supporting multiple stores!</p><p name="9ccc" id="9ccc" class="graf graf--p graf-after--p">But what about publishing? Well I’m glad you asked. Publishing to NPM is simply a command but we want to keep a history of tags in our git repo as well in case we need to check out the library at a certain tag, perhaps to create a hotfix for a particular version or compare versions. Here are the commands to make versioning and git tags easy as pie:</p><pre name="72b1" id="72b1" class="graf graf--pre graf-after--p">//package.json</pre><pre name="e2df" id="e2df" class="graf graf--pre graf-after--pre">&quot;scripts&quot;: {<br>  &quot;preversion&quot;: &quot;npm test &amp;&amp; npm run build&quot;,<br>  &quot;version&quot;: &quot;npm run build &amp;&amp; git add .&quot;,<br>  &quot;postversion&quot;: &quot;git push &amp;&amp; git push --tags&quot;,<br>  &quot;test&quot;: &quot;jest&quot;,<br>  &quot;analyze&quot;: &quot;NODE_ENV=production PROFILER=1 npx webpack&quot;,<br>  &quot;build&quot;: &quot;NODE_ENV=production npx webpack&quot;,<br>  &quot;start&quot;: &quot;NODE_ENV=development npx webpack --progress --color --watch&quot;<br>}</pre><p name="f386" id="f386" class="graf graf--p graf-after--pre">Now all a developer needs to do is run <code class="markup--code markup--p-code">npm version minor</code> to update the package.json version, add tags and create a production build. <code class="markup--code markup--p-code">npm publish</code> will make the library available for your adoring fans!</p><p name="f033" id="f033" class="graf graf--p graf-after--p">While this solution seems to fit our needs and specific scenario, there are definitely a lot of strong opinions regarding micro front-end architecture and we are still on a learning journey. Hopefully this will make your own attempts at creating a shared redux library a bit easier.</p><p name="6830" id="6830" class="graf graf--p graf-after--p graf--trailing">Enjoyed this article? If so, get more similar content by <a href="https://www.youtube.com/channel/UCtipWUghju290NWcn8jhyAw" data-href="https://www.youtube.com/channel/UCtipWUghju290NWcn8jhyAw" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">subscribing to Decoded, our YouTube channel</strong></a><strong class="markup--strong markup--p-strong">!</strong></p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/7776bff18ef1"><time class="dt-published" datetime="2020-10-16T03:54:11.872Z">October 16, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/creating-a-shared-state-library-for-micro-frontends-using-redux-7776bff18ef1" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

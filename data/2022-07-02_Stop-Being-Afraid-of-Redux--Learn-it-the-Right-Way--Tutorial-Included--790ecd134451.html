@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Stop Being Afraid of Redux: Learn it the Right Way (Tutorial Included)</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Stop Being Afraid of Redux: Learn it the Right Way (Tutorial Included)</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Below this article is a link to the source code for a small app using React with Redux which includes some videos and challenges in the…
+</section>
+<section data-field="body" class="e-content">
+<section name="22c0" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="842f" id="842f" class="graf graf--h3 graf--leading graf--title">Stop Being Afraid of Redux: Learn it the Right Way (Tutorial Included)</h3><figure name="7f2f" id="7f2f" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*q7vIBFZL5Z33LD9cqaTcmw.jpeg" data-width="6720" data-height="4480" src="https://cdn-images-1.medium.com/max/800/1*q7vIBFZL5Z33LD9cqaTcmw.jpeg"></figure><p name="eb7b" id="eb7b" class="graf graf--p graf-after--figure">Below this article is a link to the source code for a small app using React with Redux which includes some videos and challenges in the README.</p><p name="018a" id="018a" class="graf graf--p graf-after--p">Maybe Redux confuses you. Even if you’ve been using it for a bit. When I talk with Junior Developers, it consistently ranks as one of the most difficult to understand parts of working with ReactJS. It doesn’t have to be.</p><p name="29c7" id="29c7" class="graf graf--p graf-after--p">Now, let’s dive in.</p><h3 name="8891" id="8891" class="graf graf--h3 graf-after--p">What is Redux Really?</h3><p name="f010" id="f010" class="graf graf--p graf-after--h3">A predictable state container. But what does that mean?</p><p name="ebb7" id="ebb7" class="graf graf--p graf-after--p">Whether you’re using Angular, Vue or React you will have to manage the state/data for your components. In React you may be using props or state to share data between components. In more complex applications eventually managing local state and sharing data across components may get unwieldy.</p><p name="0ba4" id="0ba4" class="graf graf--p graf-after--p">In order to centralize your state logic you can leverage a library like Redux. This has the additional benefit of creating some separation between your presentational and state logic.</p><h3 name="00c7" id="00c7" class="graf graf--h3 graf-after--p">Why Does Redux Confuse So Many Developers?</h3><p name="8e01" id="8e01" class="graf graf--p graf-after--h3">TLDR; Redux has a lot of boilerplate and tutorials usually leverage a weird pattern.</p><p name="ebfe" id="ebfe" class="graf graf--p graf-after--p">Setting up Redux in a React app can be a chore. Then you head to a tutorial and you are overwhelmed by trying to keep track of concepts like actions, action types, actions creators, and reducers which of course all live in separate files. There’s a better way to structure your Redux logic which you’ll see in the tutorial at the end of this article.</p><h3 name="01db" id="01db" class="graf graf--h3 graf-after--p">The Pattern You Need to Know Before Redux</h3><p name="62d3" id="62d3" class="graf graf--p graf-after--h3">You don’t understand Redux because you don’t know the Observer pattern.</p><p name="7e84" id="7e84" class="graf graf--p graf-after--p">I was confused by Redux for years, even after using it for quite some time. It just seemed magical. Luckily a more senior developer shared his mental model with me and sent me an article about the Observer pattern. It clicked!</p><p name="5f19" id="5f19" class="graf graf--p graf-after--p">Check out the Observer pattern <a href="https://www.dofactory.com/javascript/design-patterns/observer" data-href="https://www.dofactory.com/javascript/design-patterns/observer" class="markup--anchor markup--p-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">here</a> and try to implement it on your own!</p><h3 name="d6c5" id="d6c5" class="graf graf--h3 graf-after--p">What About Framework [X]?</h3><p name="ef27" id="ef27" class="graf graf--p graf-after--h3">There are better alternatives to Redux, right?</p><p name="631b" id="631b" class="graf graf--p graf-after--p">Depends on who you ask. But, yes, there are quite a few other libraries out there which are gaining traction. <a href="https://recoiljs.org/" data-href="https://recoiljs.org/" class="markup--anchor markup--p-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">Recoil</a>, <a href="https://www.npmjs.com/package/zustand" data-href="https://www.npmjs.com/package/zustand" class="markup--anchor markup--p-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">Zustand</a>, and React context and hooks CAN be used in place of Redux in a React app.</p><p name="7dcb" id="7dcb" class="graf graf--p graf-after--p">So why are we still learning Redux?</p><p name="7aac" id="7aac" class="graf graf--p graf-after--p">Redux is the undisputed King of the state management world and is the mainstream choice for enterprise applications. You will almost certainly encounter it and the patterns it leverages are similar in other libraries you will use.</p><h3 name="be0d" id="be0d" class="graf graf--h3 graf-after--p">The Source Code and Instructions</h3><p name="b3fb" id="b3fb" class="graf graf--p graf-after--h3">Ok, here’s the source code for your React/Redux app:</p><p name="f3f8" id="f3f8" class="graf graf--p graf-after--p"><a href="https://github.com/CodeCoachJS/shopping_cart_with_redux" data-href="https://github.com/CodeCoachJS/shopping_cart_with_redux" class="markup--anchor markup--p-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">https://github.com/CodeCoachJS/shopping_cart_with_redux</a></p><p name="aa6e" id="aa6e" class="graf graf--p graf-after--p">The README includes videos and some challenges for you to complete. I really encourage you to make this app your own. Refactor the hell out of it. Don’t like my patterns? Great! Use your own. The only way you’ll really learn is by getting your hands dirty.</p><p name="6c2a" id="6c2a" class="graf graf--p graf-after--p">Hope you enjoy!</p><p name="dc8f" id="dc8f" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">When you’re ready, there are a couple of ways I can help you</strong>:</p><ol class="postList"><li name="ea06" id="ea06" class="graf graf--li graf-after--p"><a href="https://brianjenneycode.samcart.com/products/coaching" data-href="https://brianjenneycode.samcart.com/products/coaching" class="markup--anchor markup--li-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">Work with me 1 on 1</a> to accelerate your JS career or land your first role!</li><li name="152a" id="152a" class="graf graf--li graf-after--li graf--trailing">Go from zero to unit testing with <a href="https://brianjenneycode.samcart.com/products/unit-testing-for-js-developers" data-href="https://brianjenneycode.samcart.com/products/unit-testing-for-js-developers" class="markup--anchor markup--li-anchor" rel="noopener noreferrer nofollow noopener" target="_blank">my course for JavaScript developers who want to get really good at unit testing</a> and React Testing Library</li></ol></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/790ecd134451"><time class="dt-published" datetime="2022-07-02T15:26:21.164Z">July 2, 2022</time></a>.</p><p><a href="https://medium.com/@brianjenney/stop-being-afraid-of-redux-learn-it-the-right-way-tutorial-included-790ecd134451" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

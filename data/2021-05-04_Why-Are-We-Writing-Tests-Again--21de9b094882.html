@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Why Are We Writing Tests Again?</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Why Are We Writing Tests Again?</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Around 6 months ago our team’s test coverage was pretty dismal, hovering somewhere around 0% for most of our front end applications… yeah…
+</section>
+<section data-field="body" class="e-content">
+<section name="1edd" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e799" id="e799" class="graf graf--h3 graf--leading graf--title">Why Are We Writing Tests Again?</h3><figure name="2058" id="2058" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*PvqOV0UFt7oJiFiLMd7X9A.jpeg" data-width="1200" data-height="630" data-is-featured="true" alt="writing unit tests for software applications" src="https://cdn-images-1.medium.com/max/800/1*PvqOV0UFt7oJiFiLMd7X9A.jpeg"></figure><p name="399e" id="399e" class="graf graf--p graf-after--figure">Around 6 months ago our team’s test coverage was pretty dismal, hovering somewhere around 0% for most of our front end applications… yeah, we know. The team had recently switched to using ReactJS, was rapidly expanding and fighting against tight deadlines. Testing was the first thing to go. I mean we have a QA team right?</p><p name="f060" id="f060" class="graf graf--p graf-after--p">Fast forward to now and our test coverage has skyrocketed to around 20% per application! Writing tests certainly isn’t free. There is a lot of overhead and initial work to get unit and end-to-end tests working. So why do it? What are the actual benefits?</p><h4 name="f79f" id="f79f" class="graf graf--h4 graf-after--p">How Does This Work Again?</h4><p name="e3e9" id="e3e9" class="graf graf--p graf-after--h4">Most non-trivial applications will have a few places where the logic is complicated and people are apprehensive about making changes. Last time we changed something there the whole app broke they say. Somewhere there is an excel sheet with a list of 10 scenarios you need to test when you make a change… great. Or worse, just ask Sarah how it works, she wrote it 5 years ago 🤷‍♀.</p><p name="3b8e" id="3b8e" class="graf graf--p graf-after--p">Writing thorough, exhaustive tests for these parts of your app will give you the confidence to refactor. Go ahead and remove that chunk of code with that suspect comment <code class="markup--code markup--p-code">//not sure what this does but it works...</code></p><p name="92de" id="92de" class="graf graf--p graf-after--p">High test coverage frees up your team to experiment and ruthlessly optimize since they know they won’t break existing functionality and can serve as documentation for incoming engineers.</p><h4 name="8c54" id="8c54" class="graf graf--h4 graf-after--p">100% Test Coverage</h4><p name="17e6" id="17e6" class="graf graf--p graf-after--h4">I previously worked on a team where most of our apps maintained 95% test coverage. I would argue that once test coverage gets this high, you end up testing trivial logic and stubbing and mocking so much that many of the tests only serve the purpose of keeping coverage high.</p><p name="7ca7" id="7ca7" class="graf graf--p graf-after--p">The benefit of maintaining a coverage threshold this high is that it really forces people to write tests for the code they commit at the cost of writing superfluous, often useless tests some of the time.</p><p name="149c" id="149c" class="graf graf--p graf-after--p">A more targeted approach would be to identify the critical logic flows within your application and focus on high test coverage there. For example, an e-commerce site might thoroughly test the checkout logic while skipping tests for the product display page. We can easily see if a product image is displayed without writing a test.</p><h4 name="9e17" id="9e17" class="graf graf--h4 graf-after--p">Am I Testing All The Scenarios?</h4><p name="51e2" id="51e2" class="graf graf--p graf-after--h4">Just writing tests isn’t enough. We want to make sure we are testing the things we think we are testing. Are we going down all logical paths? For example if our checkout flow in an ecommerce site has many logical gateways, how can we be sure we are testing them all? We tested that a logged in user with a credit card can complete an order. What about a guest user without a credit card? Guest user with credit card?</p><p name="c848" id="c848" class="graf graf--p graf-after--p">If you are using jest you can simply run <code class="markup--code markup--p-code">jest colllectCoverage</code> to get a visual representation of the number of lines of code covered and logical paths taken during testing. You can find this file at <code class="markup--code markup--p-code">coverage/lcov-report</code></p><h4 name="736e" id="736e" class="graf graf--h4 graf-after--p">Writing Testable Code</h4><p name="f3c5" id="f3c5" class="graf graf--p graf-after--h4">When our team first began writing tests we noticed just how difficult some of our components were to test. I believe that well structured code lends itself to testing. Refactoring code simply to make tests pass is likely a bad idea but at the root of the issue is often a tight coupling between presentational and state logic, stuffing too much logic into swiss-army style components (it’s a button, but also can be a radio button!) or some other undesirable pattern (aka hax) that have slipped into your codebase. How did that get there?😅</p><p name="bcd9" id="bcd9" class="graf graf--p graf-after--p">In a React app, separating your logic for state updates from the presentational layer using the container pattern allows you to easily stub or mock functions passed to dumb components and simply test that they are being called rather than their implementation details.</p><p name="5236" id="5236" class="graf graf--p graf-after--p">Wrapping third-party libraries using the adapter pattern can have the same benefit: instead of testing or mocking the implementation details of a library that you have no control over you can wrap it in an object (or component) that exposes the functionality you care about and can be easily mocked.</p><p name="11a1" id="11a1" class="graf graf--p graf-after--p">Extracting commonly used functions to a separate file makes writing tests for them almost trivial. Testing them by proxy by triggering user actions often results in tests that are more difficult to write and likely more brittle. You want to test that your <code class="markup--code markup--p-code">submitOrder</code> function actually transforms the data to an <code class="markup--code markup--p-code">orderObject</code> but instead you are writing a test where a user clicks a button, then inspecting the payload sent to your api which you are stubbing out.</p><h4 name="22d1" id="22d1" class="graf graf--h4 graf-after--p">You Will Write Tests</h4><p name="925f" id="925f" class="graf graf--p graf-after--h4 graf--trailing">Testing can be a chore. The benefits to it increase at the rate the quality rises. We all know we’re supposed to write tests but it’s important to remember why, otherwise they can become another task that you and your team see little benefit in.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/21de9b094882"><time class="dt-published" datetime="2021-05-04T14:37:22.659Z">May 4, 2021</time></a>.</p><p><a href="https://medium.com/@brianjenney/why-are-we-writing-tests-again-21de9b094882" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

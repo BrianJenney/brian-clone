@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>The Two Array Problems Every Beginner JavaScript Developer Must Know</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">The Two Array Problems Every Beginner JavaScript Developer Must Know</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+You’re learning about JavaScript arrays all wrong.
+</section>
+<section data-field="body" class="e-content">
+<section name="3d74" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d9f2" id="d9f2" class="graf graf--h3 graf--leading graf--title"><strong class="markup--strong markup--h3-strong">The Two Array Problems Every Beginner JavaScript Developer Must Know</strong></h3><figure name="fcca" id="fcca" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*OG8pbyft49-P01U2H7wWsA.jpeg" data-width="5184" data-height="3888" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*OG8pbyft49-P01U2H7wWsA.jpeg"><figcaption class="imageCaption">Wow, you really thought this code would work?</figcaption></figure><p name="02b3" id="02b3" class="graf graf--p graf-after--figure">You’re learning about JavaScript arrays all wrong.</p><p name="9a7c" id="9a7c" class="graf graf--p graf-after--p">For loops, zero-indexing, blah blah blah.</p><p name="b9ec" id="b9ec" class="graf graf--p graf-after--p">But WHY? What makes arrays so damn important?</p><p name="8ea6" id="8ea6" class="graf graf--p graf-after--p">Let me explain:</p><p name="1367" id="1367" class="graf graf--p graf-after--p">Arrays are one of the most common data structures you’ll encounter in JavaScript — and in programming in general. <strong class="markup--strong markup--p-strong">Most data you work with on the web (social media posts, e-commerce products, or API responses) ends up in arrays</strong>, often as arrays of objects. Knowing how to solve problems with arrays is essential.</p><p name="b7af" id="b7af" class="graf graf--p graf-after--p">Let’s break down <strong class="markup--strong markup--p-strong">two common problems</strong> you’ll encounter when working with arrays, their real-world application and how to solve them step-by-step.</p><h3 name="0ff8" id="0ff8" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">1. Counting the Number of Times Something Occurs (Frequency Counter)</strong></h3><p name="64ef" id="64ef" class="graf graf--p graf-after--h3">Imagine you’re analyzing reactions to a social media post about how much JavaScript sucks 🙄</p><p name="0a28" id="0a28" class="graf graf--p graf-after--p">The reactions looks like this 👇</p><pre data-code-block-mode="2" spellcheck="false" data-code-block-lang="javascript" name="2458" id="2458" class="graf graf--pre graf-after--p graf--preV2"><span class="pre--content"><span class="hljs-keyword">const</span> reactions = [“like”, “love”, “like”, “wow”, “like”, “love”];</span></pre><h4 name="188e" id="188e" class="graf graf--h4 graf-after--pre"><strong class="markup--strong markup--h4-strong">The Problem:</strong> How many times does each reaction type occur?</h4><h4 name="034a" id="034a" class="graf graf--h4 graf-after--h4"><strong class="markup--strong markup--h4-strong">The Approach</strong></h4><p name="c42d" id="c42d" class="graf graf--p graf-after--h4">1. Loop through the array and keep track of counts using an object.</p><p name="62d1" id="62d1" class="graf graf--p graf-after--p">2. Check if the reaction already exists in the object. If it does, increment the count. If not, initialize it to 1.</p><h4 name="f92f" id="f92f" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Solution</strong></h4><pre data-code-block-mode="2" spellcheck="false" data-code-block-lang="javascript" name="1ac1" id="1ac1" class="graf graf--pre graf-after--h4 graf--preV2"><span class="pre--content"><span class="hljs-keyword">const</span> frequencyCounter = {};<br /><br /><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> reaction <span class="hljs-keyword">of</span> reactions) {<br />  <span class="hljs-keyword">if</span> (frequencyCounter[reaction]) { <span class="hljs-comment">// we have seen this reaction already</span><br />    frequencyCounter[reaction]++;<br />  } <span class="hljs-keyword">else</span> {<br />    frequencyCounter[reaction] = <span class="hljs-number">1</span>; <span class="hljs-comment">// this is the first time we have seen it</span><br />  }<br />}<br /><br /><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(frequencyCounter); <span class="hljs-comment">// Output: { like: 3, love: 2, wow: 1 }</span></span></pre><h4 name="031e" id="031e" class="graf graf--h4 graf-after--pre"><strong class="markup--strong markup--h4-strong">What’s Happening Here</strong></h4><ol class="postList"><li name="d0a4" id="d0a4" class="graf graf--li graf-after--h4">The object <code class="markup--code markup--li-code">frequencyCounter</code> acts as a storage bin for reaction counts.</li><li name="cc85" id="cc85" class="graf graf--li graf-after--li">Each time you encounter a reaction, you either increment the count (if it exists) or add it to the object (if it doesn’t).</li></ol><h4 name="1605" id="1605" class="graf graf--h4 graf-after--li"><strong class="markup--strong markup--h4-strong">Why This Matters</strong></h4><p name="e113" id="e113" class="graf graf--p graf-after--h4">Frequency counting isn’t just for toy examples:</p><p name="abf8" id="abf8" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Social Media</strong>: Count the number of comments by user or hashtags in a post.</p><p name="3acf" id="3acf" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">E-commerce</strong>: Count the occurrences of each product category in a cart.</p><p name="07ba" id="07ba" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Analytics</strong>: Track how many times a specific error occurs in your logs.</p><h3 name="3eb3" id="3eb3" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">2. Finding the Highest and Lowest Values</strong></h3><p name="e684" id="e684" class="graf graf--p graf-after--h3">Let’s look at a simple list of numbers. For example, the prices of items in a store:</p><pre data-code-block-mode="2" spellcheck="false" data-code-block-lang="javascript" name="00c3" id="00c3" class="graf graf--pre graf-after--p graf--preV2"><span class="pre--content"><span class="hljs-keyword">const</span> prices = [<span class="hljs-number">45</span>, <span class="hljs-number">72</span>, <span class="hljs-number">34</span>, <span class="hljs-number">89</span>, <span class="hljs-number">12</span>];</span></pre><h4 name="a3cb" id="a3cb" class="graf graf--h4 graf-after--pre"><strong class="markup--strong markup--h4-strong">The Problem:</strong> Find the highest and lowest prices… duh</h4><h4 name="0381" id="0381" class="graf graf--h4 graf-after--h4"><strong class="markup--strong markup--h4-strong">The Approach</strong></h4><p name="f333" id="f333" class="graf graf--p graf-after--h4">1. Loop through the array while keeping track of the current highest and lowest values.</p><p name="ed51" id="ed51" class="graf graf--p graf-after--p">2. Compare each price to the stored values, updating them if necessary.</p><h4 name="b7ba" id="b7ba" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Solution</strong></h4><pre data-code-block-mode="2" spellcheck="false" data-code-block-lang="javascript" name="012c" id="012c" class="graf graf--pre graf-after--h4 graf--preV2"><span class="pre--content"><span class="hljs-keyword">const</span> prices = [<span class="hljs-number">45</span>, <span class="hljs-number">72</span>, <span class="hljs-number">34</span>, <span class="hljs-number">89</span>, <span class="hljs-number">12</span>];<br /><br /><span class="hljs-keyword">let</span> highest = prices[<span class="hljs-number">0</span>];<br /><span class="hljs-keyword">let</span> lowest = prices[<span class="hljs-number">0</span>];<br /><br /><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> price <span class="hljs-keyword">of</span> prices) {<br /><br />  <span class="hljs-keyword">if</span> (price &gt; highest) {<br />    highest = price;<br />  }<br /><br />  <span class="hljs-keyword">if</span> (price &lt; lowest) {<br />    lowest = price;<br />  }<br /><br />}<br /><br /><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Highest: <span class="hljs-subst">${highest}</span>, Lowest: <span class="hljs-subst">${lowest}</span>`</span>);<br /><span class="hljs-comment">// Output: Highest: 89, Lowest: 12</span></span></pre><h4 name="6ec7" id="6ec7" class="graf graf--h4 graf-after--pre"><strong class="markup--strong markup--h4-strong">What’s Happening Here</strong></h4><ol class="postList"><li name="6a4d" id="6a4d" class="graf graf--li graf-after--h4">Start by assuming the first value is both the highest and the lowest.</li><li name="c14c" id="c14c" class="graf graf--li graf-after--li">Each time you encounter a price, you check if it’s higher than the current highest or lower than the current lowest and update accordingly.</li></ol><h4 name="40f3" id="40f3" class="graf graf--h4 graf-after--li"><strong class="markup--strong markup--h4-strong">Why This Matters</strong></h4><p name="2858" id="2858" class="graf graf--p graf-after--h4">This isn’t just for classroom exercises:</p><p name="5650" id="5650" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Finance</strong>: Find the highest or lowest stock prices for the day.</p><p name="b317" id="b317" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Gaming</strong>: Identify the top or lowest score in a leaderboard.</p><p name="1064" id="1064" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">E-commerce</strong>: Show the most expensive and least expensive items in a category.</p><h3 name="0ea2" id="0ea2" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">How to Approach Problems Like This</strong></h3><ol class="postList"><li name="4e4d" id="4e4d" class="graf graf--li graf-after--h3"><strong class="markup--strong markup--li-strong">Understand the Problem</strong>: What is the array representing? What is the question asking you to find?</li><li name="8b57" id="8b57" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Break It Down</strong>: Use small, simple steps to manipulate the data and track what you need.</li><li name="c429" id="c429" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Keep It Flexible</strong>: Patterns like frequency counters or finding min/max values are easy to adapt to other real-world use cases or coding challenges.</li></ol><p name="417d" id="417d" class="graf graf--p graf-after--li">These are more than beginner exercises — they’re foundational skills that show up in countless scenarios. Practice them, and soon solving problems with arrays will feel second nature.</p><blockquote name="fd88" id="fd88" class="graf graf--pullquote graf-after--p">If you want to learn JavaScript, how to build in public and jump start your career as a software developer, I can’t think of a better program than <a href="http://dev30.xyz" data-href="http://dev30.xyz" class="markup--anchor markup--pullquote-anchor" rel="noopener" target="_blank">Dev30</a>.</blockquote><blockquote name="be36" id="be36" class="graf graf--pullquote graf-after--pullquote graf--trailing">30 days of writing JavaScript, building cool sh*t and making connections. Way better than any course. <a href="http://dev30.xyz" data-href="http://dev30.xyz" class="markup--anchor markup--pullquote-anchor" rel="noopener" target="_blank">Dev30.xyz</a></blockquote></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/fdafd5499a63"><time class="dt-published" datetime="2024-12-15T04:12:05.301Z">December 15, 2024</time></a>.</p><p><a href="https://medium.com/@brianjenney/the-two-array-problems-every-beginner-javascript-developer-must-know-fdafd5499a63" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

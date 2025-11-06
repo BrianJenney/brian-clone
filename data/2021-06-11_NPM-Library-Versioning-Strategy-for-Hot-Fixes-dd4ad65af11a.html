@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>NPM Library Versioning Strategy for Hot Fixes</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">NPM Library Versioning Strategy for Hot Fixes</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Ahh, your NPM package is finally live. You’ve published your library to the NPM registry for your tens of adoring fans (or maybe just you)…
+</section>
+<section data-field="body" class="e-content">
+<section name="605b" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="bebb" id="bebb" class="graf graf--h3 graf--leading graf--title">NPM Library Versioning Strategy for Hot Fixes</h3><figure name="849f" id="849f" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*zmcfaVg288GtYhoiieVOrw.jpeg" data-width="1000" data-height="558" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*zmcfaVg288GtYhoiieVOrw.jpeg"><figcaption class="imageCaption">Deploying a hot fix version of an npm package on a Friday? No sweat amirite</figcaption></figure><p name="0bbb" id="0bbb" class="graf graf--p graf-after--figure">Ahh, your NPM package is finally live. You’ve published your library to the NPM registry for your tens of adoring fans (or maybe just you) to consume. You’ve been careful to exclude extraneous dependencies from the build and fiddled with webpack for hours to create a truly optimized build. But what about versioning?</p><p name="062e" id="062e" class="graf graf--p graf-after--p">Typically a <code class="markup--code markup--p-code">minor</code> version upgrade, from v1.1.0 to 1.2.0 introduces a non-breaking change like a small feature. A <code class="markup--code markup--p-code">major</code> upgrade, from v1.2.0 to v2.0.0, is usually reserved for breaking changes or non backwards-compatible changes. That leaves bugs, which can be resolved with <code class="markup--code markup--p-code">patch</code> upgrades.</p><p name="8bb7" id="8bb7" class="graf graf--p graf-after--p">This all sounds simple and straightforward enough, except when it isn’t. Developers often work asynchronously so there is a high chance that a library used as a dependency in another app will be a version or 2 behind the most recent version of the library currently being developed. This can lead to very confusing versioning obstacles when issues arise in production and need a hot-fix.</p><p name="0040" id="0040" class="graf graf--p graf-after--p">Let’s look at this scenario: Your company’s Burrito Finder App is using v1.2.0 of the Tinfoil library. Bob has recently wrapped up a ticket and published a new version of Tinfoil, which is now at 1.3.0. Bob’s changes aren’t breaking but they haven’t been fully tested by QA. Sarah is on-call and her phone just buzzed alerting here that a small bug in Tinfoil is not allowing users to click on the Burrito Icon! Rats!</p><p name="792b" id="792b" class="graf graf--p graf-after--p">Sarah looks at Tinfoil and sees the library is currently v.1.3.0 but the production version is at v1.2.0. Bob alerts her that the changes in v1.3.0 are not quite ready for a production release. Luckily Sarah and her team have reserved patch updates for this very reason.</p><p name="b186" id="b186" class="graf graf--p graf-after--p">Sarah simply checks out the library at the version currently in production <code class="markup--code markup--p-code">git checkout tags/v1.2.0</code> and makes a fix. Now she only needs to publish a patch version v1.2.1. This fix can now be safely deployed to production without bringing unvetted changes from the most current version.</p><figure name="83aa" id="83aa" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*C1eHcOGlWawXRULMDJZPsg.png" data-width="1828" data-height="666" src="https://cdn-images-1.medium.com/max/800/1*C1eHcOGlWawXRULMDJZPsg.png"></figure><p name="b744" id="b744" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">TLDR — use patch versions for hot-fixes</strong>. In the chart above, we check out our library at problematic version, apply a fix and release a patch. The patch then gets merged to our most current version of the library and a minor release is published, though 1.3.0 could potentially be re-published with the fix as well.</p><p name="8761" id="8761" class="graf graf--p graf-after--p graf--trailing"><strong class="markup--strong markup--p-strong">Opinions about versioning and git strategies are like elbows</strong>; everyone has a couple… or something like that. This strategy is one of a few I’ve seen and used that’s saved a team from complicated fixes to production issues.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/dd4ad65af11a"><time class="dt-published" datetime="2021-06-11T19:30:12.890Z">June 11, 2021</time></a>.</p><p><a href="https://medium.com/@brianjenney/npm-library-versioning-strategy-for-hot-fixes-dd4ad65af11a" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

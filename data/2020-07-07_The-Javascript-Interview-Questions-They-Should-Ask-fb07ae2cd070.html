@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>The Javascript Interview Questions They Should Ask</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">The Javascript Interview Questions They Should Ask</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Ok — so I’ve done quite a few interviews over the years, probably at least 20 in all. I’ve also interviewed about a dozen candidates…
+</section>
+<section data-field="body" class="e-content">
+<section name="b27d" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="74f8" id="74f8" class="graf graf--h3 graf--leading graf--title">The Javascript Interview Questions They Should Ask</h3><figure name="22bc" id="22bc" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*hm4-39LLQ_Mg06t-2aB94Q.jpeg" data-width="203" data-height="152" src="https://cdn-images-1.medium.com/max/800/1*hm4-39LLQ_Mg06t-2aB94Q.jpeg"><figcaption class="imageCaption">So you say you know Javascript hotshot— how bout you implement Djikstra’s algorithm using Typescript?</figcaption></figure><p name="eef2" id="eef2" class="graf graf--p graf-after--figure">Ok — so I’ve done quite a few interviews over the years, probably at least 20 in all. I’ve also interviewed about a dozen candidates during this time as well and I hate to admit, I’ve fallen in the trap of asking the same basic flavor of Javascript questions I’ve been asked. I think <a href="https://medium.com/@getify" data-href="https://medium.com/@getify" class="markup--anchor markup--p-anchor" target="_blank">Kyle Simpson</a> probably dies a little bit inside each time I’ve asked a candidate to find the duplicate in an array 🤦‍♂.</p><p name="c081" id="c081" class="graf graf--p graf-after--p">Some questions have been posed so often they become trite: finding a duplicate, FizzBuzz, 3sum, 2sum etc. These toy problems can offer some insight into how a candidate approaches a problem but more often than not, they really just show how much time that person has dedicated to studying Leetcode. To be fair, there are some times you’ll need to traverse a tree-like structure or think of an efficient way to store data with constant time look up. I also think that studying data structures and common algorithms is an excellent trait and shows dedication and willingness to learn which are qualities most engineering teams want their members to possess. But let’s get real for a minute here — your day to day work as a JS dev is going to involve a lot less Djikstra and a whole lot more <code class="markup--code markup--p-code">npm install</code></p><p name="0ae2" id="0ae2" class="graf graf--p graf-after--p">What are these tests really looking to ascertain? That the candidate will know enough JS to successfully engage with your codebase? What level is their mastery of Javascript as a whole (do they understand closure, inheritance, functional programming)? or is it to see how well they can communicate their thought process under the awkward circumstance of being in a room with strangers? Maybe some combination of all the above?</p><p name="bd29" id="bd29" class="graf graf--p graf-after--p">Whether it’s Google, Facebook or your company, which probably thinks it is the next Google or Facebook — I’ve seen questions posed during interviews that boil down to being clever with JS while understanding common CS fundamentals or worse, obscure JS concepts that you could easily look up (what happens if you run <code class="markup--code markup--p-code">isNaN === isNaN</code> ). There’s got to be a better way.</p><p name="c6dd" id="c6dd" class="graf graf--p graf-after--p">To get a general sense of how well a person understand’s JS and also how they will approach building something, I think the following questions are a much better indicator of how well someone will do on your typical front-end focused team:</p><ol class="postList"><li name="2cbe" id="2cbe" class="graf graf--li graf-after--p">Using only HTML, CSS and JS, display this array of data on the screen, paginated so only 10 items are visible at a time.</li><li name="670e" id="670e" class="graf graf--li graf-after--li">Let’s make a chart using some library you’ve never used (HighCharts, Victory or D3 if you want to be a jerk) — add some click events if time allows.</li><li name="fb60" id="fb60" class="graf graf--li graf-after--li">For React-centered roles, refactor this class based component using lifecycle methods like <code class="markup--code markup--li-code">componentDidMount or componentDidUnmount</code> to a functional component using hooks</li><li name="2d7f" id="2d7f" class="graf graf--li graf-after--li">Merge these two arrays of objects by matching them another object with the same id:</li></ol><pre name="3d10" id="3d10" class="graf graf--pre graf-after--li">//data 1<br>[<br> {<br>   id: 1,<br>   val: 100<br> },<br> ...<br>]</pre><pre name="ef3c" id="ef3c" class="graf graf--pre graf-after--pre">//data 2<br>[<br> {<br>   id: 1,<br>   name: &#39;Entity 1&#39;<br> },<br> ...<br>]</pre><pre name="bb7f" id="bb7f" class="graf graf--pre graf-after--pre">//result<br>[<br> {<br>   id: 1,<br>   val: 100,<br>   name: &#39;Entity 1&#39;<br>  },<br>  ...<br>]</pre><p name="8c93" id="8c93" class="graf graf--p graf-after--pre">5. Here’s a third party API with a key — create a UI to consume the data from this UI and make it look like this (*shows picture of simple UI to candidate)</p><p name="8246" id="8246" class="graf graf--p graf-after--p">Obviously these suggestions won’t work for all JS developer roles. Perhaps you really do need someone with strong CS fundamentals and expert level understanding of Typescript or some obscure JS framework like Vue 😉 because they will be your first engineering hire or building the initial product using this technology.</p><p name="943a" id="943a" class="graf graf--p graf-after--p">More often than not however, I think challenges based in real world scenarios offer a much better insight to coding ability than if the person can invert a binary tree… though that is impressive as well.</p><figure name="4806" id="4806" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*jcXF2Scfm890IQkQdUVJmA.jpeg" data-width="746" data-height="498" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*jcXF2Scfm890IQkQdUVJmA.jpeg"></figure></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/fb07ae2cd070"><time class="dt-published" datetime="2020-07-07T00:14:21.764Z">July 7, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/the-javascript-interview-questions-they-should-ask-fb07ae2cd070" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

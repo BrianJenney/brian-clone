@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>How To Debug Your Node/Express App Using VS Code</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">How To Debug Your Node/Express App Using VS Code</h1>
+</header>
+<section data-field="body" class="e-content">
+<section name="2f3e" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="486c" id="486c" class="graf graf--h3 graf--leading graf--title">3 Steps To Debug Your Node/Express App Using VS Code Like a Pro</h3><figure name="029f" id="029f" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*g6C9pSWk8cN8uhL2MKPTRw.jpeg" data-width="4898" data-height="3265" src="https://cdn-images-1.medium.com/max/800/1*g6C9pSWk8cN8uhL2MKPTRw.jpeg"><figcaption class="imageCaption">I’ve been told that lack of personal space increases debugging skills</figcaption></figure><p name="549e" id="549e" class="graf graf--p graf-after--figure">The problem with relying on tons of logging in a Node/Express app is that it quickly becomes confusing, especially when dealing with asynchronous logic.</p><p name="9a3a" id="9a3a" class="graf graf--p graf-after--p">Now your console log in that promise is being called out of order or perhaps you logged a deeply nested object and your console only prints <code class="markup--code markup--p-code">[object]</code> . 🥲</p><p name="8d59" id="8d59" class="graf graf--p graf-after--p">You hammer the endpoint with more and more requests, add more console logs. <strong class="markup--strong markup--p-strong">Great now you’ve hit a rate limit from a third party API you were experimenting with.</strong></p><blockquote name="af66" id="af66" class="graf graf--blockquote graf-after--p"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Wanna learn full stack software engineering? Then build stuff and get hired? Join me at </em></strong><a href="http://parsity.io" data-href="http://parsity.io" class="markup--anchor markup--blockquote-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Parsity.io</em></strong></a><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em"> or just grab some free stuff, whatevs</em></strong></blockquote><p name="6308" id="6308" class="graf graf--p graf-after--blockquote">There’s a better way.</p><h4 name="870d" id="870d" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Step 1: Add a Configuration</strong></h4><p name="d6d2" id="d6d2" class="graf graf--p graf-after--h4">Open your NodeJS project in VS Code and run the project from the integrated terminal (this is important or it will not work). Now click on that bug icon on the left side of the screen.</p><figure name="9f64" id="9f64" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*w0DN-1Rej_G5PPo5" data-external-src="https://firebasestorage.googleapis.com/v0/b/typeshare-2027d.appspot.com/o/sMvy9QAYsUe6GJBTaSX4pVbTRFD3%2F-N6YA8E1-P_mtmma1Tb8%2F8iduir?alt=media&amp;token=10ae3b88-4340-41e8-8c0d-711f50eff9f3" src="https://cdn-images-1.medium.com/max/800/0*w0DN-1Rej_G5PPo5"></figure><p name="d397" id="d397" class="graf graf--p graf-after--figure">Click on <code class="markup--code markup--p-code">create a launch.json file</code></p><figure name="8849" id="8849" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*5dyYIXD_Tolt7v6y" data-external-src="https://firebasestorage.googleapis.com/v0/b/typeshare-2027d.appspot.com/o/sMvy9QAYsUe6GJBTaSX4pVbTRFD3%2F-N6YA8E1-P_mtmma1Tb8%2Feb796d?alt=media&amp;token=a506f735-29a6-458f-b509-ebac878809ee" src="https://cdn-images-1.medium.com/max/800/0*5dyYIXD_Tolt7v6y"></figure><p name="341d" id="341d" class="graf graf--p graf-after--figure">Select <code class="markup--code markup--p-code">Node.js</code> ... duh.</p><figure name="543f" id="543f" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*v18fcgefN3fKkbnx" data-external-src="https://firebasestorage.googleapis.com/v0/b/typeshare-2027d.appspot.com/o/sMvy9QAYsUe6GJBTaSX4pVbTRFD3%2F-N6YA8E1-P_mtmma1Tb8%2Fubeedj?alt=media&amp;token=cc29a8e3-7af2-428a-a97c-206034ef09da" src="https://cdn-images-1.medium.com/max/800/0*v18fcgefN3fKkbnx"></figure><p name="1627" id="1627" class="graf graf--p graf-after--figure">Let’s <code class="markup--code markup--p-code">Add Configuration</code> and pick <code class="markup--code markup--p-code">Node.js: Attach to Process</code></p><p name="03b6" id="03b6" class="graf graf--p graf-after--p">This configuration will allow you to pick from a list of processes and choose which one to debug. There are other configurations you can experiment with but <strong class="markup--strong markup--p-strong">I’ve found this option to be the most straightforward</strong>.</p><figure name="1c0c" id="1c0c" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*vnBANqRvn5pV-bbf" data-external-src="https://firebasestorage.googleapis.com/v0/b/typeshare-2027d.appspot.com/o/sMvy9QAYsUe6GJBTaSX4pVbTRFD3%2F-N6YA8E1-P_mtmma1Tb8%2Fwawkmu?alt=media&amp;token=e3713e1e-9431-4e38-8789-f1ca67025695" src="https://cdn-images-1.medium.com/max/800/0*vnBANqRvn5pV-bbf"></figure><h4 name="7169" id="7169" class="graf graf--h4 graf-after--figure"><strong class="markup--strong markup--h4-strong">Step 2: Run the Project in Debug Mode</strong></h4><p name="a23a" id="a23a" class="graf graf--p graf-after--h4">Now we’re finally ready to debug that pesky endpoint!</p><p name="b469" id="b469" class="graf graf--p graf-after--p">Start your project from the integrated terminal.</p><figure name="f583" id="f583" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*aees_u2P2w04ULJS" data-external-src="https://firebasestorage.googleapis.com/v0/b/typeshare-2027d.appspot.com/o/sMvy9QAYsUe6GJBTaSX4pVbTRFD3%2F-N6YA8E1-P_mtmma1Tb8%2Fwkapor?alt=media&amp;token=9434a339-713d-4390-8cc4-5a58b0abb1c4" src="https://cdn-images-1.medium.com/max/800/0*aees_u2P2w04ULJS"></figure><p name="c471" id="c471" class="graf graf--p graf-after--figure">Click the green play icon at the top of the editor while in debug mode (by pressing that bug icon we clicked in the first step). A list of processes will be displayed which you can choose from.</p><figure name="c614" id="c614" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*_88By29fr-aHGrsu.png" data-width="1400" data-height="960" data-external-src="https://miro.medium.com/max/1400/1*IYmRVcWRy_YsSQAcpYqzpw.png" src="https://cdn-images-1.medium.com/max/800/0*_88By29fr-aHGrsu.png"></figure><p name="5a14" id="5a14" class="graf graf--p graf-after--figure">Click on the correct process — in my case it is the top option — and we can set some breakpoints.</p><h4 name="6195" id="6195" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Step 3: Set Breakpoint(s) and Investigate!</strong></h4><p name="08c7" id="08c7" class="graf graf--p graf-after--h4">I’ve set a breakpoint on line 212 of my controller by clicking the line number on the left hand side of the screen.</p><p name="258f" id="258f" class="graf graf--p graf-after--p">This is a perfect opportunity to use breakpoints as I have a rate limit under the free tier of an API and I don’t want to waste my limit with dozens of calls for debugging.</p><figure name="d766" id="d766" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="0*vI-kkzIx1kEikyqJ.png" data-width="1400" data-height="1270" data-external-src="https://miro.medium.com/max/1400/1*tOCKv-07_I1tIaqJ1crqNw.png" src="https://cdn-images-1.medium.com/max/800/0*vI-kkzIx1kEikyqJ.png"></figure><p name="faa6" id="faa6" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Hovering over different variables will let me know their value at the time of execution.</strong> The navigation controls at the top of the screen will allow me to step through the code line by line to see where my issue resides.</p><p name="6c2b" id="6c2b" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">After using this method to debug my NodeJS endpoints I rarely use console logs. </strong>Breakpoints are a documented feature but it’s surprising how many people are unaware of them. Hopefully they save you a day of hair pulling trying to solve that issue on line 163 😉.</p><blockquote name="253f" id="253f" class="graf graf--blockquote graf-after--p graf--trailing"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Wanna learn full stack software engineering? Then build stuff and get hired? Join me at </em></strong><a href="http://parsity.io" data-href="http://parsity.io" class="markup--anchor markup--blockquote-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Parsity.io</em></strong></a><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em"> or just grab some free stuff, whatevs</em></strong></blockquote></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/6efb40180ba4"><time class="dt-published" datetime="2022-07-11T02:27:31.795Z">July 11, 2022</time></a>.</p><p><a href="https://medium.com/@brianjenney/how-to-debug-your-node-express-app-using-vs-code-6efb40180ba4" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

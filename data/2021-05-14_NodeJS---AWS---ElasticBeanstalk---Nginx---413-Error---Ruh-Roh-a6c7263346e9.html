@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>NodeJS + AWS + ElasticBeanstalk + Nginx + 413 Error — Ruh Roh</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">NodeJS + AWS + ElasticBeanstalk + Nginx + 413 Error — Ruh Roh</h1>
+</header>
+<section data-field="body" class="e-content">
+<section name="ac05" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f69a" id="f69a" class="graf graf--h3 graf--leading graf--title">NodeJS + AWS + ElasticBeanstalk + Nginx + 413 Error — Ruh Roh</h3><figure name="ea5f" id="ea5f" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*aUXViccpRmaCMPIn-ZrKhA.jpeg" data-width="1054" data-height="705" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*aUXViccpRmaCMPIn-ZrKhA.jpeg"><figcaption class="imageCaption">Turn it off and then turn it back on? Damn, hadn’t thought of that</figcaption></figure><p name="9f3e" id="9f3e" class="graf graf--p graf-after--figure">But… it worked locally, I pitifully mumbled at my screen. For some reason, the NodeJS API I had recently deployed to production on AWS using ElasticBeanstalk was returning a <code class="markup--code markup--p-code">413 (Request Entity Too Large)</code> when a user attempted to upload an attached file. Without the ability to upload, we basically didn’t have an app!</p><p name="d12c" id="d12c" class="graf graf--p graf-after--p">Luckily, or perhaps not so luckily, the internet is littered with articles suggesting solutions to this common issue. At the root cause is the nginx configuration on the EC2 instance having a limit for incoming requests that is lower than what you are attempting to send over the wire. Going through at least 5 dead ends and high rated answers on Stack Overflow that just didn’t work, I was beginning to wonder whether this was some big joke I was not in on. Could you in fact update your nginx config for a NodeJS app on ElasticBeanstalk?</p><p name="cf0c" id="cf0c" class="graf graf--p graf-after--p">Well, dear reader, you can! Firstly, to test what limit you need to set, you can connect to your EC2 instance using AWS’s GUI and tinker with increasing the body size limit in real time:</p><figure name="89d7" id="89d7" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*p91_irPN0GfIveGLoRnSjw.png" data-width="1626" data-height="1218" src="https://cdn-images-1.medium.com/max/800/1*p91_irPN0GfIveGLoRnSjw.png"></figure><p name="782c" id="782c" class="graf graf--p graf-after--figure">A terminal should appear and you can directly edit the nginx config using vim (your favorite!)</p><p name="43fe" id="43fe" class="graf graf--p graf-after--p">As a refresher once you’re in vim:</p><p name="68ae" id="68ae" class="graf graf--p graf-after--p"><code class="markup--code markup--p-code">i</code> to be able to edit the file</p><p name="8909" id="8909" class="graf graf--p graf-after--p"><code class="markup--code markup--p-code">esc</code> to get out of edit mode</p><p name="1d37" id="1d37" class="graf graf--p graf-after--p"><code class="markup--code markup--p-code">:wq</code> write (save) and quit vim</p><figure name="628c" id="628c" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*o6lu9mT2Z0hxFqOs0N1V1Q.png" data-width="1032" data-height="88" src="https://cdn-images-1.medium.com/max/800/1*o6lu9mT2Z0hxFqOs0N1V1Q.png"></figure><p name="0bfe" id="0bfe" class="graf graf--p graf-after--figure">Now let’s update the config and restart nginx so your machine can use the new limit:</p><figure name="0f4a" id="0f4a" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*TVkjeBaVJMeGBq13o4hrcg.png" data-width="1140" data-height="578" src="https://cdn-images-1.medium.com/max/800/1*TVkjeBaVJMeGBq13o4hrcg.png"></figure><figure name="9703" id="9703" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*-2D13sJaXRwM34pNwRwHuw.png" data-width="1072" data-height="56" src="https://cdn-images-1.medium.com/max/800/1*-2D13sJaXRwM34pNwRwHuw.png"></figure><p name="1dfb" id="1dfb" class="graf graf--p graf-after--figure">After confirming that your new limit does in fact work, it’s time to set this limit in a more sustainable way. The problem with editing it in the machine as we’ve done above is that if the instance autoscales then all changes will be lost.</p><p name="e0d5" id="e0d5" class="graf graf--p graf-after--p">At the root of your NodeJS project create some folders <code class="markup--code markup--p-code">.platform/ngnix/conf.d</code> Now, create a file in <code class="markup--code markup--p-code">conf.d</code> to increase the limit. I will name mine <code class="markup--code markup--p-code">body_limit.conf</code> with the following content:</p><pre name="f0ce" id="f0ce" class="graf graf--pre graf-after--p">client_max_body_size 50M;</pre><p name="bd32" id="bd32" class="graf graf--p graf-after--pre">Redeploy your NodeJS app and connect to the terminal. You should now see your file in the EC2 instance.</p><figure name="60dc" id="60dc" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*xisQ8FWXU2qclyCnS5Rj_g.png" data-width="1128" data-height="174" src="https://cdn-images-1.medium.com/max/800/1*xisQ8FWXU2qclyCnS5Rj_g.png"></figure><p name="2b03" id="2b03" class="graf graf--p graf-after--figure">Take that nginx! Take that 413!</p><p name="1308" id="1308" class="graf graf--p graf-after--p graf--trailing">I am by no means an AWS expert but hopefully if you found yourself in my situation with this particular error, you’ve saved yourself some painful debugging and getting lost in the maze of internet solutions that don’t quite work.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/a6c7263346e9"><time class="dt-published" datetime="2021-05-14T03:18:57.883Z">May 14, 2021</time></a>.</p><p><a href="https://medium.com/@brianjenney/nodejs-aws-elasticbeanstalk-nginx-413-error-ruh-roh-a6c7263346e9" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

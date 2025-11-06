@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>React Testing Library: Writing Tests for Noobs</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">React Testing Library: Writing Tests for Noobs</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+You know you’re supposed to be writing tests. You know this. If you’re a developer using React on the front end and using CRA to bootstrap…
+</section>
+<section data-field="body" class="e-content">
+<section name="2901" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d394" id="d394" class="graf graf--h3 graf--leading graf--title">React Testing Library: Writing Tests for Noobs</h3><figure name="a633" id="a633" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*8Km1Q-WWMI6iyypz9UGaUg.jpeg" data-width="5231" data-height="3487" data-is-featured="true" alt="Developers laughing around a desk" src="https://cdn-images-1.medium.com/max/800/1*8Km1Q-WWMI6iyypz9UGaUg.jpeg"><figcaption class="imageCaption">Testing? Isn’t that what end users are for?</figcaption></figure><p name="9b3e" id="9b3e" class="graf graf--p graf-after--figure">You know you’re supposed to be writing tests. You know this. If you’re a developer using React on the front end and using CRA to bootstrap your application then your app ships with <a href="https://testing-library.com/" data-href="https://testing-library.com/" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">testing-library</a>, React’s suggested testing framework. Now, all you have to do is write some tests!</p><p name="545b" id="545b" class="graf graf--p graf-after--p">If you are completely new to writing tests, any testing framework can be daunting. It can seem like you’re about to double your efforts for each feature you want to ship and now you have the additional cognitive load of understanding the nuances of a testing framework. The testing-library docs leave a lot to be desired in my opinion. I would love to see more real-world examples, but luckily its popularity has made googling any common use case trivial.</p><p name="8a87" id="8a87" class="graf graf--p graf-after--p">So here you are, filled to the brim with excitement about the badass test you’re about to write for your <code class="markup--code markup--p-code">ProductDetail</code> component. It’s a simple enough component that uses some redux state and context value to render a card with the name of the product and the number of items in a user’s cart.</p><figure name="dedd" id="dedd" class="graf graf--figure graf--iframe graf-after--p"><script src="https://gist.github.com/BrianJenney/98fd1f2f951eb638e43410a3cacaa768.js"></script></figure><p name="1331" id="1331" class="graf graf--p graf-after--figure">You run <code class="markup--code markup--p-code">npm test</code> and see a litany of errors. We were attempting to circumvent context and our redux store by directly passing <code class="markup--code markup--p-code">product</code> and <code class="markup--code markup--p-code">cart</code> to our component as props but that just won’t do. Nice try though 😉</p><p name="cfc8" id="cfc8" class="graf graf--p graf-after--p">If only there was a way to inject some default state into our store and use context:</p><figure name="81eb" id="81eb" class="graf graf--figure graf--iframe graf-after--p"><script src="https://gist.github.com/BrianJenney/97c2476c9c8aeac12183b1ed30cfe614.js"></script></figure><p name="bfb0" id="bfb0" class="graf graf--p graf-after--figure">We’ve now added a file <code class="markup--code markup--p-code">testHelpers</code> which allows us to mock the redux store with some default values that can be modified and a higher order component that wraps our element in the <code class="markup--code markup--p-code">BrowserRouter</code> and injects a <code class="markup--code markup--p-code">store</code> .</p><p name="5f1e" id="5f1e" class="graf graf--p graf-after--p">Mocking the value returned from context was as simple as wrapping our component in the provider and hardcoding a value for <code class="markup--code markup--p-code">product</code> .</p><p name="4980" id="4980" class="graf graf--p graf-after--p">You’ll often find setting up a test is the most difficult part of your test. Stubbing external functions, creating a store that matches the data you expect and reconciling any higher order components can all make writing a trivial test like the one above more difficult.</p><p name="501b" id="501b" class="graf graf--p graf-after--p">Taking time to write tests pays off in that you can be confident your component works as expected and gives you the ability to test all sorts of behavior that might be difficult to do in the browser. Those who come after you can refactor this component confidently, as there are tests to ensure they haven’t broken anything.</p><p name="5673" id="5673" class="graf graf--p graf-after--p graf--trailing">Once you get your feet wet with your first tests, level up your game to test different permutations of data without writing a ton of boilerplate code: <a href="https://levelup.gitconnected.com/using-truth-tables-to-write-better-unit-tests-dd187f4a08e6" data-href="https://levelup.gitconnected.com/using-truth-tables-to-write-better-unit-tests-dd187f4a08e6" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">https://levelup.gitconnected.com/using-truth-tables-to-write-better-unit-tests-dd187f4a08e6</a></p></div></div></section><section name="d882" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h4 name="2d1c" id="2d1c" class="graf graf--h4 graf--leading graf--trailing">Am I supposed to know this? Gain the confidence with Javascript you need to excel at work and interviews and learn all the <a href="https://www.amazon.com/Javascript-Wish-Knew-Junior-Developer-ebook/dp/B08P25QLB3/" data-href="https://www.amazon.com/Javascript-Wish-Knew-Junior-Developer-ebook/dp/B08P25QLB3/" class="markup--anchor markup--h4-anchor" rel="noopener" target="_blank">Javascript I Wish I Knew as a Junior Developer</a></h4></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/b4da6a3e3f00"><time class="dt-published" datetime="2020-09-21T21:42:31.748Z">September 21, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/react-testing-library-writing-tests-for-noobs-b4da6a3e3f00" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

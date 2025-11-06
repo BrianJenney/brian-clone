@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Debugging Javascript Code Using the REST Method</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Debugging Javascript Code Using the REST Method</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Not to be confused with RESTful!
+</section>
+<section data-field="body" class="e-content">
+<section name="465e" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="62bb" id="62bb" class="graf graf--h3 graf--leading graf--title">Debugging JavaScript Code Using the REST Method</h3><h4 name="120f" id="120f" class="graf graf--h4 graf-after--h3 graf--subtitle">Not to be confused with RESTful!</h4><figure name="e793" id="e793" class="graf graf--figure graf-after--h4"><img class="graf-image" data-image-id="1*kKrpIZhf4p-HiU4Wfdnp1g.jpeg" data-width="1000" data-height="666" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*kKrpIZhf4p-HiU4Wfdnp1g.jpeg"><figcaption class="imageCaption">They say a power nap can really improve your debugging skills — would 10/10 not recommend doing during a critical issue though 😉</figcaption></figure><p name="8383" id="8383" class="graf graf--p graf-after--figure">It was around midnight on a Thursday when our platform team had finally finished a data migration. It took about 3 hours longer than expected and I had volunteered to be the front end developer counterpart on call to check if everything looked fine on the site after the migration. Easy deal, I thought. But then things took an unexpected turn.</p><p name="caf3" id="caf3" class="graf graf--p graf-after--p">We were all tired from this massive migration and even though I was a spectator for the entirety of it, I was feeling the residual stress and ready to sleep now that we were creeping into the next day. A quick glance over the site showed no obvious errors. Well, except for one. Our real time line chart was no longer working. This is the chart many of our customers proudly displayed in the lobbies of their businesses and executive offices. It looked cool. Not so much when it was flatlining.</p><p name="0207" id="0207" class="graf graf--p graf-after--p">There were now two options: rollback the data migration or figure out the cause of this bug. It was about 12:30AM now and I decided to do what any good developer would do at this time and REST. <strong class="markup--strong markup--p-strong">R</strong>eproduce the bug locally. <strong class="markup--strong markup--p-strong">E</strong>xamine the source code. <strong class="markup--strong markup--p-strong">S</strong>et breakpoints. <strong class="markup--strong markup--p-strong">T</strong>est the fix.</p><h4 name="1e2f" id="1e2f" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Reproduce the Bug</strong></h4><p name="db7e" id="db7e" class="graf graf--p graf-after--h4">This real time chart was fed data via websockets and listened for mentions on Twitter for particular phrases. It was past midnight, so it was very possible that we simply weren’t getting any hits. I fired up my local version of the site, pulling down the code we currently had running in production and used a particularly popular phrase which I was sure would generate some hits. Still nothing. But nothing was expected.</p><p name="e853" id="e853" class="graf graf--p graf-after--p">I opened up the network tab in the chrome developer tools and inspected the incoming messages. We were indeed receiving messages. Ok this was good, though I was secretly hoping this problem was on the platform side. This was certainly a client-side issue.</p><h4 name="e618" id="e618" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Examine the Source Code</strong></h4><p name="4ef6" id="4ef6" class="graf graf--p graf-after--h4">I was not very familiar with this real time chart but we were going to need to get much more acquainted in a short time to remedy this bug. Our production site minified our JavaScript code which made it a bit difficult to read and reason about when inspected. A nice trick to check out a particular file is to use open up the chrome developer tools, click on the sources tab and press <code class="markup--code markup--p-code">command + p</code> — this will open up a file search where you can choose and inspect a certain file.</p><figure name="0d95" id="0d95" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*uBBaXTtcNipH5VTOugicuA.png" data-width="2012" data-height="722" src="https://cdn-images-1.medium.com/max/800/1*uBBaXTtcNipH5VTOugicuA.png"></figure><p name="b210" id="b210" class="graf graf--p graf-after--figure">To prettify the minified code, simply click on the <code class="markup--code markup--p-code">{}</code> icon in the bottom left corner.</p><p name="d6d7" id="d6d7" class="graf graf--p graf-after--p">Luckily I had this project running locally and was able to dig through the code on my machine in its original, human readable form. Hmmm. This chart was simply a presentational component. The data munging took place in our redux code which subscribed to our socket connection. The logic for determining if an incoming message should be displayed was a function that looked at two properties in the message object. If those properties matched, then we would display the data. Double hmmm.</p><h4 name="8f71" id="8f71" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Set Breakpoints</strong></h4><p name="4616" id="4616" class="graf graf--p graf-after--h4">It was now around 1AM and I knew the likely source of this spectacular bug: our redux code and data filtering logic. I’ve seen developers use somewhere north of 20 console logs in their code to debug issues which is an inefficient way to track a bug through JavaScript code. I’ve definitely used this method myself before and it’s confusing and requires lots of refreshing and tinkering with more logs to finally get valuable information.</p><p name="345c" id="345c" class="graf graf--p graf-after--p">Don’t do this. Instead, add a debugger at the source of the error. In this case, I set a breakpoint using the chrome developer tools and stepped through the logic, one line at a time. With the source file open, simply click on the line number where you want to pause execution and wait for this line to trigger your debugger.</p><figure name="cb79" id="cb79" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*XfJ8grsga2nVV71RBxBg5g.png" data-width="2020" data-height="726" src="https://cdn-images-1.medium.com/max/800/1*XfJ8grsga2nVV71RBxBg5g.png"></figure><p name="054c" id="054c" class="graf graf--p graf-after--figure">Another method is to simply add a <code class="markup--code markup--p-code">debugger</code> statement in the code running locally.</p><p name="eaae" id="eaae" class="graf graf--p graf-after--p">Walking through the code, the error was now obvious. Our filtering logic was looking for a <code class="markup--code markup--p-code">profile_id</code> property to be available with a value of <code class="markup--code markup--p-code">DUMMY_PROFILE_ID</code> which did not exist on these incoming messages. After doing some quick git history investigation, I saw a developer had recently changed this logic, which used to check for an empty string to now check for this new value. Interesting. It was now 2AM. I added the fix to our code and our chart appeared to work!</p><p name="55e6" id="55e6" class="graf graf--p graf-after--p">The next hour was spent getting this bug fix through our code pipelines and deployed before most of the offices that used our software opened. At 3AM, the issue was finally resolved and I rode the high that you can only get from fixing a production bug at this hour of night.</p><blockquote name="38d3" id="38d3" class="graf graf--pullquote graf-after--p">Wasn’t there another step in that REST method though?</blockquote><p name="6b83" id="6b83" class="graf graf--p graf-after--pullquote">Dear reader, you are correct.</p><h4 name="744e" id="744e" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">Test the Fix</strong></h4><p name="0815" id="0815" class="graf graf--p graf-after--h4">In my rush to get out our fix, I never really questioned why that developer changed the logic in our redux code. Hey, our real time chart was working, what more proof did I need? Our real time chart was indeed working, but someone noticed that our lesser-used, newer component to display incoming stories in real time was no longer working. Oops.</p><p name="45ab" id="45ab" class="graf graf--p graf-after--p">A simple unit test or more thorough testing of all our real time components would have surfaced this bug but I had tunnel vision and didn’t think of all the other widgets which relied on this real time data and logic. Luckily this chart was much less high profile and a fix could be deployed during normal business hours the following day. To avoid these kind of boomerang tickets or bug fixes that lead to other errors, it’s important to add tests.</p><p name="593d" id="593d" class="graf graf--p graf-after--p graf--trailing">When I hear that there is no time to add tests, I know they’re likely even more important to have. Fixing one customer’s issue while spawning bugs for another set isn’t the kind of resolution you want. Resist the urge to ship code without thorough testing and review. It’s easy to let nerves interfere with judgment. Especially at 3AM.</p></div></div></section><section name="bee5" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="7cb0" id="7cb0" class="graf graf--p graf--leading graf--trailing"><strong class="markup--strong markup--p-strong">Am I supposed to know this? Gain the confidence with JavaScript you need to excel at work and interviews and learn all the </strong><a href="https://www.amazon.com/Javascript-Wish-Knew-Junior-Developer-ebook/dp/B08P25QLB3/" data-href="https://www.amazon.com/Javascript-Wish-Knew-Junior-Developer-ebook/dp/B08P25QLB3/" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">JavaScript I Wish I Knew as a Junior Developer</strong></a></p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/5710bff8a46e"><time class="dt-published" datetime="2020-11-29T14:52:18.586Z">November 29, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/debugging-javascript-code-using-the-rest-method-5710bff8a46e" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

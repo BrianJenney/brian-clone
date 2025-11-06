@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Software Development 101: Just Because it’s Done Doesn’t Mean it’s Done</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Software Development 101: Just Because it’s Done Doesn’t Mean it’s Done</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+It was done! Finally, after days of poring over the code and refining the logic, I was happy to say I’d finally finished the task. The…
+</section>
+<section data-field="body" class="e-content">
+<section name="ca7b" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9a01" id="9a01" class="graf graf--h3 graf--leading graf--title">Software Development 101: Just Because it’s Done Doesn’t Mean it’s Done</h3><figure name="99a3" id="99a3" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*cvz2ZsSl6sRNM0wKuq1f0w.png" data-width="550" data-height="668" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*cvz2ZsSl6sRNM0wKuq1f0w.png"><figcaption class="imageCaption">Ship it!</figcaption></figure><p name="7c66" id="7c66" class="graf graf--p graf-after--figure">It was done! Finally, after days of poring over the code and refining the logic, I was happy to say I’d finally finished the task. The output: a beautiful 100+ line if/else statement! Seriously.</p><p name="2b67" id="2b67" class="graf graf--p graf-after--p">I was about 2 months into my first job as a software developer and recently tasked with porting one of our applications from a legacy code base to our new web app. The company was a moderate-size grocery chain and we needed a way to determine whether or not a store owner could request a refund on a piece of inventory based on a number of factors.</p><p name="48ee" id="48ee" class="graf graf--p graf-after--p">This logic for deciding who did and did not get a refund currently lived amongst scattered documents and in the heads of the accounting department team and was never initialized in the old program so I had to create it from scratch. I spoke with people in the relevant departments to get a clearly defined set of rules. If the company was on the east coast, the rules were different. If the item was a particular variety of meat product, the rules changed. Submitted on a weekend? Yup, there were some rules for that as well. I ended up with a laundry list of one-off scenarios that shaped how much of a refund would be given as well as whether one could even be requested.</p><p name="1d79" id="1d79" class="graf graf--p graf-after--p">The obvious choice (at the time) for deciding who did and did not get a refund was to create this massive conditional expression. I simply translated the logic from my notes directly to this statement. The worst part about this monstrosity is that it worked!</p><p name="1abe" id="1abe" class="graf graf--p graf-after--p">I sent my work to our QA team who tested the logic through the UI but did not inspect the code. It worked! This logic was later released to production and nothing blew up… for a while.</p><p name="411e" id="411e" class="graf graf--p graf-after--p">Inevitably, business rules change. And this particular set of rules that had mostly lived in the heads of our accountants, was especially contested. More than a few store owners complained about being denied refunds through our program and an accountant discovered those complaints had some merit. No big deal, just update the logic, my boss asked.</p><p name="0269" id="0269" class="graf graf--p graf-after--p">Easier said than done. This spaghetti soup of code was like a tower of cards… changing one statement had unintended consequences for the nested if/else statements below it and the order of the statements was important as well — if a condition was met before checking a separate condition, we could return early and incorrectly dole out or reject a submission.</p><p name="ef04" id="ef04" class="graf graf--p graf-after--p">What seemed like a simple update turned out to take literal days. When a senior developer on the team inspected the code to offer some assistance, he was shocked to see the foundation of our logic rested on this mess I had proudly created.</p><p name="6136" id="6136" class="graf graf--p graf-after--p">We spent the next few days doing a complete refactor of my code and incorporated a table-driven logic schema. In general, if you find yourself writing a mess of if/else statements, it’s a signal that you can use an object or a table to inform the logic.</p><figure name="8c09" id="8c09" class="graf graf--figure graf--iframe graf-after--p"><script src="https://gist.github.com/BrianJenney/2bebee57254433820c7b1d4f5674c713.js"></script></figure><blockquote name="f4f4" id="f4f4" class="graf graf--blockquote graf-after--figure">A table-driven method is a scheme that allows you to look up information in a table rather than using logic statements (<em class="markup--em markup--blockquote-em">if</em> and <em class="markup--em markup--blockquote-em">case</em>) to figure it out.</blockquote><p name="8f92" id="8f92" class="graf graf--p graf-after--blockquote">I was a bit embarrassed when I realized how ill-suited my code was to handle making any updates and when compared to our much cleaner table-driven logic, it looked even more juvenile and poorly thought out.</p><p name="6f85" id="6f85" class="graf graf--p graf-after--p">The desire to just be “done” is the hallmark of many junior developers… and a lot of not-so-junior developers. Resisting the urge to ship code just because it works is a discipline you must develop. While your code may run for days or months without obvious errors, there will come a time you need to make a change —constant change is the nature of software development and life (if you want to get deep about it).</p><p name="0f41" id="0f41" class="graf graf--p graf-after--p graf--trailing">Refactoring poorly written logic with tight deadlines or worse, during a critical bug that must be fixed, is a situation no one wants to find themselves in. Taking the time to write reusable, extensible and perhaps most importantly, refactor-able code today will save you so much time and potential embarrassment tomorrow.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/26438034ebb5"><time class="dt-published" datetime="2020-12-22T20:13:43.240Z">December 22, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/software-development-101-just-because-its-done-doesn-t-mean-it-s-done-26438034ebb5" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

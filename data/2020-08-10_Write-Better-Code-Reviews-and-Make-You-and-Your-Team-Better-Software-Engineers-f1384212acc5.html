@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Write Better Code Reviews and Make You and Your Team Better Software Engineers</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Write Better Code Reviews and Make You and Your Team Better Software Engineers</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Our team lead sent me a slack one afternoon after a particularly rough epic release. Nothing had gone according to plan and we were all…
+</section>
+<section data-field="body" class="e-content">
+<section name="f21d" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0e74" id="0e74" class="graf graf--h3 graf--leading graf--title">Write Better Code Reviews and Make You and Your Team Better Software Engineers</h3><figure name="65b6" id="65b6" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*U_zNJQQfZwIulQdBufHoMA.jpeg" data-width="453" data-height="538" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*U_zNJQQfZwIulQdBufHoMA.jpeg"><figcaption class="imageCaption">Strap on your helmet kid, this is gonna be a rough review</figcaption></figure><p name="1f07" id="1f07" class="graf graf--p graf-after--figure">Our team lead sent me a slack one afternoon after a particularly rough epic release. Nothing had gone according to plan and we were all thoroughly chewed out during the demo of these new features. I actually had nothing to do with this particular epic, save for a simple code review. This was a problem.</p><p name="8cdf" id="8cdf" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Hey, I noticed you reviewed this story for the epic” the team lead wrote. Ruh roh. Here I thought I was a blameless bystander in the code disaster but the more he asked me about my review, the more of an active role I could see I had played in this tragic story.</p><p name="432a" id="432a" class="graf graf--p graf-after--p">Ok, it wasn’t that dramatic, but he did walk through my review and basically asked: “How did you miss this stuff?” One of the buttons had the wrong text, and when clicked had some unexpected side effects which weren’t show stopping but undesirable nonetheless. Clicking into a modal led to the wrong page. Hmmm, how did I let all these things get by me?</p><p name="5696" id="5696" class="graf graf--p graf-after--p">I resolved from that moment to get better at code reviews and avoid having something that embarrassing from happening again. If a bug slipped through on my watch, I wanted to confidently say I had checked all the scenarios I could think of and given a thorough review. Luckily I had a couple team members who stood out as reviewers that I could learn from.</p><p name="22fa" id="22fa" class="graf graf--p graf-after--p">What made them so gotdamn good at code reviews?</p><h4 name="563f" id="563f" class="graf graf--h4 graf-after--p">Time</h4><p name="44ae" id="44ae" class="graf graf--p graf-after--h4">Maybe you’re knee deep in a complex ticket with the clock ticking against you. Perhaps your co-worker needs this review done immediately because they want to release it for a hot-fix. Oh, Sarah did this ticket? She’s like the best coder I’ve ever met, I’m sure this is correct.</p><p name="4c81" id="4c81" class="graf graf--p graf-after--p">Sound the buzzer — you’re about to foul out on this code review. When time is of the essence, it’s even more important to review the code thoroughly. Without good reviews, code eventually devolves, decays and can become barely usable or things just slip by you that eventually get released only to cause stress-inducing hot-fixes on Friday afternoons.</p><p name="7547" id="7547" class="graf graf--p graf-after--p">Yes code reviews take time, but you know what takes more time? Massive refactors, rewrites and writing spaghetti-code under duress. This same argument can be applied towards tests. You say you don’t have time to test/review which means it’s even more important to make time to test and review.</p><h4 name="4d2d" id="4d2d" class="graf graf--h4 graf-after--p">Code Looks Fine</h4><p name="cff5" id="cff5" class="graf graf--p graf-after--h4">This ticket is pretty simple, I’ll just peruse the code real quick and look for any glaring errors. I’m embarrassed to admit this is how I did most of the code reviews early in my career. I mean, they call it a “code” review and testing things in the browser is QA’s job… right?</p><p name="46fe" id="46fe" class="graf graf--p graf-after--p">I noticed the best reviewers on my team would often reject my ticket before even looking at the code. They were doing their own version of QA before inspecting my awful naming conventions or pointing out that I’d left a profanity filled comment on line 76. Why check out the code if the feature doesn’t work?</p><p name="33b8" id="33b8" class="graf graf--p graf-after--p">Testing in the browser should be rough, with no holds barred. Console open, checking for warnings, errors or any indication that something may be awry even if the expected result is achieved. Only then should the code be reviewed.</p><h4 name="9d5d" id="9d5d" class="graf graf--h4 graf-after--p">Feature Works Fine</h4><p name="0342" id="0342" class="graf graf--p graf-after--h4">The inverse of the mistake above is to only check the browser and just gloss over the code. The review you are writing should ideally be a conversation between you and the other developer. If something looks like it could be done better style-wise or to increase efficiency then it should be done.</p><p name="d2d7" id="d2d7" class="graf graf--p graf-after--p">Failing to highlight areas to DRY up code and follow general as well as team specific best practices eventually lead to brittle, lame code and technical debt which will slowly strangle progress.</p><h4 name="76f6" id="76f6" class="graf graf--h4 graf-after--p">Just Do This</h4><p name="be6c" id="be6c" class="graf graf--p graf--startsWithDoubleQuote graf-after--h4">“Do this” my reviewer wrote in response to a poorly written function I had scribed. Umm, ok, cool. But why?</p><p name="8ffa" id="8ffa" class="graf graf--p graf-after--p">Writing is a funny thing. That comment you put on your reviewee’s PR doesn’t have the benefit of your cheery voice or the ability to flesh out your monosyllabic demands. Give your reviewee some respect dammit!</p><p name="4b93" id="4b93" class="graf graf--p graf-after--p">If something should be changed, offer a suggestion, perhaps a link to an article or site that supports your position and maybe even a code snippet if you feel so inclined.</p><p name="ad6b" id="ad6b" class="graf graf--p graf-after--p">All your comments don’t need to offer criticism or advice. If there is something your reviewee did well, point that out! Especially if they have a lot of refactoring to do 😉.</p><h4 name="0c06" id="0c06" class="graf graf--h4 graf-after--p">Now, Just Do It</h4><p name="fee9" id="fee9" class="graf graf--p graf-after--h4 graf--trailing">Being a valuable member on a software team isn’t always about who can write the most elegant code or crank through tickets at break-neck speed. I never prided myself on being a detail oriented person but code reviews helped me acquire more of this trait than I previously had and also sparked a lot of great discussions with team members I might not normally interact with. Forget the excuses, set aside time and watch how much your team can improve if everyone respects the art of the review.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@brianjenney" class="p-author h-card">Brian Jenney</a> on <a href="https://medium.com/p/f1384212acc5"><time class="dt-published" datetime="2020-08-10T03:22:04.184Z">August 10, 2020</time></a>.</p><p><a href="https://medium.com/@brianjenney/write-better-code-reviews-and-make-you-and-your-team-better-software-engineers-f1384212acc5" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on October 30, 2025.</p></footer></article></body></html>

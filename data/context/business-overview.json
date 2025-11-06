@@ -1,0 +1,80 @@
+{
+  "business_name": "Brian's Tech Education Platform",
+  "type": "business_context",
+  "last_updated": "2025-11-05",
+  "mission": "Help working professionals transition into tech careers through practical, time-efficient learning paths",
+  "target_audience": {
+    "primary": "Career changers (25-40 years old)",
+    "demographics": {
+      "age_range": "28-38",
+      "typical_background": "Professional with 5-10 years in another field",
+      "constraints": "Limited time (1-3 hours/day), family obligations, financial pressure",
+      "learning_style": "Practical, structured, efficiency-focused"
+    },
+    "personas": ["marcus-persona"]
+  },
+  "value_proposition": {
+    "core_message": "Clear, proven roadmap from beginner to hired developer without quitting your job",
+    "differentiation": [
+      "No hype or unrealistic promises",
+      "Respects time constraints of working professionals",
+      "Leverages existing professional experience",
+      "Focus on practical skills over theory",
+      "Real projects, not tutorial hell"
+    ]
+  },
+  "content_pillars": [
+    {
+      "pillar": "Career Change Strategy",
+      "description": "Roadmaps, timelines, and realistic expectations for transitioning to tech",
+      "topics": ["Learning paths", "Time management", "Portfolio building", "Job search strategy"]
+    },
+    {
+      "pillar": "Technical Education",
+      "description": "Practical coding tutorials focused on real-world applications",
+      "topics": ["Web development", "JavaScript/React", "Backend basics", "Testing", "Architecture"]
+    },
+    {
+      "pillar": "Professional Development",
+      "description": "Soft skills and career advice for developers",
+      "topics": ["Problem-solving", "Communication", "Code reviews", "Working in teams"]
+    },
+    {
+      "pillar": "Success Stories",
+      "description": "Real examples of career changers who successfully transitioned",
+      "topics": ["Case studies", "Interviews", "Lessons learned", "Timeline breakdowns"]
+    }
+  ],
+  "brand_voice": {
+    "tone": "Professional peer, transparent, respectful",
+    "characteristics": [
+      "Direct and honest",
+      "No unnecessary hype",
+      "Empathetic to constraints",
+      "Practical over theoretical",
+      "Respect for existing experience"
+    ],
+    "avoid": [
+      "Condescending beginner language",
+      "Unrealistic promises",
+      "Excessive motivation/inspiration",
+      "Ignoring real obstacles"
+    ]
+  },
+  "content_guidelines": {
+    "article_structure": [
+      "Hook with relatable problem",
+      "Acknowledge real challenges",
+      "Provide actionable solution",
+      "Give realistic timeline/expectations",
+      "Include next steps"
+    ],
+    "video_structure": [
+      "Start with the 'why' (business context)",
+      "Show the 'what' (concept/solution)",
+      "Demonstrate the 'how' (practical example)",
+      "Summarize key takeaways",
+      "Provide next learning steps"
+    ]
+  }
+}

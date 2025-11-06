@@ -1,0 +1,166 @@
+{
+  "name": "Marcus Rivera",
+  "type": "target_audience_persona",
+  "category": "career_changer",
+  "last_updated": "2025-11-05",
+  "persona": {
+    "basics": {
+      "age": 34,
+      "family": "Married, 18-month-old daughter",
+      "current_job": "Middle school math teacher (8 years)",
+      "learning_time": "1-2 hours after everyone's asleep",
+      "financial_situation": "Mortgage, single income pressure"
+    },
+    "deep_desires": [
+      {
+        "desire": "Financial stability and growth",
+        "reason": "Teaching salary isn't enough for growing family"
+      },
+      {
+        "desire": "Future-proof career",
+        "reason": "Wants skills that won't be automated away"
+      },
+      {
+        "desire": "Intellectual challenge",
+        "reason": "Craves problem-solving that uses his analytical mind"
+      },
+      {
+        "desire": "Professional respect",
+        "reason": "Tired of being undervalued as 'just a teacher'"
+      },
+      {
+        "desire": "Time freedom",
+        "reason": "Dreams of remote work flexibility"
+      },
+      {
+        "desire": "Legacy for his daughter",
+        "reason": "Wants to model reinvention and growth"
+      }
+    ],
+    "major_obstacles": [
+      {
+        "obstacle": "Analysis Paralysis",
+        "description": "Overwhelmed by endless course options and doesn't know which path to take"
+      },
+      {
+        "obstacle": "Time Constraints",
+        "description": "Full-time job + family = only 1-2 hours/day for learning"
+      },
+      {
+        "obstacle": "Financial Pressure",
+        "description": "Can't afford expensive bootcamps or quit job to learn"
+      },
+      {
+        "obstacle": "Tutorial Trap",
+        "description": "Gets stuck completing courses but can't build real projects"
+      },
+      {
+        "obstacle": "Age Discrimination Fears",
+        "description": "Worried about competing with younger developers"
+      },
+      {
+        "obstacle": "Isolation",
+        "description": "Learning alone without peers or mentors who understand"
+      }
+    ],
+    "internal_voice": [
+      "Am I too old to start over?",
+      "Can I really compete with 22-year-olds?",
+      "I don't have time to waste on the wrong path",
+      "I can't afford to fail - I have a family",
+      "Maybe I should have done this 10 years ago",
+      "Am I being irresponsible chasing this dream?"
+    ],
+    "searching_for": [
+      "A proven, linear roadmap - Clear steps from beginner to hired developer",
+      "Time-efficient learning - Maximum progress in minimal available time",
+      "Real-world relevance - Skills that actually matter for getting hired",
+      "Community of peers - Other career changers who understand his situation",
+      "Mentorship from success stories - Proof that the transition is actually possible",
+      "Validation of experience - How his teaching skills transfer to tech"
+    ],
+    "emotional_landscape": {
+      "urgency": "Time pressure to make this career change work before it's too late",
+      "overwhelm": "Too many choices, not enough clear guidance on the right path",
+      "guilt": "Time away from family vs. investing in their future",
+      "fear": "Of failure, of wasting time, of not being good enough",
+      "determination": "Willing to sacrifice short-term comfort for long-term gain",
+      "isolation": "Learning alone without peers or mentors to guide him"
+    },
+    "learning_journey": [
+      {
+        "phase": 1,
+        "name": "Inspiration Phase",
+        "description": "Sees coding success stories, gets excited about possibilities"
+      },
+      {
+        "phase": 2,
+        "name": "Overwhelm Phase",
+        "description": "Discovers hundreds of courses, doesn't know where to start"
+      },
+      {
+        "phase": 3,
+        "name": "Tutorial Hell",
+        "description": "Completes FreeCodeCamp, Codecademy but can't build anything real"
+      },
+      {
+        "phase": 4,
+        "name": "Confidence Crisis",
+        "description": "Doubts his abilities, compares himself to younger learners"
+      },
+      {
+        "phase": 5,
+        "name": "Seeking Guidance",
+        "description": "Desperately looking for clear roadmap and mentorship"
+      }
+    ],
+    "content_triggers": {
+      "hook_words": [
+        "Career change roadmap",
+        "Proven path",
+        "Learn while working",
+        "No BS approach",
+        "Real projects",
+        "Working professionals",
+        "Teaching experience transfers",
+        "Time-efficient",
+        "Practical skills"
+      ],
+      "turnoff_words": [
+        "Learn in 30 days",
+        "Quit your job",
+        "Anyone can learn",
+        "Easy money",
+        "Expensive bootcamp",
+        "Just follow your passion"
+      ]
+    }
+  },
+  "content_strategy": {
+    "video_tone": [
+      "Speak to him as a professional peer, not a beginner",
+      "Acknowledge the real challenges and time constraints",
+      "Be transparent about realistic timelines",
+      "Show respect for his current career experience"
+    ],
+    "content_themes": [
+      "Clear, linear learning paths",
+      "How teaching skills transfer to coding",
+      "Learning efficiently with limited time",
+      "Real projects over endless tutorials"
+    ],
+    "video_formats": [
+      "Career changer success stories",
+      "What to learn vs. what to skip",
+      "Building your first real project",
+      "Time management for busy learners"
+    ],
+    "avoid": [
+      "Don't minimize the time investment",
+      "Don't promise unrealistic outcomes",
+      "Don't ignore family/financial pressures",
+      "Don't treat all learners the same"
+    ]
+  },
+  "key_insight": "Marcus doesn't need inspiration or motivation—he needs a clear, proven roadmap that respects his time constraints and leverages his existing professional experience. He values transparency over hype."
+}
