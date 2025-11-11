@@ -63,44 +63,6 @@ export default function Home() {
 						{activeTab === 'search' && <SearchDeleteUI />}
 					</div>
 				</div>
-
-				{/* Info Section */}
-				<div className='mt-8 bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-6'>
-					<h2 className='text-xl font-semibold mb-3 text-white'>
-						Features
-					</h2>
-					<div className='grid md:grid-cols-3 gap-6'>
-						<div>
-							<h3 className='font-medium text-blue-400 mb-2'>
-								AI Chat Assistant
-							</h3>
-							<p className='text-sm text-gray-300'>
-								Interact with GPT-5 to search content, generate
-								new pieces, and upload directly through
-								conversation.
-							</p>
-						</div>
-						<div>
-							<h3 className='font-medium text-blue-400 mb-2'>
-								Smart Content Upload
-							</h3>
-							<p className='text-sm text-gray-300'>
-								Upload transcripts, articles, and posts with
-								automatic chunking and 512-dimensional
-								embeddings.
-							</p>
-						</div>
-						<div>
-							<h3 className='font-medium text-blue-400 mb-2'>
-								Search & Management
-							</h3>
-							<p className='text-sm text-gray-300'>
-								Semantic search across all content types with
-								bulk delete capabilities for easy management.
-							</p>
-						</div>
-					</div>
-				</div>
 			</div>
 		</main>
 	);

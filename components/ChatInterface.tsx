@@ -4,6 +4,8 @@ import { useChat, Chat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useRef, useEffect, useState } from 'react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatInterface() {
 	const { messages, sendMessage, status, error } = useChat({
@@ -11,7 +13,6 @@ export default function ChatInterface() {
 			api: '/api/chat',
 		}),
 	});
-	console.log('messages', messages);
 
 	const [input, setInput] = useState('');
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,13 @@ export default function ChatInterface() {
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	};
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setInput(e.target.value);
+		// Auto-resize textarea
+		e.target.style.height = 'auto';
+		e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
 	};
 
 	useEffect(() => {
@@ -65,7 +73,7 @@ export default function ChatInterface() {
 							I can help you write transcripts, articles, and
 							posts in your style.
 						</p>
-						<div className='mt-4 text-left max-w-md mx-auto space-y-2 text-xs'>
+						<div className='mt-4 text-left max-w-md mx-auto space-y-2'>
 							<p className='font-medium'>Try asking me to:</p>
 							<ul className='list-disc list-inside space-y-1 text-gray-400'>
 								<li>Search through your existing content</li>
@@ -101,15 +109,149 @@ export default function ChatInterface() {
 							</div>
 
 							{/* Message Content */}
-							<div className='whitespace-pre-wrap text-sm'>
-								{message.parts.map((part) => {
-									if (part.type === 'text') {
+							<div className='text-sm'>
+								{message.parts.map((part, partIndex) => {
+									if (part.type === 'tool-result') {
 										return (
-											<div key={`${message.id}-text`}>
-												{part.text}
+											<div
+												key={`${message.id}-tool-result-${partIndex}`}
+											>
+												{part.toolCallId}
 											</div>
 										);
 									}
+									if (part.type === 'dynamic-tool') {
+										return (
+											<div
+												key={`${message.id}-tool-${partIndex}`}
+											>
+												{part.toolName}
+											</div>
+										);
+									}
+									if (part.type === 'text') {
+										return (
+											<div
+												key={`${message.id}-text-${partIndex}`}
+											>
+												{message.role ===
+												'assistant' ? (
+													<ReactMarkdown
+														remarkPlugins={[
+															remarkGfm,
+														]}
+														className='prose prose-invert prose-sm max-w-none'
+														components={{
+															h1: ({
+																node,
+																...props
+															}) => (
+																<h1
+																	className='text-xl font-bold mt-4 mb-2'
+																	{...props}
+																/>
+															),
+															h2: ({
+																node,
+																...props
+															}) => (
+																<h2
+																	className='text-lg font-bold mt-3 mb-2'
+																	{...props}
+																/>
+															),
+															h3: ({
+																node,
+																...props
+															}) => (
+																<h3
+																	className='text-base font-bold mt-2 mb-1'
+																	{...props}
+																/>
+															),
+															p: ({
+																node,
+																...props
+															}) => (
+																<p
+																	className='mb-2 last:mb-0'
+																	{...props}
+																/>
+															),
+															ul: ({
+																node,
+																...props
+															}) => (
+																<ul
+																	className='list-disc list-inside mb-2 space-y-1'
+																	{...props}
+																/>
+															),
+															ol: ({
+																node,
+																...props
+															}) => (
+																<ol
+																	className='list-decimal list-inside mb-2 space-y-1'
+																	{...props}
+																/>
+															),
+															li: ({
+																node,
+																...props
+															}) => (
+																<li
+																	className='ml-4'
+																	{...props}
+																/>
+															),
+															code: ({
+																node,
+																inline,
+																...props
+															}) =>
+																inline ? (
+																	<code
+																		className='bg-gray-800 px-1 py-0.5 rounded text-blue-300'
+																		{...props}
+																	/>
+																) : (
+																	<code
+																		className='block bg-gray-800 p-2 rounded my-2 overflow-x-auto'
+																		{...props}
+																	/>
+																),
+															blockquote: ({
+																node,
+																...props
+															}) => (
+																<blockquote
+																	className='border-l-4 border-gray-500 pl-4 my-2 italic'
+																	{...props}
+																/>
+															),
+															a: ({
+																node,
+																...props
+															}) => (
+																<a
+																	className='text-blue-400 hover:underline'
+																	{...props}
+																/>
+															),
+														}}
+													>
+														{part.text}
+													</ReactMarkdown>
+												) : (
+													<div className='whitespace-pre-wrap'>
+														{part.text}
+													</div>
+												)}
+											</div>
+										);
+									}
+									return null;
 								})}
 							</div>
 						</div>
@@ -152,11 +294,24 @@ export default function ChatInterface() {
 				className='flex gap-2'
 			>
 				<div className='flex-1 flex gap-2'>
-					<input
+					<textarea
 						value={input}
-						onChange={(e) => setInput(e.target.value)}
-						placeholder='Type or use voice...'
-						className='flex-1 px-4 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400'
+						onChange={handleInputChange}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' && !e.shiftKey) {
+								e.preventDefault();
+								if (input.trim()) {
+									sendMessage({ text: input });
+									setInput('');
+									resetTranscript();
+									// Reset textarea height
+									e.currentTarget.style.height = 'auto';
+								}
+							}
+						}}
+						placeholder='Type or use voice... (Shift+Enter for new line)'
+						rows={1}
+						className='flex-1 px-4 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400 resize-none overflow-y-auto max-h-32'
 					/>
 					{isSupported && (
 						<button

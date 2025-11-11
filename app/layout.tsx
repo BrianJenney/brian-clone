@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
 	title: 'Article Trainer',
 	description: 'Train AI to write articles in your style',
+	icons: {
+		icon: '/brain.svg',
+	},
 };
 
 export default function RootLayout({

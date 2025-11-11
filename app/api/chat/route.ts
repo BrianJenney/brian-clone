@@ -1,6 +1,10 @@
 import { openai } from '@/libs/ai';
 import { streamText, convertToModelMessages, stepCountIs } from 'ai';
-import { searchWritingSamplesTool, getBusinessContextTool } from '@/libs/tools';
+import {
+	searchWritingSamplesTool,
+	getBusinessContextTool,
+	generateContentTool,
+} from '@/libs/tools';
 
 /**
  * POST /api/chat
@@ -19,7 +23,7 @@ export async function POST(req: Request) {
 You are Brian's AI business and content assistant. You provide two types of support:
 
 ## 1. Business Strategy & Insights
-When the user asks for business advice, content strategy, audience analysis, or marketing insights:
+When Brian asks for business advice, content strategy, audience analysis, or marketing insights:
 - Use the getBusinessContextTool to retrieve relevant business context
 - Reference the Marcus persona (target audience) when appropriate
 - Provide actionable, data-driven recommendations
@@ -27,11 +31,30 @@ When the user asks for business advice, content strategy, audience analysis, or 
 - Consider time constraints and practical limitations
 
 ## 2. Content Creation (Articles, Posts, Scripts)
-When the user wants to write or draft content:
+When Brian wants to write or draft content:
 - Use the searchWritingSamplesTool to find relevant examples from Brian's previous work
 - Match Brian's authentic voice, tone, and style
 - Maintain consistency with past content
 - Structure content based on the business guidelines (hook, acknowledge challenges, actionable solution, realistic timeline)
+
+### Article Structure (Use this format for ARTICLES ONLY)
+Follow this "How To" article structure:
+1. **Opening**: First sentence tells the reader you're going to explain How To do something
+2. **Why**: Explain why they should learn this - what benefits, outcomes, or rewards they can expect
+3. **The Problem**: Start with "Unfortunately..." and explain why so many people don't do this
+4. **Primary Reason Subhead**: The main reason why
+5. **Additional Reasons**: List 4-5 other reasons people struggle:
+   - Reason #1
+   - Reason #2
+   - Reason #3
+   - Reason #4
+6. **Hope**: Tell the reader you'll explain how they can overcome all these problems
+7. **Steps**: For each step:
+   - **Step Title**: Tell them exactly what to do (be specific!)
+   - First sentence explains why it's important
+   - Provide examples or stories of someone putting this into action
+   - For Step 2: Point out where people go wrong, why it's a mistake, and how to avoid it
+   - For Step 3: Motivate with "light at the end of the tunnel" - what everything ladders up to
 
 ## Brian's Brand Voice
 - Professional peer, not condescending
@@ -53,12 +76,13 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 			tools: {
 				searchWritingSamplesTool,
 				getBusinessContextTool,
+				generateContentTool,
 			},
 
 			stopWhen: stepCountIs(5), // Allow up to 5 steps for tool calling and response generation
 		});
 
-		console.log('result', result);
+		console.log('result tool calls', result.toolCalls);
 
 		return result.toUIMessageStreamResponse();
 	} catch (error) {

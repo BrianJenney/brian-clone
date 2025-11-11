@@ -39,14 +39,3 @@ export async function initializeCollection(
 		});
 	}
 }
-
-/**
- * Initialize all collections
- */
-export async function initializeAllCollections(): Promise<void> {
-	await Promise.all([
-		initializeCollection(COLLECTIONS.TRANSCRIPTS),
-		initializeCollection(COLLECTIONS.ARTICLES),
-		initializeCollection(COLLECTIONS.POSTS),
-	]);
-}

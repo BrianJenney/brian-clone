@@ -61,9 +61,19 @@ export const searchWritingSamplesTool = tool({
 			const flatResults = allResults.flat();
 			flatResults.sort((a, b) => b.score - a.score);
 
-			console.log('flatResults', flatResults);
+			const topResults = flatResults.slice(0, limit);
 
-			return flatResults.slice(0, limit).join('\n\n---\n\n');
+			// Format results with metadata for better context
+			const formattedResults = topResults
+				.map((result, index) => {
+					return `Example ${index + 1} (${
+						result.contentType
+					}, score: ${result.score.toFixed(3)}):
+${result.text}`;
+				})
+				.join('\n\n---\n\n');
+
+			return formattedResults || 'No relevant writing samples found.';
 		} catch (error) {
 			return 'Error searching content';
 		}
