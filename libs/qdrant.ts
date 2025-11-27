@@ -9,7 +9,6 @@ export const qdrantClient = new QdrantClient({
 
 // Collection names for different content types
 export const COLLECTIONS = {
-	TRANSCRIPTS: 'brian-transcripts',
 	ARTICLES: 'brian-articles',
 	POSTS: 'brian-posts',
 } as const;

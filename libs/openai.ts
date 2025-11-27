@@ -34,26 +34,3 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 		throw error;
 	}
 }
-
-// Helper function to generate text completions
-export async function generateCompletion(
-	prompt: string,
-	systemMessage: string = 'You are a helpful writing assistant that mimics the writing style of provided examples.'
-): Promise<string> {
-	try {
-		const response = await openai.chat.completions.create({
-			model: 'gpt-4o',
-			messages: [
-				{ role: 'system', content: systemMessage },
-				{ role: 'user', content: prompt },
-			],
-			temperature: 0.7,
-			max_tokens: 2000,
-		});
-
-		return response.choices[0].message.content || '';
-	} catch (error) {
-		console.error('Error generating completion:', error);
-		throw error;
-	}
-}

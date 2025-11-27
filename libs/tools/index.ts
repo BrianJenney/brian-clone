@@ -5,7 +5,7 @@
  * Each tool is defined separately for better organization and maintainability.
  */
 
-export { searchWritingSamplesTool } from "./search-content";
-export { getBusinessContextTool } from "./get-business-context";
-export { generateContentTool } from "./generate-content";
-export { uploadContentTool } from "./upload-content";
+export { searchWritingSamplesTool } from './search-content';
+export { getBusinessContextTool } from './get-business-context';
+export { fetchTemplatesTool } from './fetch-templates';
+export { generatePostFromTemplateTool } from './generate-post-from-template';

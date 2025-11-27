@@ -22,11 +22,7 @@ export const searchWritingSamplesTool = tool({
 		try {
 			const queryEmbedding = await generateEmbedding(query);
 
-			const collectionsToSearch = contentTypes || [
-				'transcript',
-				'article',
-				'post',
-			];
+			const collectionsToSearch = contentTypes || ['article', 'post'];
 
 			const searchPromises = collectionsToSearch.map(
 				async (contentType) => {

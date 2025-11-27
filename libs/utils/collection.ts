@@ -7,7 +7,8 @@ import { COLLECTIONS, CollectionName } from "@/libs/qdrant";
 export function getCollectionName(contentType: ContentType): CollectionName {
   switch (contentType) {
     case "transcript":
-      return COLLECTIONS.TRANSCRIPTS;
+      // Transcripts are stored in articles collection
+      return COLLECTIONS.ARTICLES;
     case "article":
       return COLLECTIONS.ARTICLES;
     case "post":

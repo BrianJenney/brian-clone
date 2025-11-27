@@ -103,7 +103,6 @@ export default function SearchDeleteUI() {
 		setDeleteMessage(null);
 
 		try {
-			// Group IDs by collection type
 			const idsByCollection = new Map<ContentType, (string | number)[]>();
 
 			results.forEach((result) => {

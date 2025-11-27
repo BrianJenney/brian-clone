@@ -7,10 +7,18 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+type ChatMode = 'standard' | 'contentGen';
+
 export default function ChatInterface() {
+	const [chatMode, setChatMode] = useState<ChatMode>('standard');
+	const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [generationError, setGenerationError] = useState<string | null>(null);
+
 	const { messages, sendMessage, status, error } = useChat({
 		transport: new DefaultChatTransport({
-			api: '/api/chat',
+			api:
+				chatMode === 'standard' ? '/api/chat' : '/api/generate-content',
 		}),
 	});
 
@@ -32,7 +40,6 @@ export default function ChatInterface() {
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setInput(e.target.value);
-		// Auto-resize textarea
 		e.target.style.height = 'auto';
 		e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
 	};
@@ -56,15 +63,121 @@ export default function ChatInterface() {
 		}
 	};
 
+	const handleGenerateContent = async (message: string) => {
+		try {
+			setIsGenerating(true);
+			setGenerationError(null);
+			setGeneratedPosts([]);
+
+			const response = await fetch('/api/generate-content', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message }),
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to generate content');
+			}
+
+			const data = await response.json();
+
+			if (data.success && data.posts) {
+				setGeneratedPosts(data.posts);
+			} else {
+				throw new Error(data.message || 'Failed to generate posts');
+			}
+		} catch (error) {
+			console.error('Content generation error:', error);
+			setGenerationError(
+				error instanceof Error ? error.message : 'Unknown error'
+			);
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!input.trim()) return;
+
+		if (chatMode === 'contentGen') {
+			handleGenerateContent(input);
+		} else {
+			sendMessage({ text: input });
+		}
+
+		setInput('');
+		resetTranscript();
+	};
+
+	console.log({ messages });
+
 	return (
 		<div className='flex flex-col h-[calc(100vh-300px)] min-h-[400px] max-h-[600px] space-y-4'>
-			<h2 className='text-xl sm:text-2xl font-bold text-white'>
-				AI Writing Assistant
-			</h2>
+			<div className='flex justify-between items-center'>
+				<h2 className='text-xl sm:text-2xl font-bold text-white'>
+					AI Writing Assistant
+				</h2>
+				<div className='flex items-center gap-2 bg-gray-800 p-2 rounded-lg border border-gray-700'>
+					<button
+						onClick={() => setChatMode('standard')}
+						className={`px-3 py-1 text-xs rounded transition-colors ${
+							chatMode === 'standard'
+								? 'bg-blue-600 text-white font-bold'
+								: 'text-gray-400 hover:text-white'
+						}`}
+						title='Standard chat with AI tools'
+					>
+						Standard
+					</button>
+
+					<button
+						onClick={() => setChatMode('contentGen')}
+						className={`px-3 py-1 text-xs rounded transition-colors ${
+							chatMode === 'contentGen'
+								? 'bg-purple-600 text-white font-bold'
+								: 'text-gray-400 hover:text-white'
+						}`}
+						title='Generate 3 posts from templates'
+					>
+						Content Gen
+					</button>
+				</div>
+			</div>
 
 			{/* Messages Container */}
 			<div className='flex-1 overflow-y-auto border border-gray-700 rounded-lg p-4 space-y-4 bg-gray-800'>
-				{messages.length === 0 && (
+				{chatMode === 'contentGen' &&
+					generatedPosts.length === 0 &&
+					!isGenerating && (
+						<div className='text-center text-gray-400 py-8'>
+							<p className='text-lg mb-2'>
+								Content Generation Mode
+							</p>
+							<p className='text-sm'>
+								Generate 3 unique posts based on Airtable
+								templates and your writing style.
+							</p>
+							<div className='mt-4 text-left max-w-md mx-auto space-y-2'>
+								<p className='font-medium'>Example prompts:</p>
+								<ul className='list-disc list-inside space-y-1 text-gray-400'>
+									<li>
+										Create posts about career transitions
+									</li>
+									<li>Write about learning React in 2025</li>
+									<li>
+										Generate content on remote work trends
+									</li>
+									<li>
+										Posts about software engineering career
+										advice
+									</li>
+								</ul>
+							</div>
+						</div>
+					)}
+
+				{chatMode !== 'contentGen' && messages.length === 0 && (
 					<div className='text-center text-gray-400 py-8'>
 						<p className='text-lg mb-2'>
 							Welcome! I'm your AI writing assistant.
@@ -87,176 +200,251 @@ export default function ChatInterface() {
 					</div>
 				)}
 
-				{messages.map((message, index) => (
-					<div
-						key={index}
-						className={`flex ${
-							message.role === 'user'
-								? 'justify-end'
-								: 'justify-start'
-						}`}
-					>
+				{/* Generated Posts Display */}
+				{chatMode === 'contentGen' && generatedPosts.length > 0 && (
+					<div className='space-y-4'>
+						<div className='bg-purple-900/30 border border-purple-600 rounded-lg p-4'>
+							<h3 className='text-purple-400 font-bold mb-2 flex items-center gap-2'>
+								<svg
+									className='w-5 h-5'
+									fill='none'
+									stroke='currentColor'
+									viewBox='0 0 24 24'
+								>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M5 13l4 4L19 7'
+									/>
+								</svg>
+								Generated 3 Posts Successfully
+							</h3>
+							<p className='text-gray-300 text-sm'>
+								Click on any post to copy it to your clipboard
+							</p>
+						</div>
+
+						{generatedPosts.map((post, index) => (
+							<div
+								key={index}
+								onClick={() => {
+									navigator.clipboard.writeText(post);
+									// Optional: show a toast notification
+								}}
+								className='bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-colors border border-gray-600 hover:border-purple-500'
+							>
+								<div className='flex justify-between items-start mb-2'>
+									<h4 className='text-purple-400 font-bold'>
+										Post {index + 1}
+									</h4>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											navigator.clipboard.writeText(post);
+										}}
+										className='text-gray-400 hover:text-white transition-colors'
+										title='Copy to clipboard'
+									>
+										<svg
+											className='w-5 h-5'
+											fill='none'
+											stroke='currentColor'
+											viewBox='0 0 24 24'
+										>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+											/>
+										</svg>
+									</button>
+								</div>
+								<div className='text-white whitespace-pre-wrap text-sm'>
+									{post}
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+
+				{chatMode !== 'contentGen' &&
+					messages.map((message, index) => (
 						<div
-							className={`max-w-[80%] rounded-lg px-4 py-2 ${
+							key={index}
+							className={`flex ${
 								message.role === 'user'
-									? 'bg-blue-600 text-white'
-									: 'bg-gray-700 text-white'
+									? 'justify-end'
+									: 'justify-start'
 							}`}
 						>
-							{/* Role Label */}
-							<div className='text-xs font-medium mb-1 opacity-75'>
-								{message.role === 'user' ? 'You' : 'Assistant'}
-							</div>
+							<div
+								className={`max-w-[80%] rounded-lg px-4 py-2 ${
+									message.role === 'user'
+										? 'bg-blue-600 text-white'
+										: 'bg-gray-700 text-white'
+								}`}
+							>
+								{/* Role Label */}
+								<div className='text-xs font-medium mb-1 opacity-75'>
+									{message.role === 'user'
+										? 'You'
+										: 'Assistant'}
+								</div>
 
-							{/* Message Content */}
-							<div className='text-sm'>
-								{message.parts.map((part, partIndex) => {
-									if (part.type === 'tool-result') {
-										return (
-											<div
-												key={`${message.id}-tool-result-${partIndex}`}
-											>
-												{part.toolCallId}
-											</div>
-										);
-									}
-									if (part.type === 'dynamic-tool') {
-										return (
-											<div
-												key={`${message.id}-tool-${partIndex}`}
-											>
-												{part.toolName}
-											</div>
-										);
-									}
-									if (part.type === 'text') {
-										return (
-											<div
-												key={`${message.id}-text-${partIndex}`}
-											>
-												{message.role ===
-												'assistant' ? (
-													<ReactMarkdown
-														remarkPlugins={[
-															remarkGfm,
-														]}
-														className='prose prose-invert prose-sm max-w-none'
-														components={{
-															h1: ({
-																node,
-																...props
-															}) => (
-																<h1
-																	className='text-xl font-bold mt-4 mb-2'
-																	{...props}
-																/>
-															),
-															h2: ({
-																node,
-																...props
-															}) => (
-																<h2
-																	className='text-lg font-bold mt-3 mb-2'
-																	{...props}
-																/>
-															),
-															h3: ({
-																node,
-																...props
-															}) => (
-																<h3
-																	className='text-base font-bold mt-2 mb-1'
-																	{...props}
-																/>
-															),
-															p: ({
-																node,
-																...props
-															}) => (
-																<p
-																	className='mb-2 last:mb-0'
-																	{...props}
-																/>
-															),
-															ul: ({
-																node,
-																...props
-															}) => (
-																<ul
-																	className='list-disc list-inside mb-2 space-y-1'
-																	{...props}
-																/>
-															),
-															ol: ({
-																node,
-																...props
-															}) => (
-																<ol
-																	className='list-decimal list-inside mb-2 space-y-1'
-																	{...props}
-																/>
-															),
-															li: ({
-																node,
-																...props
-															}) => (
-																<li
-																	className='ml-4'
-																	{...props}
-																/>
-															),
-															code: ({
-																node,
-																inline,
-																...props
-															}) =>
-																inline ? (
-																	<code
-																		className='bg-gray-800 px-1 py-0.5 rounded text-blue-300'
-																		{...props}
-																	/>
-																) : (
-																	<code
-																		className='block bg-gray-800 p-2 rounded my-2 overflow-x-auto'
+								{/* Message Content */}
+								<div className='text-sm'>
+									{message.parts.map((part, partIndex) => {
+										if (part.type.includes('tool')) {
+											return (
+												<div
+													className='bg-gray-700 text-white p-2 rounded-md'
+													key={`${message.id}-tool-result-${partIndex}`}
+												>
+													{part.type}
+												</div>
+											);
+										}
+										if (part.type === 'dynamic-tool') {
+											return (
+												<div
+													key={`${message.id}-tool-${partIndex}`}
+												>
+													{part.toolName}
+												</div>
+											);
+										}
+										if (part.type === 'text') {
+											return (
+												<div
+													key={`${message.id}-text-${partIndex}`}
+												>
+													{message.role ===
+													'assistant' ? (
+														<ReactMarkdown
+															remarkPlugins={[
+																remarkGfm,
+															]}
+															className='prose prose-invert prose-sm max-w-none'
+															components={{
+																h1: ({
+																	node,
+																	...props
+																}) => (
+																	<h1
+																		className='text-xl font-bold mt-4 mb-2'
 																		{...props}
 																	/>
 																),
-															blockquote: ({
-																node,
-																...props
-															}) => (
-																<blockquote
-																	className='border-l-4 border-gray-500 pl-4 my-2 italic'
-																	{...props}
-																/>
-															),
-															a: ({
-																node,
-																...props
-															}) => (
-																<a
-																	className='text-blue-400 hover:underline'
-																	{...props}
-																/>
-															),
-														}}
-													>
-														{part.text}
-													</ReactMarkdown>
-												) : (
-													<div className='whitespace-pre-wrap'>
-														{part.text}
-													</div>
-												)}
-											</div>
-										);
-									}
-									return null;
-								})}
+																h2: ({
+																	node,
+																	...props
+																}) => (
+																	<h2
+																		className='text-lg font-bold mt-3 mb-2'
+																		{...props}
+																	/>
+																),
+																h3: ({
+																	node,
+																	...props
+																}) => (
+																	<h3
+																		className='text-base font-bold mt-2 mb-1'
+																		{...props}
+																	/>
+																),
+																p: ({
+																	node,
+																	...props
+																}) => (
+																	<p
+																		className='mb-2 last:mb-0'
+																		{...props}
+																	/>
+																),
+																ul: ({
+																	node,
+																	...props
+																}) => (
+																	<ul
+																		className='list-disc list-inside mb-2 space-y-1'
+																		{...props}
+																	/>
+																),
+																ol: ({
+																	node,
+																	...props
+																}) => (
+																	<ol
+																		className='list-decimal list-inside mb-2 space-y-1'
+																		{...props}
+																	/>
+																),
+																li: ({
+																	node,
+																	...props
+																}) => (
+																	<li
+																		className='ml-4'
+																		{...props}
+																	/>
+																),
+																code: ({
+																	node,
+																	...props
+																}: any) => {
+																	const inline =
+																		!props.className;
+																	return inline ? (
+																		<code
+																			className='bg-gray-800 px-1 py-0.5 rounded text-blue-300'
+																			{...props}
+																		/>
+																	) : (
+																		<code
+																			className='block bg-gray-800 p-2 rounded my-2 overflow-x-auto'
+																			{...props}
+																		/>
+																	);
+																},
+																blockquote: ({
+																	node,
+																	...props
+																}) => (
+																	<blockquote
+																		className='border-l-4 border-gray-500 pl-4 my-2 italic'
+																		{...props}
+																	/>
+																),
+																a: ({
+																	node,
+																	...props
+																}) => (
+																	<a
+																		className='text-blue-400 hover:underline'
+																		{...props}
+																	/>
+																),
+															}}
+														>
+															{part.text}
+														</ReactMarkdown>
+													) : (
+														<div className='whitespace-pre-wrap'>
+															{part.text}
+														</div>
+													)}
+												</div>
+											);
+										}
+										return null;
+									})}
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					))}
 
 				<div ref={messagesEndRef} />
 			</div>
@@ -272,8 +460,19 @@ export default function ChatInterface() {
 					{voiceError}
 				</div>
 			)}
+			{generationError && (
+				<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
+					Content Generation Error: {generationError}
+				</div>
+			)}
 
-			{/* Voice Status Indicator */}
+			{/* Loading States */}
+			{isGenerating && (
+				<div className='flex items-center gap-2 p-3 rounded-md bg-purple-900/50 text-purple-200 text-sm'>
+					<div className='w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin' />
+					<span>Generating 3 posts from templates...</span>
+				</div>
+			)}
 			{isListening && (
 				<div className='flex items-center gap-2 p-3 rounded-md bg-blue-900/50 text-blue-200 text-sm animate-pulse'>
 					<div className='w-2 h-2 bg-red-500 rounded-full animate-pulse' />
@@ -282,17 +481,7 @@ export default function ChatInterface() {
 			)}
 
 			{/* Input Form */}
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					if (input.trim()) {
-						sendMessage({ text: input });
-						setInput('');
-						resetTranscript();
-					}
-				}}
-				className='flex gap-2'
-			>
+			<form onSubmit={handleSubmit} className='flex gap-2'>
 				<div className='flex-1 flex gap-2'>
 					<textarea
 						value={input}
@@ -301,9 +490,7 @@ export default function ChatInterface() {
 							if (e.key === 'Enter' && !e.shiftKey) {
 								e.preventDefault();
 								if (input.trim()) {
-									sendMessage({ text: input });
-									setInput('');
-									resetTranscript();
+									handleSubmit(e as any);
 									// Reset textarea height
 									e.currentTarget.style.height = 'auto';
 								}
@@ -351,10 +538,16 @@ export default function ChatInterface() {
 				</div>
 				<button
 					type='submit'
-					disabled={!input.trim() || status === 'streaming'}
-					className='px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors'
+					disabled={
+						!input.trim() || status === 'streaming' || isGenerating
+					}
+					className={`px-4 sm:px-6 py-2 ${
+						chatMode === 'contentGen'
+							? 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400'
+							: 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
+					} disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors`}
 				>
-					Send
+					{chatMode === 'contentGen' ? 'Generate' : 'Send'}
 				</button>
 			</form>
 		</div>

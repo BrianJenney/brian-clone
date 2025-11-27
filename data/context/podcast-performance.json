@@ -1,0 +1,1232 @@
+{
+  "metadata": {
+    "lastUpdated": "2025-11-22",
+    "totalEpisodes": 206,
+    "description": "Podcast performance metrics including downloads, duration, and episode information"
+  },
+  "summary": {
+    "averageDownloads": 1247,
+    "totalDownloads": 257082,
+    "highestPerformingEpisode": {
+      "title": "#145 - Mastering the Technical Interview: Lessons from My Worst Interview and Beyond",
+      "downloads": 4830,
+      "date": "2024-06-17"
+    },
+    "topPerformers": [
+      {
+        "title": "#145 - Mastering the Technical Interview: Lessons from My Worst Interview and Beyond",
+        "downloads": 4830
+      },
+      {
+        "title": "#120 - Data Structures and Algorithms for Beginners",
+        "downloads": 4524
+      },
+      {
+        "title": "#132 - Your Guide to Learning ReactJS and NextJS in 2024",
+        "downloads": 3567
+      }
+    ]
+  },
+  "episodes": [
+    {
+      "date": "2025-11-20",
+      "episode": "#289 - This Year Nearly Broke Me - Here's What I'm Changing...",
+      "duration": "12:10",
+      "downloads": 293
+    },
+    {
+      "date": "2025-11-17",
+      "episode": "#288 - AI Hype is Ruining Software (A Rant)",
+      "duration": "18:30",
+      "downloads": 464
+    },
+    {
+      "date": "2025-11-13",
+      "episode": "#287 - From Smoothie King to AI Engineer",
+      "duration": "19:19",
+      "downloads": 461
+    },
+    {
+      "date": "2025-11-10",
+      "episode": "#286 - How to Know When You're Ready for ReactJS",
+      "duration": "13:06",
+      "downloads": 577
+    },
+    {
+      "date": "2025-11-06",
+      "episode": "#284 - The Junior Developer Interview Guide (From Recruiter Screen to React)",
+      "duration": "29:27",
+      "downloads": 548
+    },
+    {
+      "date": "2025-11-03",
+      "episode": "#285 - Listen to This Before You Learn to Code with AI",
+      "duration": "13:46",
+      "downloads": 512
+    },
+    {
+      "date": "2025-10-30",
+      "episode": "#284 - Are We in an AI Bubble?",
+      "duration": "15:27",
+      "downloads": 646
+    },
+    {
+      "date": "2025-10-27",
+      "episode": "#283 - The Practical Guide to LinkedIn for Developers Who Hate LinkedIn",
+      "duration": "25:06",
+      "downloads": 678
+    },
+    {
+      "date": "2025-10-23",
+      "episode": "#282 - From Overwhelmed To Hired: A Realistic Plan For Learning To Code on an Adult Schedule",
+      "duration": "11:13",
+      "downloads": 766
+    },
+    {
+      "date": "2025-10-20",
+      "episode": "#281 - Coding Bootcamp, College, Or Self-Taught? Which is Right For You and How to Decide",
+      "duration": "12:55",
+      "downloads": 691
+    },
+    {
+      "date": "2025-10-16",
+      "episode": "#280 - The Missing Guide to AI for Web Developers",
+      "duration": "28:19",
+      "downloads": 712
+    },
+    {
+      "date": "2025-10-13",
+      "episode": "#279 - Recruiter Exposes the Truth About Junior Developer Jobs",
+      "duration": "44:20",
+      "downloads": 847
+    },
+    {
+      "date": "2025-10-09",
+      "episode": "#278 - AI Does NOT Replace Junior Developers, Here's Why",
+      "duration": "12:43",
+      "downloads": 715
+    },
+    {
+      "date": "2025-10-06",
+      "episode": "#277 - RAG: The Only AI Skill Web Devs Need to Learn in 2026",
+      "duration": "36:14",
+      "downloads": 809
+    },
+    {
+      "date": "2025-10-02",
+      "episode": "#276 - Claude Code Failed: What Anthropic's Postmortem Means for Developers",
+      "duration": "16:18",
+      "downloads": 709
+    },
+    {
+      "date": "2025-09-29",
+      "episode": "#275 - Terrible Advice for Software Developers (that you're hearing in 2025)",
+      "duration": "17:45",
+      "downloads": 865
+    },
+    {
+      "date": "2025-09-25",
+      "episode": "Developer Career Change Hotline: Networking, Breaking In, and Not Giving Up",
+      "duration": "18:53",
+      "downloads": 768
+    },
+    {
+      "date": "2025-09-22",
+      "episode": "#274 - The Cost of Being Nice: Why Good Developers Don't Get Promoted",
+      "duration": "20:01",
+      "downloads": 794
+    },
+    {
+      "date": "2025-09-15",
+      "episode": "#273 - When You Don't Know What to Build—Build This",
+      "duration": "18:19",
+      "downloads": 968
+    },
+    {
+      "date": "2025-09-11",
+      "episode": "#272 - The State of the 2025 Tech Job Market: Is AI Helping or Hurting Us?",
+      "duration": "14:23",
+      "downloads": 929
+    },
+    {
+      "date": "2025-09-08",
+      "episode": "#271 - The Physics of Career Change: How Long It Actually Takes to Become a Software Developer",
+      "duration": "37:25",
+      "downloads": 783
+    },
+    {
+      "date": "2025-09-04",
+      "episode": "#270 - Coding in the Age of AI: What No One's Telling You",
+      "duration": "20:13",
+      "downloads": 964
+    },
+    {
+      "date": "2025-09-01",
+      "episode": "#269 - I'm Burnt Out! The 3 Worst Parts About Being a Software Developer (and why I still love it)",
+      "duration": "12:43",
+      "downloads": 658
+    },
+    {
+      "date": "2025-08-28",
+      "episode": "#268 - An AI Agent Horror Story: What Happens When AI Runs a Business?",
+      "duration": "12:15",
+      "downloads": 594
+    },
+    {
+      "date": "2025-08-25",
+      "episode": "#267 - Step-by-Step: Build a Real AI Project with Next.js & RAG",
+      "duration": "24:54",
+      "downloads": 783
+    },
+    {
+      "date": "2025-08-21",
+      "episode": "#266 - Startups 101: Insider Secrets for Aspiring Developers",
+      "duration": "41:03",
+      "downloads": 752
+    },
+    {
+      "date": "2025-08-18",
+      "episode": "#265 - Why JavaScript Feels So Hard To Learn: You're Making One of These Mistakes",
+      "duration": "18:59",
+      "downloads": 818
+    },
+    {
+      "date": "2025-08-14",
+      "episode": "#265 - The 4 Databases Every Developer Should Know (Including 2 You Probably Don't)",
+      "duration": "22:43",
+      "downloads": 805
+    },
+    {
+      "date": "2025-08-11",
+      "episode": "#264 - Stack Overflow's 2025 Developer Survey: Surprising Takeaways on AI, Coding Languages and Work",
+      "duration": "28:32",
+      "downloads": 807
+    },
+    {
+      "date": "2025-08-07",
+      "episode": "#263 - They're Lying to You About AI Productivity: Hype vs Reality for Coders",
+      "duration": "12:47",
+      "downloads": 944
+    },
+    {
+      "date": "2025-08-04",
+      "episode": "#262 - 12 Months to Hired: A No-Fluff Roadmap to Becoming a Software Developer",
+      "duration": "34:37",
+      "downloads": 1068
+    },
+    {
+      "date": "2025-07-31",
+      "episode": "#261 - I Used to Suck at Coding Interviews. Then I Started Doing These 4 Things",
+      "duration": "17:33",
+      "downloads": 807
+    },
+    {
+      "date": "2025-07-28",
+      "episode": "#260 - From Lead Engineer at MongoDB to Fashion Tech: On Hiring, Remote Teams, and Start-Up Life",
+      "duration": "24:21",
+      "downloads": 576
+    },
+    {
+      "date": "2025-07-25",
+      "episode": "Office Hours: Answering Your Coding Questions EP 3",
+      "duration": "18:56",
+      "downloads": 620
+    },
+    {
+      "date": "2025-07-24",
+      "episode": "#259 - The Minimum Effective Dose of JavaScript You Need to Learn",
+      "duration": "19:59",
+      "downloads": 795
+    },
+    {
+      "date": "2025-07-21",
+      "episode": "#258 - Should You Use AI While Learning to Code? A Senior Developer's Take",
+      "duration": "17:28",
+      "downloads": 869
+    },
+    {
+      "date": "2025-07-17",
+      "episode": "#257 - Career Landmines: Three Developer Traps to Avoid",
+      "duration": "20:49",
+      "downloads": 937
+    },
+    {
+      "date": "2025-07-14",
+      "episode": "#256 - The Rise of the Product Minded Engineer",
+      "duration": "36:34",
+      "downloads": 806
+    },
+    {
+      "date": "2025-07-10",
+      "episode": "#255 - Your First Open Source Project: A Weekend with Kyle Simpson's Code",
+      "duration": "12:43",
+      "downloads": 662
+    },
+    {
+      "date": "2025-07-06",
+      "episode": "#254 - What Do Data Scientists Actually Do? A Candid Conversation with Ryan Varley",
+      "duration": "37:27",
+      "downloads": 765
+    },
+    {
+      "date": "2025-07-04",
+      "episode": "#253 - The Real-World Step-by-Step Guide to Tech Interviews (Not for Google or Meta)",
+      "duration": "33:00",
+      "downloads": 1094
+    },
+    {
+      "date": "2025-06-30",
+      "episode": "#252 - 3 Coding Principles That Will Save Your Codebase (that most bootcamp grads don't know)",
+      "duration": "14:53",
+      "downloads": 1017
+    },
+    {
+      "date": "2025-06-27",
+      "episode": "Office Hours: Answering Your Coding Questions EP 2",
+      "duration": "15:01",
+      "downloads": 700
+    },
+    {
+      "date": "2025-06-26",
+      "episode": "#251 - 8 truths no one tells you about becoming a software developer in today's market",
+      "duration": "23:39",
+      "downloads": 940
+    },
+    {
+      "date": "2025-06-23",
+      "episode": "#250 - Delivery Driver to Developer: Jacob's Journey into Tech as a New Dad",
+      "duration": "41:10",
+      "downloads": 810
+    },
+    {
+      "date": "2025-06-20",
+      "episode": "Office Hours: Answering Your Coding Questions EP 1",
+      "duration": "21:08",
+      "downloads": 700
+    },
+    {
+      "date": "2025-06-19",
+      "episode": "#249 - Data Structures and Algorithms for Beginners (Replay)",
+      "duration": "26:10",
+      "downloads": 954
+    },
+    {
+      "date": "2025-06-16",
+      "episode": "#248 - The AI Productivity Myth: Reality vs. Hype",
+      "duration": "23:31",
+      "downloads": 990
+    },
+    {
+      "date": "2025-06-12",
+      "episode": "#247 - I Was the Worst Developer on the Team... Again",
+      "duration": "11:27",
+      "downloads": 757
+    },
+    {
+      "date": "2025-06-09",
+      "episode": "#246 - Coding Bootcamps, Burnout, and the Hard Truth About Breaking Into Tech: An Engineering Manager's Perspective",
+      "duration": "27:18",
+      "downloads": 845
+    },
+    {
+      "date": "2025-06-05",
+      "episode": "#245 - What Developers Get Wrong About Interviews",
+      "duration": "35:57",
+      "downloads": 1054
+    },
+    {
+      "date": "2025-06-02",
+      "episode": "#244 - From Zero to Software Engineer After 30: My Journey and What You Need to Know",
+      "duration": "18:43",
+      "downloads": 992
+    },
+    {
+      "date": "2025-05-29",
+      "episode": "#243 - The 70% Problem: When AI Coding Falls Short",
+      "duration": "34:24",
+      "downloads": 1082
+    },
+    {
+      "date": "2025-05-26",
+      "episode": "#242 - How Anne Got a Developer Job WITHOUT LinkedIn or LeetCode",
+      "duration": "33:26",
+      "downloads": 975
+    },
+    {
+      "date": "2025-05-22",
+      "episode": "#241 - The Bootcamp Era Is Dead — And That's Great News for Developers",
+      "duration": "17:56",
+      "downloads": 910
+    },
+    {
+      "date": "2025-05-19",
+      "episode": "#240 - Navigating the Front-End Landscape: A Senior Developer's Perspective on AI Tools, Front End interviews and What Makes You \"Senior\"",
+      "duration": "24:07",
+      "downloads": 942
+    },
+    {
+      "date": "2025-05-15",
+      "episode": "#239 - Is Learning to Code Still Worth It? A Senior Developer's Perspective",
+      "duration": "14:06",
+      "downloads": 1173
+    },
+    {
+      "date": "2025-05-12",
+      "episode": "#238 - My Experience in Vibe Coding Hell",
+      "duration": "20:31",
+      "downloads": 1087
+    },
+    {
+      "date": "2025-05-08",
+      "episode": "#237 - Don't Learn to Code for the Money, But If You Do...",
+      "duration": "23:02",
+      "downloads": 913
+    },
+    {
+      "date": "2025-05-05",
+      "episode": "#236 - Developer Internships: The Good, The Bad, and The \"Wait, They Threw Out My Code?\"",
+      "duration": "26:06",
+      "downloads": 859
+    },
+    {
+      "date": "2025-05-01",
+      "episode": "#235: 2 Skills You Don't Need Anymore In the AI Era and 3 More You're Going to Need",
+      "duration": "18:21",
+      "downloads": 1147
+    },
+    {
+      "date": "2025-04-28",
+      "episode": "#234 - Coding Isn't Enough: 3 Weird Traits That Predict Success in Tech",
+      "duration": "16:24",
+      "downloads": 1017
+    },
+    {
+      "date": "2025-04-24",
+      "episode": "#233 - How Mindi Navigated ADHD, Bootcamp Burnout, and Landed a Dev Role",
+      "duration": "38:53",
+      "downloads": 891
+    },
+    {
+      "date": "2025-04-21",
+      "episode": "#232 - The Harsh Truth About Coding, AI, Bootcamps, and Breaking in to Tech",
+      "duration": "16:09",
+      "downloads": 970
+    },
+    {
+      "date": "2025-04-17",
+      "episode": "#231 - Roasting A Listener's Resume, LinkedIn and GitHub Profile",
+      "duration": "14:21",
+      "downloads": 840
+    },
+    {
+      "date": "2025-04-14",
+      "episode": "#230 - AI Will Replace Most Coding: What Chief Scientist Laly Bar-Ilan Says Developers Should Learn Next",
+      "duration": "29:32",
+      "downloads": 1201
+    },
+    {
+      "date": "2025-04-10",
+      "episode": "#229 - The 2025 Tech Job Market Sucks? Here's How You Beat It",
+      "duration": "17:51",
+      "downloads": 1629
+    },
+    {
+      "date": "2025-04-07",
+      "episode": "#228 - The 3 Stages of Learning Javascript: What to Build && What to Learn",
+      "duration": "14:31",
+      "downloads": 1195
+    },
+    {
+      "date": "2025-04-03",
+      "episode": "#227 - How Busy Professionals Can Learn to Code (Without Losing Their Minds): A 3 Step Process",
+      "duration": "15:42",
+      "downloads": 1046
+    },
+    {
+      "date": "2025-04-01",
+      "episode": "Special Episode: Answering Fan Mail",
+      "duration": "14:55",
+      "downloads": 633
+    },
+    {
+      "date": "2025-03-31",
+      "episode": "#226 - New Coders Can't Code?",
+      "duration": "28:15",
+      "downloads": 926
+    },
+    {
+      "date": "2025-03-27",
+      "episode": "#225 - The 3-Month Coding Bootcamp Myth: 4 Things You Actually Need to Get Hired",
+      "duration": "17:30",
+      "downloads": 871
+    },
+    {
+      "date": "2025-03-24",
+      "episode": "#224 - How Jeremy Went From Tutorial Hell to Front End Developer at Apple",
+      "duration": "36:56",
+      "downloads": 1234
+    },
+    {
+      "date": "2025-03-20",
+      "episode": "#224 - Should You Still Learn JavaScript in 2025?",
+      "duration": "20:01",
+      "downloads": 1184
+    },
+    {
+      "date": "2025-03-17",
+      "episode": "#223 - AI for JavaScript Developers: What You Actually Need to Know",
+      "duration": "19:58",
+      "downloads": 1034
+    },
+    {
+      "date": "2025-03-13",
+      "episode": "Has Cursor Cooked Junior Developers for Good?",
+      "duration": "15:28",
+      "downloads": 1052
+    },
+    {
+      "date": "2025-03-10",
+      "episode": "#221 - How AWS Used AI to Save 4,500 Years of Work – with AWS's Director of Generative AI Applications",
+      "duration": "31:17",
+      "downloads": 894
+    },
+    {
+      "date": "2025-03-06",
+      "episode": "#220 - Real-World JavaScript: Why Loops and Arrays Are the Backbone of the Internet",
+      "duration": "13:09",
+      "downloads": 939
+    },
+    {
+      "date": "2025-03-03",
+      "episode": "#219 - The 3-Step No-BS Guide to Getting in Shape After 30",
+      "duration": "27:55",
+      "downloads": 952
+    },
+    {
+      "date": "2025-02-27",
+      "episode": "#218 - The 3 Worst Developers I Ever Worked With",
+      "duration": "17:13",
+      "downloads": 1107
+    },
+    {
+      "date": "2025-02-24",
+      "episode": "#217 - How to Get Your First Tech Job - Straight from a Recruiter",
+      "duration": "24:10",
+      "downloads": 1358
+    },
+    {
+      "date": "2025-02-20",
+      "episode": "#216 - Take-Home Coding Challenges Suck. Here's 3 ways to Beat Them...",
+      "duration": "10:59",
+      "downloads": 976
+    },
+    {
+      "date": "2025-02-17",
+      "episode": "#215 - Building Software with AI: Dr. Robert Toth on the Future of Coding, Cursor and True Prompt Engineering",
+      "duration": "31:14",
+      "downloads": 1243
+    },
+    {
+      "date": "2025-02-12",
+      "episode": "#214 - A step by step guide to building a really good side project",
+      "duration": "20:36",
+      "downloads": 1393
+    },
+    {
+      "date": "2025-02-10",
+      "episode": "#213 - The Google Interview: Luck, LeetCode, and What Actually Matters",
+      "duration": "36:46",
+      "downloads": 2151
+    },
+    {
+      "date": "2025-02-06",
+      "episode": "#212 – Learn Fast(er): The Uncomfortable Method That Actually Works",
+      "duration": "14:29",
+      "downloads": 1317
+    },
+    {
+      "date": "2025-02-03",
+      "episode": "#211 - 5 Things Salespeople Know About Getting Hired (That Developers Don't)",
+      "duration": "31:46",
+      "downloads": 983
+    },
+    {
+      "date": "2025-01-30",
+      "episode": "#210 - Why You Keep Failing Tech Interviews (And It's Not Your Fault)",
+      "duration": "18:25",
+      "downloads": 1102
+    },
+    {
+      "date": "2025-01-27",
+      "episode": "#209 - Zuckerberg, Rogan, and the AI Takeover: Should Engineers Be Worried?",
+      "duration": "29:14",
+      "downloads": 1174
+    },
+    {
+      "date": "2025-01-23",
+      "episode": "#207 - From Addict to Software Developer: A Story of Habit Stacking",
+      "duration": "12:56",
+      "downloads": 1090
+    },
+    {
+      "date": "2025-01-20",
+      "episode": "#206 - You Asked, We Answered: No BS Advice for Thriving as a Developer in 2025",
+      "duration": "49:27",
+      "downloads": 1342
+    },
+    {
+      "date": "2025-01-16",
+      "episode": "#206 - Real Developers Barely Code: What Your Job Will Really Be Like",
+      "duration": "20:24",
+      "downloads": 1301
+    },
+    {
+      "date": "2025-01-13",
+      "episode": "#205 - 5 Steps to Solving (nearly) Any Coding Problem",
+      "duration": "18:43",
+      "downloads": 1405
+    },
+    {
+      "date": "2025-01-09",
+      "episode": "#204 - AI Is Coming for Your Dev Job (But Not Really): AGI, o3 and Fear Mongering",
+      "duration": "15:02",
+      "downloads": 1136
+    },
+    {
+      "date": "2025-01-06",
+      "episode": "#203 - Breaking into Tech: Self-Taught Success Stories with Vanessa and Wilfredo",
+      "duration": "44:09",
+      "downloads": 1221
+    },
+    {
+      "date": "2025-01-02",
+      "episode": "#202 - The Best Books for Developers (That No One Talks About)",
+      "duration": "17:16",
+      "downloads": 1213
+    },
+    {
+      "date": "2024-12-30",
+      "episode": "#201 - Your Practical Guide to Learning JavaScript in 2025",
+      "duration": "22:16",
+      "downloads": 1409
+    },
+    {
+      "date": "2024-12-26",
+      "episode": "#200 - Tech Predictions for 2025: What Career Changers Need to Know to Stay Ahead",
+      "duration": "16:11",
+      "downloads": 1273
+    },
+    {
+      "date": "2024-12-23",
+      "episode": "#199 - Are Coding Bootcamps Dead?",
+      "duration": "33:59",
+      "downloads": 924
+    },
+    {
+      "date": "2024-12-19",
+      "episode": "#198 - The No-Nonsense Guide to Coding Careers: 3 Things I Wish I Knew",
+      "duration": "23:16",
+      "downloads": 1500
+    },
+    {
+      "date": "2024-12-16",
+      "episode": "#197 - Your Guide to Nailing the Non-Technical Interview in Tech",
+      "duration": "14:54",
+      "downloads": 1067
+    },
+    {
+      "date": "2024-12-12",
+      "episode": "#196 - Your First Day as a Software Developer: What to Expect and How to Not Suck",
+      "duration": "18:49",
+      "downloads": 1147
+    },
+    {
+      "date": "2024-12-09",
+      "episode": "#195 - A Beginner's Guide to Learning ReactJS",
+      "duration": "21:46",
+      "downloads": 1883
+    },
+    {
+      "date": "2024-12-04",
+      "episode": "#194 - From Zero to Hireable: A Step-by-Step Guide to Becoming a Software Developer",
+      "duration": "25:50",
+      "downloads": 1607
+    },
+    {
+      "date": "2024-12-02",
+      "episode": "#193 - How I Use AI Every Day as a Software Developer (and You Should Too)",
+      "duration": "19:02",
+      "downloads": 1462
+    },
+    {
+      "date": "2024-11-28",
+      "episode": "#192 - The Best Resources for Software Developers (And Why They Work)",
+      "duration": "17:09",
+      "downloads": 1256
+    },
+    {
+      "date": "2024-11-25",
+      "episode": "#191 - Ruby on Rails, The Odin Project and Learning to Code on Your Own",
+      "duration": "31:04",
+      "downloads": 1301
+    },
+    {
+      "date": "2024-11-21",
+      "episode": "#190 - 3 lessons from chatting with 643 software developers",
+      "duration": "21:47",
+      "downloads": 1162
+    },
+    {
+      "date": "2024-11-18",
+      "episode": "#189 - Brooke Sweedar's Front-Line Report: Surviving and Thriving After a Coding Bootcamp",
+      "duration": "42:46",
+      "downloads": 1048
+    },
+    {
+      "date": "2024-11-14",
+      "episode": "#188 - 3.5 Mistakes Career Changers Make When Learning to Code (And How to Avoid Them)",
+      "duration": "20:57",
+      "downloads": 1305
+    },
+    {
+      "date": "2024-11-11",
+      "episode": "#187 - Mastering JavaScript Mental Models with Genies, Spaceships, and Wormholes",
+      "duration": "38:52",
+      "downloads": 1244
+    },
+    {
+      "date": "2024-11-07",
+      "episode": "#186 - Data Structures and Algorithms in Real Life",
+      "duration": "29:38",
+      "downloads": 1793
+    },
+    {
+      "date": "2024-11-04",
+      "episode": "#185 - The Boring Tech Stack I Would Use to Get Hired as a Software Developer in 2025",
+      "duration": "26:41",
+      "downloads": 1639
+    },
+    {
+      "date": "2024-10-31",
+      "episode": "#184 - From Invisible to Hireable: The Power of Building in Public for New Coders",
+      "duration": "32:33",
+      "downloads": 1170
+    },
+    {
+      "date": "2024-10-28",
+      "episode": "#183 - Stand Out on LinkedIn: Tips from a 7-Foot CEO Who Did It Right",
+      "duration": "24:26",
+      "downloads": 1094
+    },
+    {
+      "date": "2024-10-24",
+      "episode": "#182 - (Mini-Episode) Level Up Your JavaScript: Simple Tips for Cleaner Code",
+      "duration": "12:04",
+      "downloads": 1254
+    },
+    {
+      "date": "2024-10-21",
+      "episode": "#181 - Meta Tech Lead Secrets: Breaking into FAANG, Big Salaries, and Career Growth with Rahul",
+      "duration": "40:06",
+      "downloads": 1378
+    },
+    {
+      "date": "2024-10-17",
+      "episode": "#180 - Tech Layoffs & AI Panic: The Truth About Tech Careers in 2024",
+      "duration": "16:19",
+      "downloads": 1513
+    },
+    {
+      "date": "2024-10-14",
+      "episode": "#179 - Speak Up, Stand Out: How Public Speaking Can Unlock Your Developer Career",
+      "duration": "42:12",
+      "downloads": 1235
+    },
+    {
+      "date": "2024-10-10",
+      "episode": "#178 - Lessons from the 3 Smartest Developers I've Ever Met",
+      "duration": "20:45",
+      "downloads": 1641
+    },
+    {
+      "date": "2024-10-07",
+      "episode": "#177 - The science behind learning to code: Why you don't need 10,000 hours to succeed",
+      "duration": "44:54",
+      "downloads": 2282
+    },
+    {
+      "date": "2024-10-03",
+      "episode": "#176 - A Hands on Guide to Learning SQL",
+      "duration": "15:56",
+      "downloads": 1910
+    },
+    {
+      "date": "2024-09-30",
+      "episode": "#175 - The Unwritten Rules to Becoming a Senior Developer: 4 Steps to Level Up",
+      "duration": "21:56",
+      "downloads": 1507
+    },
+    {
+      "date": "2024-09-26",
+      "episode": "#174 - 4 Projects to Learn the Basics of Javascript (plus a Form Challenge in Show Notes)",
+      "duration": "21:35",
+      "downloads": 1656
+    },
+    {
+      "date": "2024-09-23",
+      "episode": "#173 - Breaking into Tech After 40: The Self-Taught Developer Path with Dicky Kitchen",
+      "duration": "47:42",
+      "downloads": 1634
+    },
+    {
+      "date": "2024-09-19",
+      "episode": "#172 - The Free Work Formula: How Freelancing for Free Can Jumpstart Your Dev Career",
+      "duration": "20:48",
+      "downloads": 1298
+    },
+    {
+      "date": "2024-09-16",
+      "episode": "#171 - A Beginners Guide to Learning Backend Software Development with Javascript (mini-tutorial included)",
+      "duration": "25:50",
+      "downloads": 2106
+    },
+    {
+      "date": "2024-09-12",
+      "episode": "#170 - 4 Steps to Build Coding Habits that Stick (or any Positive Habit)",
+      "duration": "22:55",
+      "downloads": 1923
+    },
+    {
+      "date": "2024-09-09",
+      "episode": "#169 - Hacking Productivity: ADHD Strategies for Software Developers",
+      "duration": "23:52",
+      "downloads": 1714
+    },
+    {
+      "date": "2024-09-05",
+      "episode": "#168 - Working as a Developer at a Startup vs a Mid-Size Company vs Fortune 100: Pros and Cons",
+      "duration": "29:44",
+      "downloads": 1185
+    },
+    {
+      "date": "2024-09-03",
+      "episode": "#167 - Imposter Syndrome, Mental Resilience, and the Science Behind Psychedelics: A Developer's Guide",
+      "duration": "44:25",
+      "downloads": 1489
+    },
+    {
+      "date": "2024-08-29",
+      "episode": "#166 - Don't Be a Junior Developer",
+      "duration": "19:01",
+      "downloads": 1687
+    },
+    {
+      "date": "2024-08-26",
+      "episode": "#165 - Risk, Reward, and Reinvention: How Aaron Turned a Bootcamp Bet into a Career in Big tech",
+      "duration": "1:02:41",
+      "downloads": 1085
+    },
+    {
+      "date": "2024-08-22",
+      "episode": "#164 - AI, the End of Front End Developers, and Jeff Bezos: What the 2024 Stack Overflow Survey Tells Us",
+      "duration": "26:11",
+      "downloads": 1363
+    },
+    {
+      "date": "2024-08-19",
+      "episode": "#163 - Just Your Typical 44 Year Old Musician Turned Software Developer. Nils Reveals the Fast(er) Path To Tech",
+      "duration": "35:16",
+      "downloads": 1159
+    },
+    {
+      "date": "2024-08-15",
+      "episode": "#162 - 3 things about software I learned from a career as a criminal",
+      "duration": "15:10",
+      "downloads": 1013
+    },
+    {
+      "date": "2024-08-12",
+      "episode": "#161 - Oops, Did I Do That? Alex Lau and Brian Share Their Biggest Mistakes (and lessons) as Software Developers",
+      "duration": "30:12",
+      "downloads": 1191
+    },
+    {
+      "date": "2024-08-08",
+      "episode": "#160 - No, You Don't Need a Bootcamp or Degree to Become a Software Developer",
+      "duration": "23:03",
+      "downloads": 1929
+    },
+    {
+      "date": "2024-08-04",
+      "episode": "#159 - Why Pessimists Fail at Coding: How New Coders Can Build Optimism, Practically",
+      "duration": "17:08",
+      "downloads": 1922
+    },
+    {
+      "date": "2024-08-01",
+      "episode": "#158 - Beyond Coding: The Essential Skills Every New Developer Needs",
+      "duration": "18:13",
+      "downloads": 1647
+    },
+    {
+      "date": "2024-07-29",
+      "episode": "#157 - Freelancing, Coding Bootcamps, and Overcoming Addiction with William Ray",
+      "duration": "30:38",
+      "downloads": 1224
+    },
+    {
+      "date": "2024-07-25",
+      "episode": "#156 - Surviving your first week as a software developer: SDLC, 30 Day Plans, On-Calls and more",
+      "duration": "23:10",
+      "downloads": 1135
+    },
+    {
+      "date": "2024-07-22",
+      "episode": "#155 - Insider Tips from a Top 1% Career Coach for Software Developers: Megan Dias Gets Real About LinkedIn, Learning in Public, Green Banners and more...",
+      "duration": "42:10",
+      "downloads": 1486
+    },
+    {
+      "date": "2024-07-18",
+      "episode": "#154 - I Got Laid Off from my Tech Job.... and Hired in the Same Month",
+      "duration": "23:57",
+      "downloads": 1049
+    },
+    {
+      "date": "2024-07-15",
+      "episode": "#153 - From Nike's Principal Software Engineer to YouTube Sensation: The Jack Herrington Interview",
+      "duration": "1:04:53",
+      "downloads": 1147
+    },
+    {
+      "date": "2024-07-11",
+      "episode": "#152 - Why AI Won't Replace Software Developers (Yet) but It Might Make You a Worse Developer: A Deep Dive",
+      "duration": "22:29",
+      "downloads": 1316
+    },
+    {
+      "date": "2024-07-08",
+      "episode": "#151 - The Secret Strategies of an Interview Champion: Bhupinder Singh aka The Dynamic Singh",
+      "duration": "46:19",
+      "downloads": 1535
+    },
+    {
+      "date": "2024-07-04",
+      "episode": "#150 - Why JavaScript is Hard to Learn and How to Do It the Right Way",
+      "duration": "20:56",
+      "downloads": 2313
+    },
+    {
+      "date": "2024-07-01",
+      "episode": "#148 - 3 Mental Shifts that Separate Software Developers from Code Bots",
+      "duration": "15:01",
+      "downloads": 1310
+    },
+    {
+      "date": "2024-06-27",
+      "episode": "#148 - How to Use VS Code Like a Pro",
+      "duration": "13:10",
+      "downloads": 1317
+    },
+    {
+      "date": "2024-06-24",
+      "episode": "#147 - Freelancing in Tech: Carly's Journey from Retail to Code",
+      "duration": "35:01",
+      "downloads": 1410
+    },
+    {
+      "date": "2024-06-20",
+      "episode": "#146 - What I'd Tell My Oldest Son About Becoming a Software Developer",
+      "duration": "25:24",
+      "downloads": 1903
+    },
+    {
+      "date": "2024-06-17",
+      "episode": "#145 - Mastering the Technical Interview: Lessons from My Worst Interview and Beyond",
+      "duration": "40:41",
+      "downloads": 4830
+    },
+    {
+      "date": "2024-06-12",
+      "episode": "#144 - 90,000 Developers Can't Be Wrong: Top Skills for Software Developers in 2024",
+      "duration": "29:40",
+      "downloads": 1615
+    },
+    {
+      "date": "2024-06-10",
+      "episode": "#143 - The Secret Software Developer Interview: From Coding Bootcamp to Over-Employment",
+      "duration": "35:47",
+      "downloads": 1519
+    },
+    {
+      "date": "2024-06-06",
+      "episode": "#142 - The Reverse Engineering Method to Becoming a Hireable Software Developer",
+      "duration": "14:36",
+      "downloads": 1523
+    },
+    {
+      "date": "2024-06-03",
+      "episode": "#141 - Navigating the Junior Developer Job Market with Software Developer Turned Recruiter David Roberts",
+      "duration": "51:25",
+      "downloads": 1733
+    },
+    {
+      "date": "2024-05-30",
+      "episode": "#140 - How You Can Start a 5 Figure Side Business as Software Engineer",
+      "duration": "29:15",
+      "downloads": 1573
+    },
+    {
+      "date": "2024-05-27",
+      "episode": "#139 - The Art of Time Management When Learning to Code",
+      "duration": "13:48",
+      "downloads": 1607
+    },
+    {
+      "date": "2024-05-20",
+      "episode": "#138 - Self Taught Developer to Engineering Manager at IBM: Brian Schuster shares lessons for developers on the non-traditional path",
+      "duration": "50:18",
+      "downloads": 1397
+    },
+    {
+      "date": "2024-05-15",
+      "episode": "#137 - How 4 Little Letters Almost Got Me Fired! LGTM - The Art of Code Reviews and How to Not Suck at Them",
+      "duration": "21:52",
+      "downloads": 1034
+    },
+    {
+      "date": "2024-05-13",
+      "episode": "#136 - 3 Reasons Why Most People Fail After a Coding Bootcamp... and How to Avoid Their Fate",
+      "duration": "17:01",
+      "downloads": 1382
+    },
+    {
+      "date": "2024-05-08",
+      "episode": "#135 - The Junior Developer with 7 Years of Experience",
+      "duration": "20:42",
+      "downloads": 1438
+    },
+    {
+      "date": "2024-05-06",
+      "episode": "#134 - From a Failed App to Tech Success: Mastering JavaScript, React, and TypeScript with Ryan Talbert",
+      "duration": "51:56",
+      "downloads": 1936
+    },
+    {
+      "date": "2024-05-02",
+      "episode": "#133 - Big Fish in a Small Pond or Small Fish in a Big Pond? A Developer Career Strategy",
+      "duration": "21:50",
+      "downloads": 1313
+    },
+    {
+      "date": "2024-04-29",
+      "episode": "#132 - Your Guide to Learning ReactJS and NextJS in 2024",
+      "duration": "20:22",
+      "downloads": 3567
+    },
+    {
+      "date": "2024-04-24",
+      "episode": "#131 - From Hired to Fired! Avoid these 2 developer career death traps",
+      "duration": "11:50",
+      "downloads": 1135
+    },
+    {
+      "date": "2024-04-22",
+      "episode": "#130 - From Lab Scientist to Software Engineer at 35: Vanessa Vun Shares A Unique Strategy for Changing Careers",
+      "duration": "38:22",
+      "downloads": 1282
+    },
+    {
+      "date": "2024-04-18",
+      "episode": "#129 - Coding with AI: The Devin AI Drama and Building Smarter Dev Skills with AI",
+      "duration": "18:59",
+      "downloads": 1066
+    },
+    {
+      "date": "2024-04-14",
+      "episode": "#128 - One Size Fails All: Exploring Approaches to Learning Code with Guest Ilya Dorman",
+      "duration": "33:34",
+      "downloads": 1154
+    },
+    {
+      "date": "2024-04-12",
+      "episode": "#127 - What to Expect on Your First Day As a Software Developer",
+      "duration": "19:14",
+      "downloads": 1152
+    },
+    {
+      "date": "2024-04-08",
+      "episode": "#126 - The Developer's Roadmap: Insights from the Stack Overflow Survey",
+      "duration": "31:14",
+      "downloads": 1302
+    },
+    {
+      "date": "2024-04-04",
+      "episode": "#125 - Your Side Project Cheat Sheet - 6 steps to create cool sh*t",
+      "duration": "25:04",
+      "downloads": 1623
+    },
+    {
+      "date": "2024-04-01",
+      "episode": "#124 - Do You Have to Learn In Public? A Different Take on Networking, Content Creation and Personal Branding with Anna Miller",
+      "duration": "29:45",
+      "downloads": 1177
+    },
+    {
+      "date": "2024-03-27",
+      "episode": "#123 - I'm an Engineering Manger and I've Seen All Your Resumes: Here Are 4 Ways to Avoid Rejection",
+      "duration": "20:38",
+      "downloads": 1252
+    },
+    {
+      "date": "2024-03-25",
+      "episode": "#122 - Self Taught vs Coding Bootcamp: Surprising takeaways from Levy, a current bootcamper",
+      "duration": "26:17",
+      "downloads": 1656
+    },
+    {
+      "date": "2024-03-21",
+      "episode": "#121 - Am I Gonna Get Fired? The 4 Biggest Mistakes in my Developer Career",
+      "duration": "23:17",
+      "downloads": 1393
+    },
+    {
+      "date": "2024-03-18",
+      "episode": "#120 - Data Structures and Algorithms for Beginners",
+      "duration": "19:44",
+      "downloads": 4524
+    },
+    {
+      "date": "2024-03-13",
+      "episode": "#119 - A Practical Guide to Freelancing as a Developer with Matt Cascardi",
+      "duration": "37:53",
+      "downloads": 1480
+    },
+    {
+      "date": "2024-03-07",
+      "episode": "#118 - Your Junior Developer Interview Guide",
+      "duration": "26:00",
+      "downloads": 1973
+    },
+    {
+      "date": "2024-03-03",
+      "episode": "#117 - AI and the Job Market for Developers: Is Coding Still Worth It?",
+      "duration": "26:04",
+      "downloads": 1689
+    },
+    {
+      "date": "2024-02-29",
+      "episode": "#116 - Why Don't Coding Bootcamps Teach This? A beginners guide to writing tests.",
+      "duration": "13:54",
+      "downloads": 1010
+    },
+    {
+      "date": "2024-02-26",
+      "episode": "#115 - From Marketer to FinTech Pro and Hot Takes on Learning to Code with Parsity Grad Ryan Passer",
+      "duration": "32:35",
+      "downloads": 995
+    },
+    {
+      "date": "2024-02-22",
+      "episode": "#114 - Maybe You Are an Impostor and Maybe That's Not So Bad",
+      "duration": "13:12",
+      "downloads": 1057
+    },
+    {
+      "date": "2024-02-19",
+      "episode": "#113 - Code Challenge King John Crickett Breaks Down How to Level Up as an Engineer",
+      "duration": "36:44",
+      "downloads": 1085
+    },
+    {
+      "date": "2024-02-14",
+      "episode": "#112 - How I 5x'ed my salary as a developer: 3 lessons I stole from my rich developer friend",
+      "duration": "14:05",
+      "downloads": 1313
+    },
+    {
+      "date": "2024-02-12",
+      "episode": "#111 - Musician to Software Engineer: Nathan Drake Shares His Odd Journey to Coding and How He Got Hired Fast",
+      "duration": "37:53",
+      "downloads": 1099
+    },
+    {
+      "date": "2024-02-05",
+      "episode": "#110 - I spoke to 500 developers from all around the world - here are 4 takeaways",
+      "duration": "16:38",
+      "downloads": 1555
+    },
+    {
+      "date": "2024-01-29",
+      "episode": "#109 - From Teacher to Software Engineer to Teacher? David Rogers Breaks Down How He Taught Himself to Code and Land a Job",
+      "duration": "38:17",
+      "downloads": 1235
+    },
+    {
+      "date": "2024-01-22",
+      "episode": "#108 - The Caterpillar Learning Method to Learn Fast AF",
+      "duration": "13:14",
+      "downloads": 1822
+    },
+    {
+      "date": "2024-01-15",
+      "episode": "#107 - How Zubin went from 37 Year Old Lawyer to Software Engineer at Google and the Reality of Changing Careers into Tech",
+      "duration": "50:07",
+      "downloads": 1578
+    },
+    {
+      "date": "2024-01-08",
+      "episode": "#106 - The 3 Worst Things About Being a Software Engineer",
+      "duration": "27:59",
+      "downloads": 1538
+    },
+    {
+      "date": "2024-01-02",
+      "episode": "#105 - The 2024 Tech Stack and What You Need to Study to Keep Up to Date in the New Year",
+      "duration": "26:56",
+      "downloads": 1901
+    },
+    {
+      "date": "2023-12-26",
+      "episode": "#104 - LinkedIn Unleashed: How Shy Coders Can Network Like Pros and Get Hired",
+      "duration": "28:45",
+      "downloads": 1528
+    },
+    {
+      "date": "2023-12-18",
+      "episode": "#103 - The 4-Step Process for Debugging JavaScript Applications and How it Got Me Promoted",
+      "duration": "18:38",
+      "downloads": 1334
+    },
+    {
+      "date": "2023-12-11",
+      "episode": "#102 - Erik Andersen the World's Happiest Engineer Gets Real About Jobs, Bootcamps and Getting Hired",
+      "duration": "37:24",
+      "downloads": 1376
+    },
+    {
+      "date": "2023-11-27",
+      "episode": "#101 - The Kyle Simpson Episode",
+      "duration": "1:03:00",
+      "downloads": 1780
+    },
+    {
+      "date": "2023-11-20",
+      "episode": "#100 - The 3 Types of Interviews You WILL Encounter as a Developer and How to Beat Them",
+      "duration": "24:47",
+      "downloads": 2196
+    },
+    {
+      "date": "2023-11-13",
+      "episode": "#99 - Fitness Debugged: A Software Developer's Diet and Exercise Breakdown",
+      "duration": "17:20",
+      "downloads": 1669
+    },
+    {
+      "date": "2023-11-20",
+      "episode": "#98 - Your Roadmap from Zero to Software Engineer in 2024",
+      "duration": "27:46",
+      "downloads": 6743
+    }
+  ]
+}
