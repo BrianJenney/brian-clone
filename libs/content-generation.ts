@@ -9,7 +9,7 @@ import contentTemplates from '@/data/templates/content-templates.json';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-const llm = new ChatOpenAI({ model: 'gpt-4o' });
+const llm = new ChatOpenAI({ model: 'gpt-5' });
 
 const schema = z.object({
 	messages: z.custom<BaseMessage[]>().register(registry, MessagesZodMeta),
@@ -74,16 +74,16 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 		.withStructuredOutput(z.object({ options: z.array(z.string()) }))
 		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
 
-	return { options: result.options };
+	return { options: result.options, sources: state.sources.flat() };
 };
 
 const getBusinessData = async (state: z.infer<typeof schema>) => {
 	const lastMessages = state.messages.slice(-5);
 
 	const businessContextOptions = [
-		'persona',
-		'business_overview',
-		'podcast_performance',
+		'marcus-persona.json',
+		'business_overview.json',
+		'podcast_performance.json',
 		'all',
 	] as const;
 
@@ -105,19 +105,60 @@ const getBusinessData = async (state: z.infer<typeof schema>) => {
 		)
 		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
 
+	if (result.context === 'all') {
+		const [personaData, businessOverviewData, podcastPerformanceData] =
+			await Promise.all([
+				fs.readFile(
+					path.join(
+						process.cwd(),
+						'data',
+						'context',
+						'marcus-persona.json'
+					),
+					'utf-8'
+				),
+				fs.readFile(
+					path.join(
+						process.cwd(),
+						'data',
+						'context',
+						'business-overview.json'
+					),
+					'utf-8'
+				),
+				fs.readFile(
+					path.join(
+						process.cwd(),
+						'data',
+						'context',
+						'podcast-performance.json'
+					),
+					'utf-8'
+				),
+			]);
+		return {
+			businessData: JSON.stringify({
+				persona: JSON.parse(personaData),
+				business_overview: JSON.parse(businessOverviewData),
+				podcast_performance: JSON.parse(podcastPerformanceData),
+			}),
+		};
+	}
+
 	const businessData = await fs.readFile(
-		path.join(process.cwd(), 'data', 'context', `${result.context}.json`),
+		path.join(process.cwd(), 'data', 'context', `${result.context}`),
 		'utf-8'
 	);
-	return { businessData: JSON.parse(businessData) };
+	return { businessData: JSON.stringify(JSON.parse(businessData)) };
 };
 
 const getWritingSamples = async (state: z.infer<typeof schema>) => {
 	const lastMessages = state.messages.slice(-5);
+	console.log('Last messages:', lastMessages);
 
 	const SYSTEM_PROMPT = `
-	Given a short message history, construct a query to search for writing samples that are relevant to the message history to be used
-	in a vector database.
+	Given a short message history, construct a query to search for writing samples that are relevant 
+	to the message history to be usedin a vector database.
 
 	Message history:
 	${lastMessages.map((message) => message.content).join('\n')}
@@ -142,7 +183,7 @@ const getWritingSamples = async (state: z.infer<typeof schema>) => {
 			(sample) => sample.payload?.text as string
 		),
 		sources: writingSamples.map(
-			(sample) => sample.payload?.source as string
+			(sample) => sample.payload?.sourceUrl as string
 		),
 	};
 };
@@ -155,6 +196,9 @@ export const graph = new StateGraph(schema)
 	.addNode('agent', async ({ messages }) => {
 		const SYSTEM_PROMPT = `
 		Determine if the user needs business data to generate content.
+		For example, if the query is in relation to Parsity, the podcast or the persona of our ideal customer, Marcus, then we need to get the business data.
+		Otherwise, we do not need to get the business data.
+		Do not ask the user for the business data. Just determine if it is needed.
 
 		Message history:
 		${messages.map((message) => message.content).join('\n')}

@@ -1,5 +1,5 @@
 import { openai } from '@/libs/ai';
-import { streamText, convertToModelMessages } from 'ai';
+import { generateText, stepCountIs } from 'ai';
 import {
 	searchWritingSamplesTool,
 	getBusinessContextTool,
@@ -14,12 +14,11 @@ import {
 export async function POST(req: Request) {
 	try {
 		const body = await req.json();
+		const { messages } = body;
 
-		const modelMessages = convertToModelMessages(body.messages);
-
-		const result = streamText({
+		let result = await generateText({
 			model: openai('gpt-4o'),
-			messages: modelMessages,
+			messages,
 			system: `
 You are Brian's AI business and content assistant. You provide two types of support:
 
@@ -73,6 +72,7 @@ Follow this "How To" article structure:
 - **generatePostFromTemplateTool**: To create posts based on Airtable templates matched with Brian's writing style
 - Use tools ONLY when needed - not every message requires tool usage
 - Be thoughtful about which tool provides the most relevant context
+- **CRITICAL**: If a tool returns an error or fails, do NOT call it again. Instead, provide a helpful response based on your knowledge without that tool's data. Acknowledge any limitations briefly and focus on what you can help with.
 
 Remember: The target audience (Marcus) values transparency over hype, practical advice over theory, and clear roadmaps over vague inspiration.
 			`,
@@ -82,10 +82,39 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 				fetchTemplatesTool,
 				generatePostFromTemplateTool,
 			},
-			toolChoice: 'required',
+			toolChoice: 'auto',
+			stopWhen: stepCountIs(5),
 		});
 
-		return result.toUIMessageStreamResponse();
+		console.log('Generated response:', {
+			textLength: result.text?.length,
+			finishReason: result.finishReason,
+			toolResults: result.toolResults?.length,
+			stepsCount: result.steps?.length,
+			steps: result.steps?.map((step, i) => ({
+				stepNum: i + 1,
+				finishReason: step.finishReason,
+				toolCallsCount: step.toolCalls?.length,
+				toolCalls: JSON.stringify(
+					step.toolCalls?.map((toolCall) => ({
+						toolName: toolCall.toolName,
+						output: toolCall.dynamic
+							? toolCall.dynamic.valueOf()
+							: null,
+					}))
+				),
+			})),
+		});
+
+		// Fallback if no text was generated
+		const content =
+			result.text ||
+			"I apologize, but I'm having trouble generating a response right now. Some of my tools may not be working correctly. Please try again or rephrase your question.";
+
+		return Response.json({
+			role: 'assistant',
+			content,
+		});
 	} catch (error) {
 		console.error('Chat API error:', error);
 		return new Response(

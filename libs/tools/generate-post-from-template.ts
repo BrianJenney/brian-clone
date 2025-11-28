@@ -110,7 +110,7 @@ Your task:
 Generate the post:`;
 
 			const { text } = await generateText({
-				model: openai('gpt-4o'),
+				model: openai('gpt-5'),
 				prompt,
 			});
 

@@ -5,7 +5,6 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { generateContent } from '@/app/actions/generate-content';
-import { BaseMessage } from '@langchain/core/messages';
 
 type ChatMode = 'standard' | 'contentGen';
 
@@ -17,9 +16,6 @@ type Message = {
 export default function ChatInterface() {
 	const [chatMode, setChatMode] = useState<ChatMode>('standard');
 	const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
-	const [generatedPostsSources, setGeneratedPostsSources] = useState<
-		string[]
-	>([]);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [messages, setMessages] = useState<Message[]>([]);
@@ -72,18 +68,11 @@ export default function ChatInterface() {
 			setIsGenerating(true);
 			setGenerationError(null);
 			setGeneratedPosts([]);
-			setGeneratedPostsSources([]);
 
-			const result = await generateContent(
-				messages.map((message) => ({
-					role: message.role,
-					content: message.content,
-				}))
-			);
+			const result = await generateContent(message);
 
 			if (result.success && 'options' in result && result.options) {
 				setGeneratedPosts(result.options);
-				setGeneratedPostsSources(result.sources);
 			} else {
 				throw new Error(
 					'message' in result && result.message
@@ -273,6 +262,7 @@ export default function ChatInterface() {
 								key={index}
 								onClick={() => {
 									navigator.clipboard.writeText(post);
+									// Optional: show a toast notification
 								}}
 								className='bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-colors border border-gray-600 hover:border-purple-500'
 							>
@@ -308,21 +298,6 @@ export default function ChatInterface() {
 								</div>
 							</div>
 						))}
-						<div className='text-gray-400 text-sm'>
-							Sources:{' '}
-							{generatedPostsSources
-								?.map((source: string) => (
-									<a
-										key={source}
-										href={source}
-										target='_blank'
-										rel='noopener noreferrer'
-									>
-										{source}
-									</a>
-								))
-								?.join(', ')}
-						</div>
 					</div>
 				)}
 
@@ -352,18 +327,152 @@ export default function ChatInterface() {
 
 								{/* Message Content */}
 								<div className='text-sm'>
-									{message.role === 'assistant' ? (
-										<ReactMarkdown
-											remarkPlugins={[remarkGfm]}
-											className='prose prose-invert prose-sm max-w-none'
-										>
-											{message.content}
-										</ReactMarkdown>
-									) : (
-										<div className='whitespace-pre-wrap'>
-											{message.content}
-										</div>
-									)}
+									{message.parts.map((part, partIndex) => {
+										if (part.type.includes('tool')) {
+											return (
+												<div
+													className='bg-gray-700 text-white p-2 rounded-md'
+													key={`${message.id}-tool-result-${partIndex}`}
+												>
+													{part.type}
+												</div>
+											);
+										}
+										if (part.type === 'dynamic-tool') {
+											return (
+												<div
+													key={`${message.id}-tool-${partIndex}`}
+												>
+													{part.toolName}
+												</div>
+											);
+										}
+										if (part.type === 'text') {
+											return (
+												<div
+													key={`${message.id}-text-${partIndex}`}
+												>
+													{message.role ===
+													'assistant' ? (
+														<ReactMarkdown
+															remarkPlugins={[
+																remarkGfm,
+															]}
+															className='prose prose-invert prose-sm max-w-none'
+															components={{
+																h1: ({
+																	node,
+																	...props
+																}) => (
+																	<h1
+																		className='text-xl font-bold mt-4 mb-2'
+																		{...props}
+																	/>
+																),
+																h2: ({
+																	node,
+																	...props
+																}) => (
+																	<h2
+																		className='text-lg font-bold mt-3 mb-2'
+																		{...props}
+																	/>
+																),
+																h3: ({
+																	node,
+																	...props
+																}) => (
+																	<h3
+																		className='text-base font-bold mt-2 mb-1'
+																		{...props}
+																	/>
+																),
+																p: ({
+																	node,
+																	...props
+																}) => (
+																	<p
+																		className='mb-2 last:mb-0'
+																		{...props}
+																	/>
+																),
+																ul: ({
+																	node,
+																	...props
+																}) => (
+																	<ul
+																		className='list-disc list-inside mb-2 space-y-1'
+																		{...props}
+																	/>
+																),
+																ol: ({
+																	node,
+																	...props
+																}) => (
+																	<ol
+																		className='list-decimal list-inside mb-2 space-y-1'
+																		{...props}
+																	/>
+																),
+																li: ({
+																	node,
+																	...props
+																}) => (
+																	<li
+																		className='ml-4'
+																		{...props}
+																	/>
+																),
+																code: ({
+																	node,
+																	...props
+																}: any) => {
+																	const inline =
+																		!props.className;
+																	return inline ? (
+																		<code
+																			className='bg-gray-800 px-1 py-0.5 rounded text-blue-300'
+																			{...props}
+																		/>
+																	) : (
+																		<code
+																			className='block bg-gray-800 p-2 rounded my-2 overflow-x-auto'
+																			{...props}
+																		/>
+																	);
+																},
+																blockquote: ({
+																	node,
+																	...props
+																}) => (
+																	<blockquote
+																		className='border-l-4 border-gray-500 pl-4 my-2 italic'
+																		{...props}
+																	/>
+																),
+																a: ({
+																	node,
+																	...props
+																}) => (
+																	<a
+																		className='text-blue-400 hover:underline'
+																		{...props}
+																	/>
+																),
+															}}
+														>
+															{part.text}
+														</ReactMarkdown>
+													) : (
+														<div className='whitespace-pre-wrap'>
+															{part.text}
+														</div>
+													)}
+												</div>
+											);
+										}
+										return null;
+									})}
 								</div>
 							</div>
 						</div>
@@ -461,7 +570,9 @@ export default function ChatInterface() {
 				</div>
 				<button
 					type='submit'
-					disabled={!input.trim() || isLoading || isGenerating}
+					disabled={
+						!input.trim() || isLoading || isGenerating
+					}
 					className={`px-4 sm:px-6 py-2 ${
 						chatMode === 'contentGen'
 							? 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400'

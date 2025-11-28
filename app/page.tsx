@@ -1,6 +1,4 @@
 'use client';
-import { useStream } from '@langchain/langgraph-sdk/react';
-import type { Message } from '@langchain/langgraph-sdk';
 import { useState } from 'react';
 import UploadForm from '@/components/UploadForm';
 import SearchDeleteUI from '@/components/SearchDeleteUI';
@@ -10,12 +8,6 @@ type Tab = 'upload' | 'search' | 'chat';
 
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<Tab>('chat');
-
-	const stream = useStream<{ messages: Message[] }>({
-		apiUrl: 'http://localhost:3000/api/generate-content',
-		assistantId: 'agent',
-		messagesKey: 'messages',
-	});
 
 	return (
 		<main className='min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'>
@@ -61,50 +53,6 @@ export default function Home() {
 						>
 							Search
 						</button>
-					</div>
-
-					<div>
-						<div>
-							{stream.messages.map((message) => (
-								<div key={message.id}>
-									{message.content as string}
-								</div>
-							))}
-						</div>
-
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-
-								const form = e.target as HTMLFormElement;
-								const message = new FormData(form).get(
-									'message'
-								) as string;
-
-								form.reset();
-								stream.submit({
-									messages: [
-										{ type: 'human', content: message },
-									],
-								});
-							}}
-						>
-							<input type='text' name='message' />
-
-							{stream.isLoading ? (
-								<button
-									key='stop'
-									type='button'
-									onClick={() => stream.stop()}
-								>
-									Stop
-								</button>
-							) : (
-								<button key='submit' type='submit'>
-									Send
-								</button>
-							)}
-						</form>
 					</div>
 
 					{/* Tab Content */}
