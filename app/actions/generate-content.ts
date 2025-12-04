@@ -1,7 +1,6 @@
 'use server';
 
 import { graph as contentGenerationGraph } from '@/libs/content-generation';
-import { BaseMessage } from '@langchain/core/messages';
 
 /**
  * Server action for generating content using LangGraph workflow
