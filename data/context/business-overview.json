@@ -1,7 +1,10 @@
 {
-  "business_name": "Brian's Tech Education Platform",
+  "business_name": "Parsity.io",
   "type": "business_context",
-  "last_updated": "2025-11-05",
+  "last_updated": "2025-12-15",
+  "location": "Accredited in Indiana, owner based in California",
+  "platform": "Kajabi",
+  "delivery": "100% online",
   "mission": "Help working professionals transition into tech careers through practical, time-efficient learning paths",
   "target_audience": {
     "primary": "Career changers (25-40 years old)",
@@ -13,6 +16,119 @@
     },
     "personas": ["marcus-persona"]
   },
+  "programs": [
+    {
+      "name": "Dev30",
+      "url": "https://dev30.xyz",
+      "type": "tripwire",
+      "price": "$49",
+      "duration": "30 days",
+      "format": "Self-paced with live Zoom office hours",
+      "cohort_size": "Cohort-based",
+      "description": "30-day JavaScript fundamentals program designed to convert students into the full bootcamp",
+      "focus_areas": [
+        {
+          "area": "Skills",
+          "description": "Complete JavaScript fundamentals using self-paced curriculum and live Zoom office hours"
+        },
+        {
+          "area": "Mindset",
+          "description": "Daily podcast (~5 mins) to feed your coding brain for each of the 30 days"
+        },
+        {
+          "area": "Habits",
+          "description": "Build life-changing routines balancing work and rest"
+        },
+        {
+          "area": "Network",
+          "description": "Learn in public by posting on LinkedIn daily alongside cohort members"
+        }
+      ],
+      "curriculum": [
+        "Variables and data types",
+        "Functions and control structures",
+        "Asynchronous programming",
+        "Closures",
+        "ES6 features",
+        "Hands-on projects for portfolio"
+      ],
+      "upsell": "Graduates get $1,400 off the full Parsity Bootcamp"
+    },
+    {
+      "name": "Parsity Bootcamp",
+      "url": "https://www.parsity.io/course",
+      "type": "core_program",
+      "price": "$9,200",
+      "duration": "6-9 months (flexible, self-paced)",
+      "format": "Online with dedicated mentor, project-based learning",
+      "cohort_size": "12 students max per quarterly cohort",
+      "description": "Full-stack coding bootcamp covering MERN + Testing + AI integration",
+      "tech_stack": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "PostgreSQL",
+        "Prisma",
+        "Testing"
+      ],
+      "ai_modules": [
+        "Retrieval-Augmented Generation (RAG)",
+        "AI Agents",
+        "Pinecone",
+        "Qdrant",
+        "Next.js AI SDK"
+      ],
+      "features": [
+        "Dedicated personal mentor (not massive cohorts)",
+        "Real projects with graded feedback",
+        "Practical AI integration skills",
+        "Career support until job placement",
+        "Flexible timeline for working professionals"
+      ]
+    },
+    {
+      "name": "AIDev",
+      "url": "https://www.parsity.io/AIDev",
+      "type": "specialized_program",
+      "price": "$997 (or $399/month x 3)",
+      "deposit": "$97 refundable",
+      "duration": "30 days",
+      "format": "Asynchronous lessons + 4 live group office hours + weekly guest speakers",
+      "cohort_size": "15 developers max",
+      "access_period": "90 days after program ends",
+      "description": "Intensive bootcamp for web developers to master applied AI development",
+      "prerequisites": [
+        "React/Next.js experience required",
+        "Bootcamp graduate or equivalent experience"
+      ],
+      "curriculum": {
+        "week_1": "LLM fundamentals, embeddings, vectors, vector search mechanics, math intuition",
+        "week_2": "RAG pipeline construction (scraping, chunking, embedding, retrieval)",
+        "week_3": "TypeScript & Next.js integration, chat interfaces, API routes, streaming, model fine-tuning",
+        "week_4": "Agent design, unit testing, deployment to Vercel, capstone RAG system"
+      },
+      "topics": [
+        "Retrieval-Augmented Generation & vector databases (Pinecone/Qdrant)",
+        "Multi-agent systems and orchestration",
+        "Prompt engineering for reliability",
+        "Linear algebra foundations (intuition-based)",
+        "Observability, streaming UIs, and monitoring",
+        "Communicating AI concepts to leadership"
+      ],
+      "capstone": "Production-ready Next.js + TypeScript app with vector storage, RAG pipeline, OpenAI API, multi-agent orchestration, and real-time streaming"
+    }
+  ],
+  "revenue_model": {
+    "bootcamp": "$9,200 tuition",
+    "dev30": "$49 tripwire with upsell path",
+    "aidev": "$997 specialized program",
+    "cohorts_per_year": 4,
+    "max_annual_bootcamp_students": 48
+  },
   "value_proposition": {
     "core_message": "Clear, proven roadmap from beginner to hired developer without quitting your job",
     "differentiation": [
@@ -20,7 +136,9 @@
       "Respects time constraints of working professionals",
       "Leverages existing professional experience",
       "Focus on practical skills over theory",
-      "Real projects, not tutorial hell"
+      "Real projects, not tutorial hell",
+      "Highly personalized mentorship (small cohorts)",
+      "Direct access to instructors"
     ]
   },
   "content_pillars": [
@@ -32,7 +150,7 @@
     {
       "pillar": "Technical Education",
       "description": "Practical coding tutorials focused on real-world applications",
-      "topics": ["Web development", "JavaScript/React", "Backend basics", "Testing", "Architecture"]
+      "topics": ["Web development", "JavaScript/React", "Backend basics", "Testing", "Architecture", "AI integration"]
     },
     {
       "pillar": "Professional Development",
@@ -76,5 +194,15 @@
       "Summarize key takeaways",
       "Provide next learning steps"
     ]
-  }
+  },
+  "marketing": {
+    "channels": ["LinkedIn", "YouTube", "Newsletter"],
+    "challenges": [
+      "Low enrollment in full program",
+      "Reliance on organic marketing",
+      "Need for better top-of-funnel engagement",
+      "Nurturing between Dev30 and Bootcamp"
+    ]
+  },
+  "internal_tools": ["Kajabi", "Notion", "Typeform", "Google Suite", "Vercel"]
 }

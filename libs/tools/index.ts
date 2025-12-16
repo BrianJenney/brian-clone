@@ -7,5 +7,4 @@
 
 export { searchWritingSamplesTool } from './search-content';
 export { getBusinessContextTool } from './get-business-context';
-export { fetchTemplatesTool } from './fetch-templates';
-export { generatePostFromTemplateTool } from './generate-post-from-template';
+export { searchResourcesTool } from './search-resources';

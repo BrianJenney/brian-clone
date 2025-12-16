@@ -3,8 +3,7 @@ import { generateText, stepCountIs } from 'ai';
 import {
 	searchWritingSamplesTool,
 	getBusinessContextTool,
-	fetchTemplatesTool,
-	generatePostFromTemplateTool,
+	searchResourcesTool,
 } from '@/libs/tools';
 
 /**
@@ -17,7 +16,7 @@ export async function POST(req: Request) {
 		const { messages } = body;
 
 		let result = await generateText({
-			model: openai('gpt-4o'),
+			model: openai('gpt-5'),
 			messages,
 			system: `
 You are Brian's AI business and content assistant. You provide two types of support:
@@ -68,8 +67,7 @@ Follow this "How To" article structure:
 ## Tool Usage Guidelines
 - **getBusinessContextTool**: For strategy, personas, business advice, content planning
 - **searchWritingSamplesTool**: For writing content that matches Brian's style and references past work
-- **fetchTemplatesTool**: To retrieve content templates from Airtable
-- **generatePostFromTemplateTool**: To create posts based on Airtable templates matched with Brian's writing style
+- **searchResourcesTool**: Find learning resources, tutorials and lead magnets that Brian has created or curated. When writing a post, use this tool to find relevant resources to include in the post.
 - Use tools ONLY when needed - not every message requires tool usage
 - Be thoughtful about which tool provides the most relevant context
 - **CRITICAL**: If a tool returns an error or fails, do NOT call it again. Instead, provide a helpful response based on your knowledge without that tool's data. Acknowledge any limitations briefly and focus on what you can help with.
@@ -79,11 +77,10 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 			tools: {
 				searchWritingSamplesTool,
 				getBusinessContextTool,
-				fetchTemplatesTool,
-				generatePostFromTemplateTool,
+				searchResourcesTool,
 			},
 			toolChoice: 'auto',
-			stopWhen: stepCountIs(5),
+			stopWhen: stepCountIs(15),
 		});
 
 		console.log('Generated response:', {

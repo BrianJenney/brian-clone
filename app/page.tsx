@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import UploadForm from '@/components/UploadForm';
 import SearchDeleteUI from '@/components/SearchDeleteUI';
 import ChatInterface from '@/components/ChatInterface';
@@ -8,10 +9,25 @@ type Tab = 'upload' | 'search' | 'chat';
 
 export default function Home() {
 	const [activeTab, setActiveTab] = useState<Tab>('chat');
+	const router = useRouter();
+
+	const handleLogout = async () => {
+		await fetch('/api/auth/logout', { method: 'POST' });
+		router.push('/login');
+		router.refresh();
+	};
 
 	return (
-		<main className='min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'>
+		<main className='min-h-screen p-4 sm:p-8 bg-linear-to-br from-gray-900 via-gray-800 to-gray-900'>
 			<div className='max-w-6xl mx-auto'>
+				<div className='flex justify-end mb-2'>
+					<button
+						onClick={handleLogout}
+						className='text-sm text-gray-400 hover:text-white transition-colors'
+					>
+						Sign Out
+					</button>
+				</div>
 				<h1 className='text-2xl sm:text-4xl font-bold text-center mb-2 text-white'>
 					Brian's AI Writing Assistant
 				</h1>

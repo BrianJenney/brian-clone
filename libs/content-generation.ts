@@ -19,6 +19,12 @@ const schema = z.object({
 	writingSamples: z.array(z.string()),
 	sources: z.array(z.string()),
 	options: z.array(z.string()),
+	relevantResources: z.array(z.object({
+		title: z.string(),
+		url: z.string(),
+		category: z.string(),
+		description: z.string(),
+	})),
 });
 
 const getTemplates = async (state: z.infer<typeof schema>) => {
@@ -63,6 +69,7 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 	const writingSamples = state.writingSamples;
 	const businessData = state.businessData;
 	const needsBusinessData = state.needsBusinessData;
+	const relevantResources = state.relevantResources || [];
 
 	const SYSTEM_PROMPT = `
 	You are writing content for Brian targeted at the Marcus persona - career changers and people learning to code.
@@ -83,6 +90,12 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 			: ''
 	}
 
+	${
+		relevantResources.length > 0
+			? `Relevant learning resource (use sparingly as context, include link if highly relevant):\n${JSON.stringify(relevantResources[0], null, 2)}`
+			: ''
+	}
+
 	INSTRUCTIONS:
 	1. Generate 3 content options focused on coding, software development, career transitions into tech, or learning to code
 	2. Use the template ONLY for formatting/structure (e.g., if it's a list, use list format; if it's how-to, use how-to structure)
@@ -90,6 +103,7 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 	4. Match Brian's writing style from the samples
 	5. Address the Marcus persona: career changers, people learning to code, developers building skills
 	6. Topics should relate to: coding tutorials, career advice for developers, learning paths, building projects, tech skills, etc.
+	7. If a learning resource is provided and highly relevant, you may reference or link to it (MAX 1 link per content option)
 
 	Generate 3 options for content about coding/development/learning to code.
 	`;
@@ -216,46 +230,99 @@ const getWritingSamples = async (state: z.infer<typeof schema>) => {
 	};
 };
 
+const fetchRelevantResources = async (state: z.infer<typeof schema>) => {
+	const lastMessages = state.messages.slice(-5);
+	const writingSamples = state.writingSamples;
+
+	// Load learning resources
+	const resourcesPath = path.join(
+		process.cwd(),
+		'data',
+		'resources',
+		'learning-resources.json'
+	);
+	const resourcesData = await fs.readFile(resourcesPath, 'utf-8');
+	const allResources = JSON.parse(resourcesData);
+
+	const SYSTEM_PROMPT = `
+	Based on the user's request and writing samples, determine if ANY of these learning resources would be valuable context.
+
+	IMPORTANT: Be VERY selective. Only choose a resource if it directly relates to the content being generated.
+	Maximum of 1 resource should be selected (or 0 if none are truly relevant).
+
+	User's message history:
+	${lastMessages.map((message) => message.content).join('\n')}
+
+	Writing samples context:
+	${writingSamples.slice(0, 2).join('\n')}
+
+	Available resources:
+	${JSON.stringify(allResources, null, 2)}
+
+	Return an array of resource titles that are relevant (max 1, or empty array if none fit).
+	`;
+
+	const result = await llm
+		.withStructuredOutput(z.object({ resourceTitles: z.array(z.string()) }))
+		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
+
+	// Get the full resource objects for the selected titles
+	const relevantResources = allResources.filter((resource: any) =>
+		result.resourceTitles.includes(resource.title)
+	).slice(0, 1); // Ensure max 1 resource
+
+	return { relevantResources };
+};
+
+const checkIfBusinessDataNeeded = async (state: z.infer<typeof schema>) => {
+	const lastMessages = state.messages.slice(-5);
+
+	const SYSTEM_PROMPT = `
+	Determine if the user is asking for business advice, business context, metrics, performance data, or strategy advice.
+
+	Business advice examples:
+	- Questions about podcast performance
+	- Questions about audience/persona
+	- Questions about business strategy
+	- Requests for data-driven insights
+	- Content optimization based on metrics
+
+	NOT business advice:
+	- General content requests about coding/development
+	- Writing samples or style questions
+	- Template/format questions
+
+	Message history:
+	${lastMessages.map((message) => message.content).join('\n')}
+
+	Return true if business data is needed, false otherwise.
+	`;
+
+	const result = await llm
+		.withStructuredOutput(z.object({ needsBusinessData: z.boolean() }))
+		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
+
+	return { needsBusinessData: result.needsBusinessData };
+};
+
 const shouldGetBusinessData = (state: z.infer<typeof schema>) => {
 	return state.needsBusinessData ? 'getBusinessData' : 'getWritingSamples';
 };
 
 export const graph = new StateGraph(schema)
-	.addNode('agent', async ({ messages }) => {
-		const SYSTEM_PROMPT = `
-		Determine if the user needs business data to understand the business and the target audience OR just writing samples for style to create
-		a linkedin post.
-
-		Brian's content is ALWAYS targeted at the Marcus persona: coders and people learning to code (career changers, developers, tech learners).
-		Brian's content is NEVER about marketing, ecommerce, or B2B topics.
-
-		Business data should be retrieved if the query relates to:
-		- Parsity (Brian's coding education business)
-		- The podcast about coding/tech education
-		- The Marcus persona (target audience: career changers learning to code)
-		- Specific business metrics, performance, or context
-
-		Otherwise, we do not need business data - just writing samples for style.
-
-		Message history:
-		${messages.map((message) => message.content).join('\n')}
-		`;
-
-		const result = await llm
-			.withStructuredOutput(z.object({ needsBusinessData: z.boolean() }))
-			.invoke([new SystemMessage(SYSTEM_PROMPT), ...messages]);
-		return { needsBusinessData: result.needsBusinessData };
-	})
-	.addEdge(START, 'agent')
+	.addNode('checkIfBusinessDataNeeded', checkIfBusinessDataNeeded)
+	.addNode('getBusinessData', getBusinessData)
 	.addNode('getWritingSamples', getWritingSamples)
+	.addNode('fetchRelevantResources', fetchRelevantResources)
 	.addNode('getTemplates', getTemplates)
 	.addNode('generateContentOptions', generateContentOptions)
-	.addNode('getBusinessData', getBusinessData)
-	.addConditionalEdges('agent', shouldGetBusinessData)
-	.addEdge('getWritingSamples', 'getTemplates')
-	.addEdge('getBusinessData', END)
+	.addEdge(START, 'checkIfBusinessDataNeeded')
+	.addConditionalEdges('checkIfBusinessDataNeeded', shouldGetBusinessData)
+	.addEdge('getBusinessData', 'getWritingSamples')
+	.addEdge('getWritingSamples', 'fetchRelevantResources')
+	.addEdge('fetchRelevantResources', 'getTemplates')
 	.addEdge('getTemplates', 'generateContentOptions')
 	.addEdge('generateContentOptions', END)
 	.compile();
 
-export type GraphType = typeof graph;
+export const contentGenerationGraph = graph;

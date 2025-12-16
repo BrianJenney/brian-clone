@@ -117,29 +117,17 @@ export const SearchContentToolSchema = z.object({
 });
 export type SearchContentTool = z.infer<typeof SearchContentToolSchema>;
 
-export const FetchTemplatesToolSchema = z.object({
-	filterFormula: z
+export const SearchResourcesToolSchema = z.object({
+	query: z
 		.string()
-		.optional()
-		.describe('Airtable filter formula (e.g., "{Status} = \'Active\'")'),
-	limit: z
-		.number()
-		.optional()
-		.describe('Maximum number of templates to return'),
-});
-export type FetchTemplatesTool = z.infer<typeof FetchTemplatesToolSchema>;
-
-export const GeneratePostToolSchema = z.object({
-	templateId: z.string().describe('The Airtable template record ID to use'),
-	topic: z
-		.string()
-		.optional()
-		.describe('Optional specific topic or subject for the post'),
-	style: z
+		.describe(
+			'Natural language query to search for learning resources (e.g., "AI tutorials", "career guidance", "side project planning")'
+		),
+	category: z
 		.string()
 		.optional()
 		.describe(
-			'Optional style guidance (e.g., "casual", "professional", "humorous")'
+			'Optional category filter: project-planning, career, tooling, learning, beginner, javascript-fundamentals, ai, backend, cloud, frontend, database'
 		),
 });
-export type GeneratePostTool = z.infer<typeof GeneratePostToolSchema>;
+export type SearchResourcesTool = z.infer<typeof SearchResourcesToolSchema>;
