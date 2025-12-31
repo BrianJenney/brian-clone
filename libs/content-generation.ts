@@ -5,7 +5,6 @@ import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod/v4';
 import { qdrantClient } from './qdrant';
 import { generateEmbedding } from './openai';
-import contentTemplates from '@/data/templates/content-templates.json';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -19,49 +18,15 @@ const schema = z.object({
 	writingSamples: z.array(z.string()),
 	sources: z.array(z.string()),
 	options: z.array(z.string()),
-	relevantResources: z.array(z.object({
-		title: z.string(),
-		url: z.string(),
-		category: z.string(),
-		description: z.string(),
-	})),
+	relevantResources: z.array(
+		z.object({
+			title: z.string(),
+			url: z.string(),
+			category: z.string(),
+			description: z.string(),
+		})
+	),
 });
-
-const getTemplates = async (state: z.infer<typeof schema>) => {
-	const lastMessages = state.messages.slice(-5);
-	const writingSamples = state.writingSamples;
-
-	const templateOption = contentTemplates.map((template) => template.type);
-
-	const SYSTEM_PROMPT = `
-	Given a short message history and writing samples, pick the most relevant content STRUCTURE/FORMAT template.
-
-	IMPORTANT: These templates are ONLY for format (how-to, list, observation, advice, thought-leadership, etc.).
-	The templates contain marketing content, but Brian's audience is CODERS/PEOPLE LEARNING TO CODE, not marketers.
-	You are picking the FORMAT type (list, how-to, etc.), NOT the topic.
-
-	Message history:
-	${lastMessages.map((message) => message.content).join('\n')}
-
-	Writing samples:
-	${writingSamples.join('\n')}
-
-	Template format options:
-	${templateOption.join('\n')}
-
-	Pick the format that best matches the structure needed for the user's request.
-	`;
-
-	const result = await llm
-		.withStructuredOutput(z.object({ template: z.string() }))
-		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
-
-	const templateExample = contentTemplates.find(
-		(option) => option.type === result.template
-	);
-
-	return { template: templateExample?.content };
-};
 
 const generateContentOptions = async (state: z.infer<typeof schema>) => {
 	const lastMessages = state.messages.slice(-5);
@@ -92,7 +57,11 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 
 	${
 		relevantResources.length > 0
-			? `Relevant learning resource (use sparingly as context, include link if highly relevant):\n${JSON.stringify(relevantResources[0], null, 2)}`
+			? `Relevant learning resource (use sparingly as context, include link if highly relevant):\n${JSON.stringify(
+					relevantResources[0],
+					null,
+					2
+			  )}`
 			: ''
 	}
 
@@ -232,7 +201,24 @@ const getWritingSamples = async (state: z.infer<typeof schema>) => {
 
 const fetchRelevantResources = async (state: z.infer<typeof schema>) => {
 	const lastMessages = state.messages.slice(-5);
-	const writingSamples = state.writingSamples;
+
+	// Generate a search query from the message history
+	const QUERY_PROMPT = `
+	Construct a search query to find relevant learning resources for the user's content request.
+
+	The resources include courses, guides, templates, and tutorials about coding, career transitions, AI, backend, frontend, databases, cloud, etc.
+
+	Message history:
+	${lastMessages.map((message) => message.content).join('\n')}
+
+	Generate a concise search query to find the most relevant learning resource.
+	`;
+
+	const queryResult = await llm
+		.withStructuredOutput(z.object({ query: z.string() }))
+		.invoke([new SystemMessage(QUERY_PROMPT), ...lastMessages]);
+
+	console.log('Resources search query:', queryResult.query);
 
 	// Load learning resources
 	const resourcesPath = path.join(
@@ -244,32 +230,31 @@ const fetchRelevantResources = async (state: z.infer<typeof schema>) => {
 	const resourcesData = await fs.readFile(resourcesPath, 'utf-8');
 	const allResources = JSON.parse(resourcesData);
 
-	const SYSTEM_PROMPT = `
-	Based on the user's request and writing samples, determine if ANY of these learning resources would be valuable context.
+	// Use LLM to find the most relevant resource
+	const SEARCH_PROMPT = `
+	Given a user query and a list of learning resources, identify the most relevant resource.
 
-	IMPORTANT: Be VERY selective. Only choose a resource if it directly relates to the content being generated.
-	Maximum of 1 resource should be selected (or 0 if none are truly relevant).
-
-	User's message history:
-	${lastMessages.map((message) => message.content).join('\n')}
-
-	Writing samples context:
-	${writingSamples.slice(0, 2).join('\n')}
+	User query: ${queryResult.query}
 
 	Available resources:
 	${JSON.stringify(allResources, null, 2)}
 
-	Return an array of resource titles that are relevant (max 1, or empty array if none fit).
+	Return the title of the most relevant resource (or empty array if none are relevant).
+	Be selective - only return a resource if it directly relates to the query.
 	`;
 
 	const result = await llm
 		.withStructuredOutput(z.object({ resourceTitles: z.array(z.string()) }))
-		.invoke([new SystemMessage(SYSTEM_PROMPT), ...lastMessages]);
+		.invoke([new SystemMessage(SEARCH_PROMPT)]);
 
-	// Get the full resource objects for the selected titles
-	const relevantResources = allResources.filter((resource: any) =>
-		result.resourceTitles.includes(resource.title)
-	).slice(0, 1); // Ensure max 1 resource
+	// Get the full resource object for the selected title
+	const relevantResources = allResources
+		.filter((resource: any) =>
+			result.resourceTitles.includes(resource.title)
+		)
+		.slice(0, 1);
+
+	console.log('Relevant resources found:', relevantResources.length);
 
 	return { relevantResources };
 };
@@ -314,14 +299,12 @@ export const graph = new StateGraph(schema)
 	.addNode('getBusinessData', getBusinessData)
 	.addNode('getWritingSamples', getWritingSamples)
 	.addNode('fetchRelevantResources', fetchRelevantResources)
-	.addNode('getTemplates', getTemplates)
 	.addNode('generateContentOptions', generateContentOptions)
 	.addEdge(START, 'checkIfBusinessDataNeeded')
 	.addConditionalEdges('checkIfBusinessDataNeeded', shouldGetBusinessData)
 	.addEdge('getBusinessData', 'getWritingSamples')
 	.addEdge('getWritingSamples', 'fetchRelevantResources')
-	.addEdge('fetchRelevantResources', 'getTemplates')
-	.addEdge('getTemplates', 'generateContentOptions')
+	.addEdge('fetchRelevantResources', 'generateContentOptions')
 	.addEdge('generateContentOptions', END)
 	.compile();
 

@@ -109,6 +109,10 @@ export default function ChatInterface() {
 			const userMessage: Message = { role: 'user', content: message };
 			setMessages((prev) => [...prev, userMessage]);
 
+			// Add empty assistant message that will be streamed into
+			const assistantMessage: Message = { role: 'assistant', content: '' };
+			setMessages((prev) => [...prev, assistantMessage]);
+
 			// Call API
 			const response = await fetch('/api/chat', {
 				method: 'POST',
@@ -122,14 +126,34 @@ export default function ChatInterface() {
 				throw new Error('Failed to send message');
 			}
 
-			const data = await response.json();
+			// Handle streaming response
+			const reader = response.body?.getReader();
+			const decoder = new TextDecoder();
 
-			// Add assistant message
-			const assistantMessage: Message = {
-				role: 'assistant',
-				content: data.content,
-			};
-			setMessages((prev) => [...prev, assistantMessage]);
+			if (!reader) {
+				throw new Error('No response body');
+			}
+
+			let accumulatedContent = '';
+
+			while (true) {
+				const { done, value } = await reader.read();
+
+				if (done) break;
+
+				const chunk = decoder.decode(value, { stream: true });
+				accumulatedContent += chunk;
+
+				// Update the last message (assistant) with accumulated content
+				setMessages((prev) => {
+					const newMessages = [...prev];
+					const lastMessage = newMessages[newMessages.length - 1];
+					if (lastMessage.role === 'assistant') {
+						lastMessage.content = accumulatedContent;
+					}
+					return newMessages;
+				});
+			}
 		} catch (error) {
 			console.error('Chat error:', error);
 			setError(error instanceof Error ? error.message : 'Unknown error');
@@ -201,12 +225,21 @@ export default function ChatInterface() {
 								templates and your writing style.
 							</p>
 							<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-								<p className='font-medium text-sm'>Example prompts:</p>
+								<p className='font-medium text-sm'>
+									Example prompts:
+								</p>
 								<ul className='list-disc list-inside space-y-1 text-gray-400 text-xs sm:text-sm'>
-									<li>Create posts about career transitions</li>
+									<li>
+										Create posts about career transitions
+									</li>
 									<li>Write about learning React in 2025</li>
-									<li>Generate content on remote work trends</li>
-									<li>Posts about software engineering career advice</li>
+									<li>
+										Generate content on remote work trends
+									</li>
+									<li>
+										Posts about software engineering career
+										advice
+									</li>
 								</ul>
 							</div>
 						</div>
@@ -222,12 +255,16 @@ export default function ChatInterface() {
 							posts in your style.
 						</p>
 						<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-							<p className='font-medium text-sm'>Try asking me to:</p>
+							<p className='font-medium text-sm'>
+								Try asking me to:
+							</p>
 							<ul className='list-disc list-inside space-y-1 text-gray-400 text-xs sm:text-sm'>
 								<li>Search through your existing content</li>
 								<li>Generate a new article about a topic</li>
 								<li>Write a post in your style</li>
-								<li>Upload new content to the knowledge base</li>
+								<li>
+									Upload new content to the knowledge base
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -318,7 +355,9 @@ export default function ChatInterface() {
 				)}
 
 				{chatMode !== 'contentGen' &&
-					messages.map((message, index) => (
+					messages
+						.filter((msg) => msg.role === 'user' || msg.content)
+						.map((message, index) => (
 						<div
 							key={index}
 							className={`flex ${
@@ -360,20 +399,24 @@ export default function ChatInterface() {
 						</div>
 					))}
 
-				{/* Loading indicator for standard mode */}
-				{chatMode === 'standard' && isLoading && (
-					<div className='flex justify-start'>
-						<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
-							<div className='text-xs font-medium mb-1 opacity-75'>
-								Assistant
-							</div>
-							<div className='flex items-center gap-2 text-sm text-gray-300'>
-								<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
-								<span>Thinking...</span>
+				{/* Loading indicator for standard mode - only show when no content yet */}
+				{chatMode === 'standard' &&
+					isLoading &&
+					messages.length > 0 &&
+					messages[messages.length - 1].role === 'assistant' &&
+					!messages[messages.length - 1].content && (
+						<div className='flex justify-start'>
+							<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
+								<div className='text-xs font-medium mb-1 opacity-75'>
+									Assistant
+								</div>
+								<div className='flex items-center gap-2 text-sm text-gray-300'>
+									<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
+									<span>Thinking...</span>
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
+					)}
 
 				<div ref={messagesEndRef} />
 			</div>

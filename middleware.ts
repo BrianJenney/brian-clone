@@ -41,7 +41,8 @@ export async function middleware(request: NextRequest) {
 		pathname.startsWith('/api/auth/') ||
 		pathname.startsWith('/_next/') ||
 		pathname.startsWith('/favicon') ||
-		pathname.endsWith('.ico')
+		pathname.endsWith('.ico') ||
+		process.env.NODE_ENV === 'development'
 	) {
 		return NextResponse.next();
 	}

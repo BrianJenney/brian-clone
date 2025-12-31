@@ -1,5 +1,5 @@
 import { openai } from '@/libs/ai';
-import { generateText, stepCountIs } from 'ai';
+import { stepCountIs, streamText } from 'ai';
 import {
 	searchWritingSamplesTool,
 	getBusinessContextTool,
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 		const body = await req.json();
 		const { messages } = body;
 
-		let result = await generateText({
+		const result = streamText({
 			model: openai('gpt-5'),
 			messages,
 			system: `
@@ -82,44 +82,9 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 			stopWhen: stepCountIs(15),
 		});
 
-		console.log('Generated response:', {
-			textLength: result.text?.length,
-			finishReason: result.finishReason,
-			toolResults: result.toolResults?.length,
-			stepsCount: result.steps?.length,
-			steps: result.steps?.map((step, i) => ({
-				stepNum: i + 1,
-				finishReason: step.finishReason,
-				toolCallsCount: step.toolCalls?.length,
-				toolCalls: JSON.stringify(
-					step.toolCalls?.map((toolCall) => ({
-						toolName: toolCall.toolName,
-						output: toolCall.dynamic
-							? toolCall.dynamic.valueOf()
-							: null,
-					}))
-				),
-			})),
-		});
-
-		// Fallback if no text was generated
-		const content =
-			result.text ||
-			"I apologize, but I'm having trouble generating a response right now. Some of my tools may not be working correctly. Please try again or rephrase your question.";
-
-		return Response.json({
-			role: 'assistant',
-			content,
-		});
+		return result.toTextStreamResponse();
 	} catch (error) {
-		console.error('Chat API error:', error);
-		return new Response(
-			JSON.stringify({
-				error: 'Internal server error',
-				message:
-					error instanceof Error ? error.message : 'Unknown error',
-			}),
-			{ status: 500, headers: { 'Content-Type': 'application/json' } }
-		);
+		console.error('Error in chat API:', error);
+		return new Response('Internal server error', { status: 500 });
 	}
 }
