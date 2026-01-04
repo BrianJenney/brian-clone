@@ -2,6 +2,10 @@
 	"crons": [
 		{
 			"path": "/api/linkedin-posts",
+			"method": "POST",
+			"env": {
+				"AUTH_SECRET": "@AUTH_SECRET"
+			},
 			"schedule": "0 9 * * 1"
 		}
 	]
