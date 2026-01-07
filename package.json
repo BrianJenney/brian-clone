@@ -12,7 +12,8 @@
 		"upload-linkedin": "tsx scripts/uploadLinkedInPosts.ts",
 		"inspect-qdrant": "tsx scripts/inspectQdrant.ts",
 		"update-links": "tsx scripts/updateQdrantWithLinks.ts",
-		"reset-qdrant": "tsx scripts/resetAndReupload.ts"
+		"reset-qdrant": "tsx scripts/resetAndReupload.ts",
+		"scrape-medium": "tsx scripts/scrapeMediumRecent.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/openai": "^2.0.86",
@@ -28,6 +29,7 @@
 		"langchain": "^1.1.1",
 		"next": "^16.1.1",
 		"openai": "^6.7.0",
+		"playwright": "^1.57.0",
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"react-markdown": "^9.0.1",

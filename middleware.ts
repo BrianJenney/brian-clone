@@ -47,9 +47,15 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
-	// Allow Vercel cron requests to /api/linkedin-posts
-	if (pathname === '/api/linkedin-posts' && request.headers.get('x-vercel-cron') === '1') {
-		return NextResponse.next();
+	// Allow Vercel cron requests (requires CRON_SECRET for security)
+	const cronPaths = ['/api/linkedin-posts', '/api/medium-articles'];
+	if (cronPaths.includes(pathname)) {
+		const authHeader = request.headers.get('authorization');
+		const cronSecret = process.env.CRON_SECRET;
+
+		if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+			return NextResponse.next();
+		}
 	}
 
 	// Check for auth cookie
