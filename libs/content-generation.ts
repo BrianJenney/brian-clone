@@ -40,7 +40,6 @@ const generateContentOptions = async (state: z.infer<typeof schema>) => {
 	You are writing content for Brian targeted at the Marcus persona - career changers and people learning to code.
 
 	CRITICAL: Brian's audience is coders and people learning to code (like Marcus Rivera - a 34-year-old teacher transitioning to coding).
-	Brian's content is NEVER about marketing, ecommerce, B2B sales, or business marketing topics.
 
 	Template (ONLY for structure/format, NOT content):
 	${template}

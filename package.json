@@ -10,10 +10,7 @@
 		"format": "biome format --write",
 		"upload-posts": "tsx scripts/uploadMediumPosts.ts",
 		"upload-linkedin": "tsx scripts/uploadLinkedInPosts.ts",
-		"inspect-qdrant": "tsx scripts/inspectQdrant.ts",
-		"update-links": "tsx scripts/updateQdrantWithLinks.ts",
-		"reset-qdrant": "tsx scripts/resetAndReupload.ts",
-		"scrape-medium": "tsx scripts/scrapeMediumRecent.ts"
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@ai-sdk/openai": "^2.0.86",
@@ -51,7 +48,8 @@
 		"tailwindcss": "^4",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.20.6",
-		"typescript": "^5"
+		"typescript": "^5",
+		"husky": "^9.1.7"
 	},
 	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
