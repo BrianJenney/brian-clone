@@ -1,4 +1,5 @@
 {
+	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"crons": [
 		{
 			"path": "/api/linkedin-posts",
@@ -11,24 +12,7 @@
 	],
 	"functions": {
 		"api/medium-articles.py": {
-			"excludeFiles": [
-				"data/**",
-				"scripts/**/*.ts",
-				"app/**",
-				"components/**",
-				"public/**",
-				"node_modules/**",
-				".husky/**",
-				"context/**",
-				"hooks/**",
-				"libs/**",
-				"*.md",
-				"package*.json",
-				"yarn.lock",
-				"package-lock.json",
-				"next.config.ts",
-				"tsconfig.json"
-			]
+			"excludeFiles": "{data/**,scripts/**/*.ts,app/**,components/**,public/**,node_modules/**,.husky/**,context/**,hooks/**,libs/**,*.md,package*.json,yarn.lock,package-lock.json,next.config.ts,tsconfig.json}"
 		}
 	}
 }
