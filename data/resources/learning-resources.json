@@ -1,86 +1,137 @@
 [
-  {
-    "title": "Side Project Planner",
-    "url": "https://docs.google.com/document/d/1uJ5Bom0WmS410K5B2m5TkbZ7d1G9BdTaX4nKprYschI/edit",
-    "category": "project-planning",
-    "description": "Planning framework for side projects",
-    "keywords": ["side project", "planning", "project management", "development roadmap"]
-  },
-  {
-    "title": "Career Roadmap",
-    "url": "https://docs.google.com/document/d/1OpjXtJeQ93TGIz8z9u-p_lYNbhSbk32rPFPDecNMDyM/edit",
-    "category": "career",
-    "description": "Career direction and roadmap for developers",
-    "keywords": ["career", "roadmap", "career change", "developer career", "career transitions"]
-  },
-  {
-    "title": "VS Code Shortcuts Cheat Sheet",
-    "url": "https://docs.google.com/document/d/1-9r5noZt1OJ6l0ERlRGqowJi6jNexJ1lXnnIi3cekpI/edit",
-    "category": "tooling",
-    "description": "VS Code keyboard shortcuts reference",
-    "keywords": ["VS Code", "shortcuts", "tooling", "productivity", "IDE"]
-  },
-  {
-    "title": "Learning in Public Templates",
-    "url": "https://www.parsity.io/learning-in-public",
-    "category": "learning",
-    "description": "Templates and guides for learning in public",
-    "keywords": ["learning in public", "content creation", "blogging", "sharing knowledge"]
-  },
-  {
-    "title": "5-Day Beginner Email Course",
-    "url": "https://www.parsity.io/noob",
-    "category": "beginner",
-    "description": "5-day email course covering HTML, AI, GitHub, and JavaScript fundamentals",
-    "keywords": ["beginner", "html", "javascript", "github", "ai", "fundamentals", "getting started", "noob"]
-  },
-  {
-    "title": "Form Challenge",
-    "url": "https://docs.google.com/document/d/1zC4wts9HVIxBVdAdGrbk32-JEAbQh-orMGCMZE3sKAI/edit",
-    "category": "javascript-fundamentals",
-    "description": "JavaScript fundamentals project for building forms",
-    "keywords": ["javascript", "forms", "fundamentals", "project", "DOM manipulation"]
-  },
-  {
-    "title": "AI with RAG",
-    "url": "https://www.parsity.io/ai-with-rag",
-    "category": "ai",
-    "description": "Project guide for integrating AI with Retrieval Augmented Generation",
-    "keywords": ["ai", "rag", "retrieval augmented generation", "llm", "machine learning"]
-  },
-  {
-    "title": "AI with JavaScript",
-    "url": "https://www.parsity.io/ai-with-js",
-    "category": "ai",
-    "description": "Guide to integrating AI into JavaScript projects",
-    "keywords": ["ai", "javascript", "integration", "openai", "llm"]
-  },
-  {
-    "title": "Node & Express Starter Kit",
-    "url": "https://www.parsity.io/node-express-starter-kit",
-    "category": "backend",
-    "description": "Getting started with Node.js and Express backend development",
-    "keywords": ["node", "express", "backend", "server", "api"]
-  },
-  {
-    "title": "AWS Foundations Project",
-    "url": "https://github.com/CodeCoachJS/js_pros_aws_foundations/tree/main",
-    "category": "cloud",
-    "description": "Hands-on AWS foundations project for JavaScript developers",
-    "keywords": ["aws", "cloud", "infrastructure", "deployment", "devops"]
-  },
-  {
-    "title": "Getting Started with Next.js",
-    "url": "https://www.loom.com/share/684b2c6a523a468e930a41483d28c2f3",
-    "category": "frontend",
-    "description": "Video tutorial on getting started with Next.js framework",
-    "keywords": ["nextjs", "react", "frontend", "framework", "ssr"]
-  },
-  {
-    "title": "Hands-On Guide to Learning SQL",
-    "url": "https://www.parsity.io/blog/a-hands-on-guide-to-learning-sql",
-    "category": "database",
-    "description": "Practical guide to learning SQL databases",
-    "keywords": ["sql", "database", "queries", "data", "backend"]
-  }
+	{
+		"title": "Side Project Planner",
+		"url": "https://docs.google.com/document/d/1uJ5Bom0WmS410K5B2m5TkbZ7d1G9BdTaX4nKprYschI/edit",
+		"category": "project-planning",
+		"description": "Planning framework for side projects",
+		"keywords": [
+			"side project",
+			"planning",
+			"project management",
+			"development roadmap"
+		]
+	},
+	{
+		"title": "Career Roadmap",
+		"url": "https://docs.google.com/document/d/1OpjXtJeQ93TGIz8z9u-p_lYNbhSbk32rPFPDecNMDyM/edit",
+		"category": "career",
+		"description": "Career direction and roadmap for developers",
+		"keywords": [
+			"career",
+			"roadmap",
+			"career change",
+			"developer career",
+			"career transitions"
+		]
+	},
+	{
+		"title": "VS Code Shortcuts Cheat Sheet",
+		"url": "https://docs.google.com/document/d/1-9r5noZt1OJ6l0ERlRGqowJi6jNexJ1lXnnIi3cekpI/edit",
+		"category": "tooling",
+		"description": "VS Code keyboard shortcuts reference",
+		"keywords": ["VS Code", "shortcuts", "tooling", "productivity", "IDE"]
+	},
+	{
+		"title": "Learning in Public Templates",
+		"url": "https://www.parsity.io/learning-in-public",
+		"category": "learning",
+		"description": "Templates and guides for learning in public",
+		"keywords": [
+			"learning in public",
+			"content creation",
+			"blogging",
+			"sharing knowledge"
+		]
+	},
+	{
+		"title": "5-Day Beginner Email Course",
+		"url": "https://www.parsity.io/noob",
+		"category": "beginner",
+		"description": "5-day email course covering HTML, AI, GitHub, and JavaScript fundamentals",
+		"keywords": [
+			"beginner",
+			"html",
+			"javascript",
+			"github",
+			"ai",
+			"fundamentals",
+			"getting started",
+			"noob"
+		]
+	},
+	{
+		"title": "Form Challenge",
+		"url": "https://docs.google.com/document/d/1zC4wts9HVIxBVdAdGrbk32-JEAbQh-orMGCMZE3sKAI/edit",
+		"category": "javascript-fundamentals",
+		"description": "JavaScript fundamentals project for building forms",
+		"keywords": [
+			"javascript",
+			"forms",
+			"fundamentals",
+			"project",
+			"DOM manipulation"
+		]
+	},
+	{
+		"title": "AI with RAG",
+		"url": "https://www.parsity.io/ai-with-rag",
+		"category": "ai",
+		"description": "Project guide for integrating AI with Retrieval Augmented Generation",
+		"keywords": [
+			"ai",
+			"rag",
+			"retrieval augmented generation",
+			"llm",
+			"machine learning"
+		]
+	},
+	{
+		"title": "AI with JavaScript",
+		"url": "https://www.parsity.io/ai-with-js",
+		"category": "ai",
+		"description": "Guide to integrating AI into JavaScript projects",
+		"keywords": ["ai", "javascript", "integration", "openai", "llm"]
+	},
+	{
+		"title": "Node & Express Starter Kit",
+		"url": "https://www.parsity.io/node-express-starter-kit",
+		"category": "backend",
+		"description": "Getting started with Node.js and Express backend development",
+		"keywords": ["node", "express", "backend", "server", "api"]
+	},
+	{
+		"title": "AWS Foundations Project",
+		"url": "https://github.com/CodeCoachJS/js_pros_aws_foundations/tree/main",
+		"category": "cloud",
+		"description": "Hands-on AWS foundations project for JavaScript developers",
+		"keywords": ["aws", "cloud", "infrastructure", "deployment", "devops"]
+	},
+	{
+		"title": "Getting Started with Next.js",
+		"url": "https://www.loom.com/share/684b2c6a523a468e930a41483d28c2f3",
+		"category": "frontend",
+		"description": "Video tutorial on getting started with Next.js framework",
+		"keywords": ["nextjs", "react", "frontend", "framework", "ssr"]
+	},
+	{
+		"title": "Hands-On Guide to Learning SQL",
+		"url": "https://www.parsity.io/blog/a-hands-on-guide-to-learning-sql",
+		"category": "database",
+		"description": "Practical guide to learning SQL databases",
+		"keywords": ["sql", "database", "queries", "data", "backend"]
+	},
+	{
+		"title": "Interview Prep",
+		"url": "https://www.parsity.io/interview-prep",
+		"category": "career",
+		"description": "Practical guide to interview prep for developers",
+		"keywords": [
+			"interview",
+			"prep",
+			"career",
+			"developer",
+			"job",
+			"interviewing"
+		]
+	}
 ]

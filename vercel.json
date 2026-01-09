@@ -12,7 +12,7 @@
 	],
 	"functions": {
 		"api/medium-articles.py": {
-			"excludeFiles": "{data/**,scripts/**/*.ts,app/**,components/**,public/**,node_modules/**,.husky/**,context/**,hooks/**,libs/**,*.md,package*.json,yarn.lock,package-lock.json,next.config.ts,tsconfig.json}"
+			"excludeFiles": "{data/**,scripts/**/*.ts,app/**,components/**,public/**,node_modules/**,.husky/**,context/**,hooks/**,libs/**,*.md,package*.json,yarn.lock,package-lock.json,next.config.ts,tsconfig.json,.git/**,.next/**,.vercel/**,__pycache__/**,*.pyc,*.pyo,*.pyd,.pytest_cache/**,.mypy_cache/**,.venv/**,venv/**,env/**,.env*,*.log,*.cache,dist/**,build/**,coverage/**,.coverage,htmlcov/**,.tox/**,.eggs/**,*.egg-info/**,.idea/**,.vscode/**,*.swp,*.swo,*~,*.html,*.csv,data/**/*.json,context/**/*.json,templates/**/*.json}"
 		}
 	}
 }

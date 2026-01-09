@@ -15,8 +15,8 @@ from pydantic import BaseModel
 scripts_dir = Path(__file__).parent.parent / "scripts" / "python"
 sys.path.insert(0, str(scripts_dir))
 
-# Import crawl_medium module
-import crawl_medium
+# Import crawl_medium_browserless module (lightweight, uses Browserless API)
+import crawl_medium_browserless as crawl_medium
 
 # FastAPI app - Vercel will automatically detect this
 app = FastAPI(title="Medium Articles Scraper")
