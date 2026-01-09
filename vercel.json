@@ -8,5 +8,27 @@
 			"path": "/api/medium-articles",
 			"schedule": "0 10 * * 1"
 		}
-	]
+	],
+	"functions": {
+		"api/medium-articles.py": {
+			"excludeFiles": [
+				"data/**",
+				"scripts/**/*.ts",
+				"app/**",
+				"components/**",
+				"public/**",
+				"node_modules/**",
+				".husky/**",
+				"context/**",
+				"hooks/**",
+				"libs/**",
+				"*.md",
+				"package*.json",
+				"yarn.lock",
+				"package-lock.json",
+				"next.config.ts",
+				"tsconfig.json"
+			]
+		}
+	}
 }

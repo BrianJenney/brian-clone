@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { qdrantClient, COLLECTIONS } from '@/libs/qdrant';
 import { generateEmbedding } from '@/libs/openai';
+import assert from 'assert';
 
 type AuthoredUpPost = {
 	urn?: string;
@@ -39,9 +40,7 @@ async function fetchPostsFromAuthoredUp(
 ): Promise<AuthoredUpPost[]> {
 	const apiKey = process.env.AUTHOREDUP_API_KEY;
 
-	if (!apiKey) {
-		throw new Error('AUTHOREDUP_API_KEY is not configured');
-	}
+	assert(apiKey, new Error('AUTHOREDUP_API_KEY is not configured'));
 
 	const url = new URL('https://api.authoredup.com/external/api/v1/posts');
 	url.searchParams.set('from-date', fromDate);
@@ -57,12 +56,13 @@ async function fetchPostsFromAuthoredUp(
 
 	if (!response.ok) {
 		const errorText = await response.text();
-		throw new Error(`AuthoredUp API error: ${response.status} - ${errorText}`);
+		throw new Error(
+			`AuthoredUp API error: ${response.status} - ${errorText}`
+		);
 	}
 
 	const data = await response.json();
 
-	// Posts are in items array based on actual API response
 	if (data.items && Array.isArray(data.items)) {
 		console.log(`Found ${data.items.length} posts`);
 		return data.items;
@@ -224,92 +224,8 @@ export async function GET(request: NextRequest) {
 			{
 				success: false,
 				error: 'Failed to sync LinkedIn posts',
-				details: error instanceof Error ? error.message : 'Unknown error',
-			},
-			{ status: 500 }
-		);
-	}
-}
-
-/**
- * POST /api/linkedin-posts
- * Manual trigger to sync posts with custom date range
- */
-export async function POST(request: NextRequest) {
-	try {
-		const body = await request.json();
-		const { fromDate, toDate } = body;
-
-		if (!fromDate || !toDate) {
-			return NextResponse.json(
-				{
-					success: false,
-					error: 'fromDate and toDate are required',
-				},
-				{ status: 400 }
-			);
-		}
-
-		const posts = await fetchPostsFromAuthoredUp(fromDate, toDate);
-
-		if (posts.length === 0) {
-			return NextResponse.json({
-				success: true,
-				message: 'No posts found in the specified date range',
-				stored: 0,
-				total: 0,
-			});
-		}
-
-		// Check for existing URNs to avoid duplicates
-		const urns = posts
-			.map((p) => p.urn)
-			.filter((urn): urn is string => !!urn);
-		let existingUrns = new Set<string>();
-		try {
-			existingUrns = await checkExistingUrns(urns);
-		} catch (e) {
-			console.log('Duplicate check failed, proceeding without:', e);
-		}
-
-		let storedCount = 0;
-		let skippedCount = 0;
-		let duplicateCount = 0;
-		const storedIds: string[] = [];
-
-		for (const post of posts) {
-			// Skip if already exists
-			if (post.urn && existingUrns.has(post.urn)) {
-				duplicateCount++;
-				continue;
-			}
-
-			const id = await storePost(post);
-			if (id) {
-				storedCount++;
-				storedIds.push(id);
-			} else {
-				skippedCount++;
-			}
-		}
-
-		return NextResponse.json({
-			success: true,
-			message: `Fetched and stored ${storedCount} posts from LinkedIn`,
-			stored: storedCount,
-			skipped: skippedCount,
-			duplicates: duplicateCount,
-			total: posts.length,
-			storedIds,
-			dateRange: { fromDate, toDate },
-		});
-	} catch (error) {
-		console.error('Error syncing LinkedIn posts:', error);
-		return NextResponse.json(
-			{
-				success: false,
-				error: 'Failed to sync LinkedIn posts',
-				details: error instanceof Error ? error.message : 'Unknown error',
+				details:
+					error instanceof Error ? error.message : 'Unknown error',
 			},
 			{ status: 500 }
 		);
