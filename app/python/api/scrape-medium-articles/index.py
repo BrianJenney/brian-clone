@@ -1,35 +1,46 @@
-#!/usr/bin/env python3
 """
-Medium Article Scraper using Browserless.io API
-Lightweight alternative that doesn't require browser binaries
+Vercel Python Serverless Function for Medium Article Scraping
+Uses FastAPI and Browserless.io API for lightweight scraping
 """
 
-import argparse
 import asyncio
 import os
 import re
 import uuid
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
-from openai import OpenAI
+from fastapi import FastAPI, HTTPException, Header, Query
+from pydantic import BaseModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
+from openai import OpenAI
 
-load_dotenv()
+
+app = FastAPI(title="Medium Articles Scraper", port=5238)
+
 
 # Configuration
 MEDIUM_PROFILE_URL = "https://brianjenney.medium.com"
-DAYS_TO_SCRAPE = int(os.getenv("DAYS_TO_SCRAPE", "7"))
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 COLLECTION_NAME = "brian-articles"
-VECTOR_SIZE = 512
 CHUNK_SIZE = 1500
 BROWSERLESS_API_TOKEN = os.getenv("BROWSERLESS_API_TOKEN")
 BROWSERLESS_URL = os.getenv("BROWSERLESS_URL", "https://production-sfo.browserless.io")
+
+
+class ScrapeRequest(BaseModel):
+    days: int = 7
+    test_mode: bool = False
+
+
+class ScrapeResponse(BaseModel):
+    success: bool
+    message: str
+    uploaded: int = 0
+    failed: int = 0
+    articles: list = []
 
 
 def get_qdrant_client() -> QdrantClient:
@@ -129,7 +140,7 @@ async def scrape_profile_for_articles() -> list[str]:
     soup = BeautifulSoup(html, "html.parser")
 
     # Find all article links
-    urls = set()
+    urls = set[str]()
     for link in soup.find_all("a", href=True):
         href = link["href"].split("?")[0]  # Strip query params
         if href.startswith("https://brianjenney.medium.com/") and re.search(
@@ -184,14 +195,8 @@ async def scrape_article_content(url: str) -> Optional[dict]:
     return {"title": title, "url": url, "content": content, "publishedAt": published_at}
 
 
-async def main(test_mode: bool = False):
-    print("=" * 60)
-    print("Medium Article Scraper (Browserless.io)")
-    print(f"Looking for articles from the last {DAYS_TO_SCRAPE} days")
-    if test_mode:
-        print(">>> TEST MODE: Will NOT upload to Qdrant <<<")
-    print("=" * 60)
-
+async def process_articles(days: int, test_mode: bool = False) -> dict:
+    """Main function to scrape and store articles"""
     results = {"success": 0, "failed": 0, "articles": []}
 
     # Step 1: Get article URLs from profile
@@ -221,8 +226,9 @@ async def main(test_mode: bool = False):
                 scraped_articles.append(result)
 
     # Step 3: Filter by date
-    date_threshold = datetime.now() - timedelta(days=DAYS_TO_SCRAPE)
-    print(f"\nFiltering articles published after {date_threshold.date()}")
+    date_threshold = datetime.now() - timedelta(days=days)
+    
+    scraped_articles = [article for article in scraped_articles if article["publishedAt"] >= date_threshold.isoformat()]
 
     # Initialize Qdrant and OpenAI clients (skip in test mode)
     qdrant = None
@@ -232,14 +238,6 @@ async def main(test_mode: bool = False):
         openai_client = get_openai_client()
 
     for article in scraped_articles:
-        try:
-            pub_date = datetime.fromisoformat(article["publishedAt"].replace("Z", ""))
-            if pub_date < date_threshold:
-                print(f"  Skipping (too old): {article['title']}")
-                continue
-        except (ValueError, TypeError):
-            pass  # Include if we can't parse date
-
         content = article["content"]
 
         if len(content) < 200:
@@ -247,13 +245,8 @@ async def main(test_mode: bool = False):
             results["failed"] += 1
             continue
 
-        # Test mode: print content for verification
+        # Test mode: just record the article
         if test_mode:
-            print(f"\n{'='*60}")
-            print(f"ARTICLE: {article['title']}")
-            print(f"URL: {article['url']}")
-            print(f"Content length: {len(content)} chars")
-            print(f"{'='*60}\n")
             results["success"] += 1
             results["articles"].append({
                 "title": article["title"],
@@ -308,44 +301,41 @@ async def main(test_mode: bool = False):
             print(f"  Error uploading {article['title']}: {e}")
             results["failed"] += 1
 
-    # Summary
-    print("\n" + "=" * 60)
-    print("Summary")
-    print("=" * 60)
-    if test_mode:
-        print(f"Articles processed (test mode): {results['success']}")
-    else:
-        print(f"Successfully uploaded: {results['success']}")
-    print(f"Failed: {results['failed']}")
-
-    if results["articles"]:
-        print("\nArticles:")
-        for article in results["articles"]:
-            if test_mode:
-                print(f"  - {article['title']} ({article.get('content_length', 0)} chars)")
-            else:
-                print(f"  - {article['title']} ({article['chunks']} chunks)")
-
     return results
 
+def verify_auth(authorization: str | None) -> bool:
+    """Verify CRON_SECRET for security"""
+    print(f"CRON_SECRET: {cron_secret}")
+    cron_secret = os.getenv("CRON_SECRET")
+    if not cron_secret:
+        return True  # No secret configured, allow (dev mode)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Scrape Medium articles using Browserless")
-    parser.add_argument(
-        "--test",
-        action="store_true",
-        help="Test mode: scrape and show content without uploading to Qdrant",
-    )
-    parser.add_argument(
-        "--days",
-        type=int,
-        default=DAYS_TO_SCRAPE,
-        help=f"Number of days to look back (default: {DAYS_TO_SCRAPE})",
-    )
-    args = parser.parse_args()
+    if not authorization:
+        return False
 
-    # Override DAYS_TO_SCRAPE if provided
-    if args.days != DAYS_TO_SCRAPE:
-        globals()["DAYS_TO_SCRAPE"] = args.days
+    return authorization == f"Bearer {cron_secret}"
 
-    asyncio.run(main(test_mode=args.test or TEST_MODE))
+@app.get("/scrape-medium-articles", response_model=ScrapeResponse)
+async def scrape_medium_post(
+    request: ScrapeRequest,
+    authorization: str | None = Header(None, alias="Authorization"),
+):
+    """
+    POST endpoint to scrape Medium articles with custom parameters
+    This endpoint will be available at /api/medium-articles
+    """
+    if not verify_auth(authorization):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    try:
+        results = await process_articles(days=request.days, test_mode=request.test_mode)
+
+        return ScrapeResponse(
+            success=True,
+            message=f"Processed articles from last {request.days} days",
+            uploaded=results["success"],
+            failed=results["failed"],
+            articles=results["articles"],
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

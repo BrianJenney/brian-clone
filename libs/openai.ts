@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { Helicone } from '@helicone/helicone';
 
 if (!process.env.OPENAI_API_KEY) {
 	throw new Error('OPENAI_API_KEY is not defined in environment variables');

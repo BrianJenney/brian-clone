@@ -8,3 +8,4 @@
 export { searchWritingSamplesTool } from './search-content';
 export { getBusinessContextTool } from './get-business-context';
 export { searchResourcesTool } from './search-resources';
+export { analyzeChannelTool, researchTopicTool } from './video-research';

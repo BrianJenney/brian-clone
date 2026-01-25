@@ -4,6 +4,8 @@ import {
 	searchWritingSamplesTool,
 	getBusinessContextTool,
 	searchResourcesTool,
+	analyzeChannelTool,
+	researchTopicTool,
 } from '@/libs/tools';
 
 /**
@@ -69,6 +71,8 @@ Follow this "How To" article structure:
 - **getBusinessContextTool**: REQUIRED for any content mentioning Parsity programs (Dev30, Bootcamp, AIDev), pricing, or business strategy
 - **searchWritingSamplesTool**: REQUIRED for writing any content to match Brian's authentic voice and style
 - **searchResourcesTool**: Find learning resources, tutorials and lead magnets that Brian has created or curated. Use when writing posts that could reference helpful resources.
+- **analyzeChannelTool**: Analyze Brian's YouTube channel performance (recent videos, stats, engagement)
+- **researchTopicTool**: Research YouTube topics to see what's trending and get video suggestions
 - **CRITICAL**: If a tool returns an error or fails, do NOT call it again. Instead, provide a helpful response based on your knowledge without that tool's data. Acknowledge any limitations briefly and focus on what you can help with.
 
 Remember: The target audience (Marcus) values transparency over hype, practical advice over theory, and clear roadmaps over vague inspiration.
@@ -77,6 +81,8 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 				searchWritingSamplesTool,
 				getBusinessContextTool,
 				searchResourcesTool,
+				analyzeChannelTool,
+				researchTopicTool,
 			},
 			toolChoice: 'auto',
 			stopWhen: stepCountIs(15),

@@ -2,15 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cheerio from 'cheerio';
 import { v4 as uuidv4 } from 'uuid';
-import {
-	qdrantClient,
-	initializeCollection,
-	COLLECTIONS,
-} from '../libs/qdrant';
+import { qdrantClient, COLLECTIONS } from '../libs/qdrant';
 import { generateEmbedding } from '../libs/openai';
 import { chunkTextWithOverlap } from '../libs/utils/chunking';
 
-function parseHTMLFile(filePath: string): { text: string; title: string; sourceUrl?: string } {
+function parseHTMLFile(filePath: string): {
+	text: string;
+	title: string;
+	sourceUrl?: string;
+} {
 	const html = fs.readFileSync(filePath, 'utf-8');
 	const $ = cheerio.load(html);
 
@@ -39,8 +39,6 @@ async function uploadArticle(
 	metadata?: { title?: string; sourceUrl?: string }
 ): Promise<boolean> {
 	try {
-		await initializeCollection(COLLECTIONS.ARTICLES);
-
 		const chunks = chunkTextWithOverlap(text, 1500);
 		const baseId = uuidv4();
 
@@ -65,7 +63,9 @@ async function uploadArticle(
 							source: fileName,
 							uploadedAt: new Date().toISOString(),
 							...(metadata?.title && { title: metadata.title }),
-							...(metadata?.sourceUrl && { sourceUrl: metadata.sourceUrl }),
+							...(metadata?.sourceUrl && {
+								sourceUrl: metadata.sourceUrl,
+							}),
 						},
 					},
 				],
@@ -112,7 +112,9 @@ async function main() {
 			if (success) {
 				successCount++;
 				console.log(
-					`Uploaded successfully (${parsed.text.length} chars)${parsed.sourceUrl ? ` - ${parsed.sourceUrl}` : ''}`
+					`Uploaded successfully (${parsed.text.length} chars)${
+						parsed.sourceUrl ? ` - ${parsed.sourceUrl}` : ''
+					}`
 				);
 			} else {
 				failCount++;

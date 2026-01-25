@@ -1,7 +1,16 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+	rewrites: async () => {
+		return [
+			{
+				source: '/python/api/:path*',
+				destination:
+					process.env.NODE_ENV === 'development'
+						? 'http://localhost:5328/api/:path*'
+						: '/api/',
+			},
+		];
+	},
 };
 
-export default nextConfig;
+module.exports = nextConfig;

@@ -1,11 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import {
-	qdrantClient,
-	initializeCollection,
-	COLLECTIONS,
-} from '../libs/qdrant';
+import { qdrantClient, COLLECTIONS } from '../libs/qdrant';
 import { generateEmbedding } from '../libs/openai';
 
 type LinkedInPostMetadata = {
@@ -133,8 +129,6 @@ async function uploadPost(
 	metadata: LinkedInPostMetadata
 ): Promise<boolean> {
 	try {
-		await initializeCollection(COLLECTIONS.POSTS);
-
 		const id = uuidv4();
 		const embedding = await generateEmbedding(text);
 

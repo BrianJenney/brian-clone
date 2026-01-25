@@ -6,7 +6,7 @@
 			"schedule": "0 9 * * 1"
 		},
 		{
-			"path": "/api/medium-articles",
+			"path": "/api/scrape-medium-articles",
 			"schedule": "0 10 * * 1"
 		}
 	],

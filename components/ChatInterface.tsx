@@ -24,6 +24,7 @@ export default function ChatInterface() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [currentTool, setCurrentTool] = useState<string | null>(null);
 
 	const [input, setInput] = useState('');
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,7 +52,6 @@ export default function ChatInterface() {
 		scrollToBottom();
 	}, [messages]);
 
-	// Sync voice transcript with input
 	useEffect(() => {
 		if (transcript) {
 			setInput(transcript);
@@ -104,16 +104,17 @@ export default function ChatInterface() {
 		try {
 			setIsLoading(true);
 			setError(null);
+			setCurrentTool(null);
 
-			// Add user message
 			const userMessage: Message = { role: 'user', content: message };
 			setMessages((prev) => [...prev, userMessage]);
 
-			// Add empty assistant message that will be streamed into
-			const assistantMessage: Message = { role: 'assistant', content: '' };
+			const assistantMessage: Message = {
+				role: 'assistant',
+				content: '',
+			};
 			setMessages((prev) => [...prev, assistantMessage]);
 
-			// Call API
 			const response = await fetch('/api/chat', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -122,11 +123,6 @@ export default function ChatInterface() {
 				}),
 			});
 
-			if (!response.ok) {
-				throw new Error('Failed to send message');
-			}
-
-			// Handle streaming response
 			const reader = response.body?.getReader();
 			const decoder = new TextDecoder();
 
@@ -135,6 +131,7 @@ export default function ChatInterface() {
 			}
 
 			let accumulatedContent = '';
+			let buffer = '';
 
 			while (true) {
 				const { done, value } = await reader.read();
@@ -142,6 +139,39 @@ export default function ChatInterface() {
 				if (done) break;
 
 				const chunk = decoder.decode(value, { stream: true });
+				buffer += chunk;
+
+				// Check for tool calls in the stream
+				const lines = buffer.split('\n');
+				for (const line of lines) {
+					if (line.startsWith('9:')) {
+						// Tool call detected
+						try {
+							const toolCall = JSON.parse(line.slice(2));
+							const toolName =
+								toolCall.toolName?.replace(/Tool$/, '') || '';
+
+							const toolDisplayNames: Record<string, string> = {
+								searchWritingSamples:
+									'searching writing samples',
+								getBusinessContext: 'fetching business context',
+								searchResources: 'searching resources',
+								analyzeChannel: 'analyzing YouTube channel',
+								researchTopic: 'researching YouTube topics',
+							};
+
+							setCurrentTool(
+								toolDisplayNames[toolName] || toolName
+							);
+						} catch (e) {
+							// Ignore parse errors
+						}
+					} else if (line.startsWith('a:') || line.startsWith('0:')) {
+						// Tool result or text - clear tool indicator
+						setCurrentTool(null);
+					}
+				}
+
 				accumulatedContent += chunk;
 
 				// Update the last message (assistant) with accumulated content
@@ -159,6 +189,7 @@ export default function ChatInterface() {
 			setError(error instanceof Error ? error.message : 'Unknown error');
 		} finally {
 			setIsLoading(false);
+			setCurrentTool(null);
 		}
 	};
 
@@ -187,7 +218,7 @@ export default function ChatInterface() {
 				<div className='flex items-center gap-1 sm:gap-2 bg-gray-800 p-1.5 sm:p-2 rounded-lg border border-gray-700'>
 					<button
 						onClick={() => setChatMode('standard')}
-						className={`px-2 sm:px-3 py-1 text-xs rounded transition-colors ${
+						className={`px-2 sm:px-3 py-1 text-base rounded transition-colors ${
 							chatMode === 'standard'
 								? 'bg-blue-600 text-white font-bold'
 								: 'text-gray-400 hover:text-white'
@@ -199,7 +230,7 @@ export default function ChatInterface() {
 
 					<button
 						onClick={() => setChatMode('contentGen')}
-						className={`px-2 sm:px-3 py-1 text-xs rounded transition-colors ${
+						className={`px-2 sm:px-3 py-1 text-base rounded transition-colors ${
 							chatMode === 'contentGen'
 								? 'bg-purple-600 text-white font-bold'
 								: 'text-gray-400 hover:text-white'
@@ -220,7 +251,7 @@ export default function ChatInterface() {
 							<p className='text-base sm:text-lg mb-2'>
 								Content Generation Mode
 							</p>
-							<p className='text-xs sm:text-sm'>
+							<p className='text-base sm:text-sm'>
 								Generate 3 unique posts based on Airtable
 								templates and your writing style.
 							</p>
@@ -228,7 +259,7 @@ export default function ChatInterface() {
 								<p className='font-medium text-sm'>
 									Example prompts:
 								</p>
-								<ul className='list-disc list-inside space-y-1 text-gray-400 text-xs sm:text-sm'>
+								<ul className='list-disc list-inside space-y-1 text-gray-400 text-base sm:text-sm'>
 									<li>
 										Create posts about career transitions
 									</li>
@@ -250,15 +281,13 @@ export default function ChatInterface() {
 						<p className='text-base sm:text-lg mb-2'>
 							Welcome! I'm your AI writing assistant.
 						</p>
-						<p className='text-xs sm:text-sm'>
+						<p className='text-base sm:text-sm'>
 							I can help you write transcripts, articles, and
 							posts in your style.
 						</p>
 						<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-							<p className='font-medium text-sm'>
-								Try asking me to:
-							</p>
-							<ul className='list-disc list-inside space-y-1 text-gray-400 text-xs sm:text-sm'>
+							<p className='font-medium'>Try asking me to:</p>
+							<ul className='list-disc list-inside space-y-1 text-gray-400'>
 								<li>Search through your existing content</li>
 								<li>Generate a new article about a topic</li>
 								<li>Write a post in your style</li>
@@ -290,7 +319,7 @@ export default function ChatInterface() {
 								</svg>
 								Generated 3 Posts Successfully
 							</h3>
-							<p className='text-gray-300 text-xs sm:text-sm'>
+							<p className='text-gray-300 text-base sm:text-sm'>
 								Tap any post to copy it to your clipboard
 							</p>
 						</div>
@@ -330,12 +359,12 @@ export default function ChatInterface() {
 										</svg>
 									</button>
 								</div>
-								<div className='text-white whitespace-pre-wrap text-xs sm:text-sm'>
+								<div className='text-white whitespace-pre-wrap text-base sm:text-sm'>
 									{post}
 								</div>
 							</div>
 						))}
-						<div className='text-gray-400 text-xs sm:text-sm break-all'>
+						<div className='text-gray-400 text-base sm:text-sm break-all'>
 							Sources:{' '}
 							{generatedPostsSources
 								?.map((source: string) => (
@@ -358,46 +387,46 @@ export default function ChatInterface() {
 					messages
 						.filter((msg) => msg.role === 'user' || msg.content)
 						.map((message, index) => (
-						<div
-							key={index}
-							className={`flex ${
-								message.role === 'user'
-									? 'justify-end'
-									: 'justify-start'
-							}`}
-						>
 							<div
-								className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
+								key={index}
+								className={`flex ${
 									message.role === 'user'
-										? 'bg-blue-600 text-white'
-										: 'bg-gray-700 text-white'
+										? 'justify-end'
+										: 'justify-start'
 								}`}
 							>
-								{/* Role Label */}
-								<div className='text-xs font-medium mb-1 opacity-75'>
-									{message.role === 'user'
-										? 'You'
-										: 'Assistant'}
-								</div>
+								<div
+									className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
+										message.role === 'user'
+											? 'bg-blue-600 text-white'
+											: 'bg-gray-700 text-white'
+									}`}
+								>
+									{/* Role Label */}
+									<div className='text-base font-medium mb-1 opacity-75'>
+										{message.role === 'user'
+											? 'You'
+											: 'Assistant'}
+									</div>
 
-								{/* Message Content */}
-								<div className='text-sm'>
-									{message.role === 'assistant' ? (
-										<ReactMarkdown
-											remarkPlugins={[remarkGfm]}
-											className='prose prose-invert prose-sm max-w-none'
-										>
-											{message.content}
-										</ReactMarkdown>
-									) : (
-										<div className='whitespace-pre-wrap'>
-											{message.content}
-										</div>
-									)}
+									{/* Message Content */}
+									<div className='text-base'>
+										{message.role === 'assistant' ? (
+											<ReactMarkdown
+												remarkPlugins={[remarkGfm]}
+												className='prose prose-invert prose-sm max-w-none'
+											>
+												{message.content}
+											</ReactMarkdown>
+										) : (
+											<div className='whitespace-pre-wrap'>
+												{message.content}
+											</div>
+										)}
+									</div>
 								</div>
 							</div>
-						</div>
-					))}
+						))}
 
 				{/* Loading indicator for standard mode - only show when no content yet */}
 				{chatMode === 'standard' &&
@@ -407,12 +436,14 @@ export default function ChatInterface() {
 					!messages[messages.length - 1].content && (
 						<div className='flex justify-start'>
 							<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
-								<div className='text-xs font-medium mb-1 opacity-75'>
+								<div className='text-base font-medium mb-1 opacity-75'>
 									Assistant
 								</div>
 								<div className='flex items-center gap-2 text-sm text-gray-300'>
 									<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
-									<span>Thinking...</span>
+									<span className='capitalize'>
+										{currentTool || 'Thinking...'}
+									</span>
 								</div>
 							</div>
 						</div>
