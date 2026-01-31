@@ -5,6 +5,7 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { generateContent } from '@/app/actions/generate-content';
+import { getToolDisplayName } from '@/libs/tools/config';
 
 type ChatMode = 'standard' | 'contentGen';
 
@@ -15,6 +16,7 @@ type Message = {
 
 export default function ChatInterface() {
 	const [chatMode, setChatMode] = useState<ChatMode>('standard');
+	const [useAgentRouter, setUseAgentRouter] = useState(false);
 	const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
 	const [generatedPostsSources, setGeneratedPostsSources] = useState<
 		string[]
@@ -115,7 +117,8 @@ export default function ChatInterface() {
 			};
 			setMessages((prev) => [...prev, assistantMessage]);
 
-			const response = await fetch('/api/chat', {
+			const endpoint = useAgentRouter ? '/api/chat-agents' : '/api/chat';
+			const response = await fetch(endpoint, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -141,48 +144,69 @@ export default function ChatInterface() {
 				const chunk = decoder.decode(value, { stream: true });
 				buffer += chunk;
 
-				// Check for tool calls in the stream
-				const lines = buffer.split('\n');
-				for (const line of lines) {
-					if (line.startsWith('9:')) {
-						// Tool call detected
+				if (useAgentRouter) {
+					// New agent router format: JSON lines with {type, message/content}
+					const lines = buffer.split('\n');
+					buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+					for (const line of lines) {
+						if (!line.trim()) continue;
+
 						try {
-							const toolCall = JSON.parse(line.slice(2));
-							const toolName =
-								toolCall.toolName?.replace(/Tool$/, '') || '';
+							const data = JSON.parse(line);
 
-							const toolDisplayNames: Record<string, string> = {
-								searchWritingSamples:
-									'searching writing samples',
-								getBusinessContext: 'fetching business context',
-								searchResources: 'searching resources',
-								analyzeChannel: 'analyzing YouTube channel',
-								researchTopic: 'researching YouTube topics',
-							};
+							if (data.type === 'progress') {
+								setCurrentTool(data.message);
+							} else if (data.type === 'text') {
+								accumulatedContent += data.content;
+								setCurrentTool(null);
 
-							setCurrentTool(
-								toolDisplayNames[toolName] || toolName
-							);
+								setMessages((prev) => {
+									const newMessages = [...prev];
+									const lastMessage = newMessages[newMessages.length - 1];
+									if (lastMessage.role === 'assistant') {
+										lastMessage.content = accumulatedContent;
+									}
+									return newMessages;
+								});
+							} else if (data.type === 'error') {
+								setError(data.message);
+							}
 						} catch (e) {
-							// Ignore parse errors
+							// Ignore parse errors for incomplete JSON
 						}
-					} else if (line.startsWith('a:') || line.startsWith('0:')) {
-						// Tool result or text - clear tool indicator
-						setCurrentTool(null);
 					}
+				} else {
+					// Old format: AI SDK stream with tool calls
+					const lines = buffer.split('\n');
+					for (const line of lines) {
+						if (line.startsWith('9:')) {
+							// Tool call detected
+							try {
+								const toolCall = JSON.parse(line.slice(2));
+								const toolName = toolCall.toolName || '';
+								setCurrentTool(getToolDisplayName(toolName));
+							} catch (e) {
+								// Ignore parse errors
+							}
+						} else if (line.startsWith('a:') || line.startsWith('0:')) {
+							// Tool result or text - clear tool indicator
+							setCurrentTool(null);
+						}
+					}
+
+					accumulatedContent += chunk;
+
+					// Update the last message (assistant) with accumulated content
+					setMessages((prev) => {
+						const newMessages = [...prev];
+						const lastMessage = newMessages[newMessages.length - 1];
+						if (lastMessage.role === 'assistant') {
+							lastMessage.content = accumulatedContent;
+						}
+						return newMessages;
+					});
 				}
-
-				accumulatedContent += chunk;
-
-				// Update the last message (assistant) with accumulated content
-				setMessages((prev) => {
-					const newMessages = [...prev];
-					const lastMessage = newMessages[newMessages.length - 1];
-					if (lastMessage.role === 'assistant') {
-						lastMessage.content = accumulatedContent;
-					}
-					return newMessages;
-				});
 			}
 		} catch (error) {
 			console.error('Chat error:', error);
@@ -210,15 +234,13 @@ export default function ChatInterface() {
 	console.log({ messages });
 
 	return (
-		<div className='flex flex-col h-[calc(100dvh-200px)] sm:h-[calc(100vh-300px)] min-h-[300px] sm:min-h-[400px] space-y-3 sm:space-y-4'>
-			<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0'>
-				<h2 className='text-lg sm:text-2xl font-bold text-white'>
-					AI Writing Assistant
-				</h2>
-				<div className='flex items-center gap-1 sm:gap-2 bg-gray-800 p-1.5 sm:p-2 rounded-lg border border-gray-700'>
+		<div className='flex flex-1 min-h-0 gap-2 sm:gap-3'>
+			{/* Left Sidebar - Options/Toggles */}
+			<div className='flex flex-col gap-2 sm:gap-3 shrink-0'>
+				<div className='flex flex-col gap-1.5 sm:gap-2 bg-gray-800 p-1.5 sm:p-2 rounded-lg border border-gray-700'>
 					<button
 						onClick={() => setChatMode('standard')}
-						className={`px-2 sm:px-3 py-1 text-base rounded transition-colors ${
+						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
 							chatMode === 'standard'
 								? 'bg-blue-600 text-white font-bold'
 								: 'text-gray-400 hover:text-white'
@@ -230,7 +252,7 @@ export default function ChatInterface() {
 
 					<button
 						onClick={() => setChatMode('contentGen')}
-						className={`px-2 sm:px-3 py-1 text-base rounded transition-colors ${
+						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
 							chatMode === 'contentGen'
 								? 'bg-purple-600 text-white font-bold'
 								: 'text-gray-400 hover:text-white'
@@ -240,10 +262,34 @@ export default function ChatInterface() {
 						Content Gen
 					</button>
 				</div>
+
+				{/* Agent Router Toggle - Only show in standard mode */}
+				{chatMode === 'standard' && (
+					<div className='flex flex-col gap-1.5 bg-gray-800 p-2 rounded-lg border border-gray-700'>
+						<label className='flex items-center gap-2 cursor-pointer'>
+							<input
+								type='checkbox'
+								checked={useAgentRouter}
+								onChange={(e) => setUseAgentRouter(e.target.checked)}
+								className='w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500'
+							/>
+							<span className='text-xs sm:text-sm text-gray-400'>
+								Use Agent Router
+							</span>
+						</label>
+						{useAgentRouter && (
+							<span className='text-xs text-yellow-500'>
+								New architecture: router → agents → summarizer
+							</span>
+						)}
+					</div>
+				)}
 			</div>
 
-			{/* Messages Container */}
-			<div className='flex-1 overflow-y-auto border border-gray-700 rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-gray-800'>
+			{/* Right Side - Chat Content */}
+			<div className='flex flex-col flex-1 min-w-0 space-y-3 sm:space-y-4'>
+				{/* Messages Container */}
+				<div className='flex-1 overflow-y-auto border border-gray-700 rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-gray-800'>
 				{chatMode === 'contentGen' &&
 					generatedPosts.length === 0 &&
 					!isGenerating && (
@@ -449,42 +495,42 @@ export default function ChatInterface() {
 						</div>
 					)}
 
-				<div ref={messagesEndRef} />
-			</div>
+					<div ref={messagesEndRef} />
+				</div>
 
-			{/* Error Messages */}
-			{error && (
-				<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
-					Error: {error}
-				</div>
-			)}
-			{voiceError && (
-				<div className='p-3 rounded-md bg-yellow-900 text-yellow-200 text-sm'>
-					{voiceError}
-				</div>
-			)}
-			{generationError && (
-				<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
-					Content Generation Error: {generationError}
-				</div>
-			)}
+					{/* Error Messages */}
+				{error && (
+					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
+						Error: {error}
+					</div>
+				)}
+				{voiceError && (
+					<div className='p-3 rounded-md bg-yellow-900 text-yellow-200 text-sm'>
+						{voiceError}
+					</div>
+				)}
+				{generationError && (
+					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
+						Content Generation Error: {generationError}
+					</div>
+				)}
 
-			{/* Loading States */}
-			{isGenerating && (
-				<div className='flex items-center gap-2 p-3 rounded-md bg-purple-900/50 text-purple-200 text-sm'>
-					<div className='w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin' />
-					<span>Generating 3 posts from templates...</span>
-				</div>
-			)}
-			{isListening && (
-				<div className='flex items-center gap-2 p-3 rounded-md bg-blue-900/50 text-blue-200 text-sm animate-pulse'>
-					<div className='w-2 h-2 bg-red-500 rounded-full animate-pulse' />
-					<span>Listening...</span>
-				</div>
-			)}
+				{/* Loading States */}
+				{isGenerating && (
+					<div className='flex items-center gap-2 p-3 rounded-md bg-purple-900/50 text-purple-200 text-sm'>
+						<div className='w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin' />
+						<span>Generating 3 posts from templates...</span>
+					</div>
+				)}
+				{isListening && (
+					<div className='flex items-center gap-2 p-3 rounded-md bg-blue-900/50 text-blue-200 text-sm animate-pulse'>
+						<div className='w-2 h-2 bg-red-500 rounded-full animate-pulse' />
+						<span>Listening...</span>
+					</div>
+				)}
 
-			{/* Input Form */}
-			<form onSubmit={handleSubmit} className='flex gap-1.5 sm:gap-2'>
+				{/* Input Form */}
+				<form onSubmit={handleSubmit} className='flex gap-1.5 sm:gap-2'>
 				<div className='flex-1 flex gap-1.5 sm:gap-2'>
 					<textarea
 						value={input}
@@ -551,6 +597,7 @@ export default function ChatInterface() {
 					{chatMode === 'contentGen' ? 'Generate' : 'Send'}
 				</button>
 			</form>
+			</div>
 		</div>
 	);
 }

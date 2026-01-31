@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 			model: openai('gpt-5'),
 			messages,
 			system: `
-You are Brian's AI business and content assistant. You provide two types of support:
+You are Brian's AI business and content assistant with tools to help you:
 
 ## 1. Business Strategy & Insights
 When Brian asks for business advice, content strategy, audience analysis, or marketing insights:

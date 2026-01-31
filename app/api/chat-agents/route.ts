@@ -1,0 +1,363 @@
+import { openai } from '@/libs/ai';
+import { generateObject, generateText, streamText } from 'ai';
+import {
+	searchWritingSamplesTool,
+	getBusinessContextTool,
+	searchResourcesTool,
+	analyzeChannelTool,
+	researchTopicTool,
+} from '@/libs/tools';
+import { type AgentName, AGENT_CONFIG } from '@/libs/agents/config';
+import { z } from 'zod';
+
+const routerResponseSchema = z.object({
+	agents: z.array(
+		z.enum(Object.keys(AGENT_CONFIG) as [AgentName, ...AgentName[]]),
+	),
+	refinedQuery: z.string(),
+});
+
+type RouterResponse = z.infer<typeof routerResponseSchema>;
+
+type AgentResponse = {
+	agent: AgentName;
+	response: string;
+};
+
+/**
+ * Router: Determines which agents to invoke and creates refined query
+ */
+async function routeRequest(userMessage: string): Promise<RouterResponse> {
+	const result = await generateObject({
+		model: openai('gpt-4o-mini'),
+		schema: routerResponseSchema,
+		prompt: `You are a routing assistant for Brian's AI system. Analyze the user's request and determine which agents should handle it.
+
+Available agents:
+- videoResearch: Analyze YouTube channel performance, research video topics, suggest video ideas
+- businessContext: Fetch business data, audience persona, metrics, performance data
+- writingSamples: Search Brian's writing samples to match his style and voice
+- resources: Find learning resources, courses, guides, tutorials
+
+Respond with:
+1. agents: Array of agent names to invoke (can be empty, one, or multiple)
+2. refinedQuery: A clear, focused query that all selected agents can use (should capture the core intent)
+
+Examples:
+- "What videos should I make?" → agents: ["videoResearch"], refinedQuery: "analyze channel performance and suggest video topics"
+- "Write a post about React" → agents: ["writingSamples", "resources"], refinedQuery: "React development content"
+- "How is my channel doing?" → agents: ["videoResearch", "businessContext"], refinedQuery: "channel and business performance metrics"
+
+User message: ${userMessage}`,
+	});
+
+	return result.object;
+}
+
+/**
+ * Video Research Agent
+ */
+async function videoResearchAgent(query: string): Promise<string> {
+	console.log('[videoResearch Agent] Query:', query);
+
+	const result = await generateText({
+		model: openai('gpt-4o-mini'),
+		messages: [
+			{
+				role: 'system',
+				content: `Call the tools to get data. Return raw tool results with minimal formatting.`,
+			},
+			{ role: 'user', content: query },
+		],
+		tools: {
+			analyzeChannelTool,
+			researchTopicTool,
+		},
+	});
+
+	console.log('[videoResearch Agent] Response length:', result.text.length);
+	return result.text;
+}
+
+/**
+ * Business Context Agent
+ */
+async function businessContextAgent(query: string): Promise<string> {
+	console.log('[businessContext Agent] Query:', query);
+
+	const result = await generateText({
+		model: openai('gpt-4o-mini'),
+		messages: [
+			{
+				role: 'system',
+				content: `Call the tool to get business context. Return raw tool results.`,
+			},
+			{ role: 'user', content: query },
+		],
+		tools: {
+			getBusinessContextTool,
+		},
+	});
+
+	console.log('[businessContext Agent] Response length:', result.text.length);
+	return result.text;
+}
+
+/**
+ * Writing Samples Agent
+ */
+async function writingSamplesAgent(query: string): Promise<string> {
+	console.log('[writingSamples Agent] Query:', query);
+
+	const result = await generateText({
+		model: openai('gpt-4o-mini'),
+		messages: [
+			{
+				role: 'system',
+				content: `Call the tool to find writing samples. Return raw tool results.`,
+			},
+			{ role: 'user', content: query },
+		],
+		tools: {
+			searchWritingSamplesTool,
+		},
+	});
+
+	console.log('[writingSamples Agent] Response length:', result.text.length);
+	return result.text;
+}
+
+/**
+ * Resources Agent
+ */
+async function resourcesAgent(query: string): Promise<string> {
+	console.log('[resources Agent] Query:', query);
+
+	const result = await generateText({
+		model: openai('gpt-4o-mini'),
+		messages: [
+			{
+				role: 'system',
+				content: `Call the tool to find resources. Return raw tool results - just list what was found.`,
+			},
+			{ role: 'user', content: query },
+		],
+		tools: {
+			searchResourcesTool,
+		},
+	});
+
+	console.log('[resources Agent] Response length:', result.text.length);
+	return result.text;
+}
+
+/**
+ * Execute agents in parallel
+ */
+async function executeAgents(
+	agents: AgentName[],
+	refinedQuery: string,
+): Promise<AgentResponse[]> {
+	console.log('[executeAgents] Running agents:', agents);
+
+	const agentMap = {
+		videoResearch: videoResearchAgent,
+		businessContext: businessContextAgent,
+		writingSamples: writingSamplesAgent,
+		resources: resourcesAgent,
+	};
+
+	const promises = agents.map(async (agentName) => {
+		const agentFn = agentMap[agentName];
+		const response = await agentFn(refinedQuery);
+		console.log(
+			`[executeAgents] ${agentName} returned ${response.length} chars`,
+		);
+		return { agent: agentName, response };
+	});
+
+	const results = await Promise.all(promises);
+	console.log('[executeAgents] All agents completed');
+	return results;
+}
+
+/**
+ * POST /api/chat-agents
+ * Agent-based chat endpoint with router → agents → summarizer architecture
+ */
+export async function POST(req: Request) {
+	const encoder = new TextEncoder();
+
+	try {
+		const body = await req.json();
+		const { messages } = body;
+		const lastMessage = messages[messages.length - 1]?.content || '';
+
+		// Create a readable stream for progress updates
+		const stream = new ReadableStream({
+			async start(controller) {
+				try {
+					// Step 1: Route request
+					controller.enqueue(
+						encoder.encode(
+							JSON.stringify({
+								type: 'progress',
+								message: 'Analyzing request...',
+							}) + '\n',
+						),
+					);
+
+					const { agents, refinedQuery } =
+						await routeRequest(lastMessage);
+
+					if (agents.length === 0) {
+						// No agents needed, just respond directly
+						controller.enqueue(
+							encoder.encode(
+								JSON.stringify({
+									type: 'progress',
+									message: 'Generating response...',
+								}) + '\n',
+							),
+						);
+
+						const result = streamText({
+							model: openai('gpt-5'),
+							messages,
+						});
+
+						for await (const chunk of result.textStream) {
+							controller.enqueue(
+								encoder.encode(
+									JSON.stringify({
+										type: 'text',
+										content: chunk,
+									}) + '\n',
+								),
+							);
+						}
+
+						controller.close();
+						return;
+					}
+
+					// Step 2: Execute agents in parallel
+					for (const agent of agents) {
+						controller.enqueue(
+							encoder.encode(
+								JSON.stringify({
+									type: 'progress',
+									message: `Running ${agent} agent...`,
+								}) + '\n',
+							),
+						);
+					}
+
+					const agentResponses = await executeAgents(
+						agents,
+						refinedQuery,
+					);
+
+					console.log(
+						'[POST] Agent responses received:',
+						agentResponses.length,
+					);
+
+					// Step 3: Summarize with gpt-5
+					controller.enqueue(
+						encoder.encode(
+							JSON.stringify({
+								type: 'progress',
+								message: 'Synthesizing response...',
+							}) + '\n',
+						),
+					);
+
+					const agentContext = agentResponses
+						.map(
+							(ar) =>
+								`[${ar.agent} Agent Response]\n${ar.response}`,
+						)
+						.join('\n\n');
+
+					console.log(
+						'[POST] Agent context length:',
+						agentContext.length,
+					);
+
+					const result = streamText({
+						model: openai('gpt-5'),
+						messages: [
+							{
+								role: 'system',
+								content: `You are Brian's AI assistant. You have received responses from specialized agents. Use this information to provide a comprehensive, helpful answer to the user's original question.
+
+Agent Responses:
+${agentContext}
+
+Original Question: ${lastMessage}
+Refined Query: ${refinedQuery}
+
+CRITICAL: Use ONLY the actual data from the agent responses. Do NOT make up or suggest new things.
+
+If agents returned resources, list those exact resources with links.
+If agents returned channel data, show that exact data.
+If agents returned writing samples, reference those samples.
+
+Synthesize the ACTUAL agent data into a clear answer. Maintain Brian's voice: direct, practical, no hype.`,
+							},
+							...messages,
+						],
+					});
+
+					// Stream the final response
+					console.log('[POST] Starting to stream response...');
+					let chunkCount = 0;
+					for await (const chunk of result.textStream) {
+						chunkCount++;
+						controller.enqueue(
+							encoder.encode(
+								JSON.stringify({
+									type: 'text',
+									content: chunk,
+								}) + '\n',
+							),
+						);
+					}
+
+					console.log(
+						'[POST] Stream complete. Sent',
+						chunkCount,
+						'chunks',
+					);
+					controller.close();
+				} catch (error) {
+					console.error('Agent execution error:', error);
+					controller.enqueue(
+						encoder.encode(
+							JSON.stringify({
+								type: 'error',
+								message:
+									error instanceof Error
+										? error.message
+										: 'Unknown error',
+							}) + '\n',
+						),
+					);
+					controller.close();
+				}
+			},
+		});
+
+		return new Response(stream, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Cache-Control': 'no-cache',
+				Connection: 'keep-alive',
+			},
+		});
+	} catch (error) {
+		console.error('Error in chat-agents API:', error);
+		return new Response('Internal server error', { status: 500 });
+	}
+}

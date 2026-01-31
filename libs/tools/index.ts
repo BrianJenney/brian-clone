@@ -9,3 +9,7 @@ export { searchWritingSamplesTool } from './search-content';
 export { getBusinessContextTool } from './get-business-context';
 export { searchResourcesTool } from './search-resources';
 export { analyzeChannelTool, researchTopicTool } from './video-research';
+
+// Tool configuration and metadata
+export { TOOL_CONFIG, getToolDisplayName } from './config';
+export type { ToolName, ToolMetadata } from './config';
