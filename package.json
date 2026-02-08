@@ -6,7 +6,9 @@
 		"brian": "./bin/cli.ts"
 	},
 	"scripts": {
-		"dev": "next dev",
+		"dev": "concurrently \"next dev\" \".venv/bin/python api/scrape-medium-articles/index.py\"",
+		"dev:next": "next dev",
+		"dev:flask": ".venv/bin/python api/scrape-medium-articles/index.py",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check",
@@ -48,6 +50,7 @@
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@types/uuid": "^11.0.0",
+		"concurrently": "^9.2.1",
 		"eslint": "^9.38.0",
 		"eslint-config-next": "^16.0.1",
 		"husky": "^9.1.7",

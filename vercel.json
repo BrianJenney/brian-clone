@@ -11,7 +11,8 @@
 		}
 	],
 	"functions": {
-		"api/medium-articles.py": {
+		"api/scrape-medium-articles/index.py": {
+			"maxDuration": 60,
 			"excludeFiles": "{data/**,scripts/**,app/**,components/**,public/**,node_modules/**,context/**,hooks/**,libs/**,*.md,package*.json,*.lock,*.ts,.git/**,.next/**,.vercel/**,__pycache__/**,*.pyc,.venv/**,venv/**,*.log,*.cache,dist/**,build/**}"
 		}
 	}
