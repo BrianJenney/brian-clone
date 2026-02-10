@@ -58,8 +58,6 @@ User message: ${userMessage}`,
  * Video Research Agent
  */
 async function videoResearchAgent(query: string): Promise<string> {
-	console.log('[videoResearch Agent] Query:', query);
-
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
 		messages: [
@@ -75,7 +73,6 @@ async function videoResearchAgent(query: string): Promise<string> {
 		},
 	});
 
-	console.log('[videoResearch Agent] Response length:', result.text.length);
 	return result.text;
 }
 
@@ -83,8 +80,6 @@ async function videoResearchAgent(query: string): Promise<string> {
  * Business Context Agent
  */
 async function businessContextAgent(query: string): Promise<string> {
-	console.log('[businessContext Agent] Query:', query);
-
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
 		messages: [
@@ -99,7 +94,6 @@ async function businessContextAgent(query: string): Promise<string> {
 		},
 	});
 
-	console.log('[businessContext Agent] Response length:', result.text.length);
 	return result.text;
 }
 
@@ -107,8 +101,6 @@ async function businessContextAgent(query: string): Promise<string> {
  * Writing Samples Agent
  */
 async function writingSamplesAgent(query: string): Promise<string> {
-	console.log('[writingSamples Agent] Query:', query);
-
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
 		messages: [
@@ -123,7 +115,6 @@ async function writingSamplesAgent(query: string): Promise<string> {
 		},
 	});
 
-	console.log('[writingSamples Agent] Response length:', result.text.length);
 	return result.text;
 }
 
@@ -131,8 +122,6 @@ async function writingSamplesAgent(query: string): Promise<string> {
  * Resources Agent
  */
 async function resourcesAgent(query: string): Promise<string> {
-	console.log('[resources Agent] Query:', query);
-
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
 		messages: [
@@ -147,7 +136,6 @@ async function resourcesAgent(query: string): Promise<string> {
 		},
 	});
 
-	console.log('[resources Agent] Response length:', result.text.length);
 	return result.text;
 }
 
@@ -158,8 +146,6 @@ async function executeAgents(
 	agents: AgentName[],
 	refinedQuery: string,
 ): Promise<AgentResponse[]> {
-	console.log('[executeAgents] Running agents:', agents);
-
 	const agentMap = {
 		videoResearch: videoResearchAgent,
 		businessContext: businessContextAgent,
@@ -170,14 +156,11 @@ async function executeAgents(
 	const promises = agents.map(async (agentName) => {
 		const agentFn = agentMap[agentName];
 		const response = await agentFn(refinedQuery);
-		console.log(
-			`[executeAgents] ${agentName} returned ${response.length} chars`,
-		);
 		return { agent: agentName, response };
 	});
 
 	const results = await Promise.all(promises);
-	console.log('[executeAgents] All agents completed');
+
 	return results;
 }
 
@@ -258,11 +241,6 @@ export async function POST(req: Request) {
 						refinedQuery,
 					);
 
-					console.log(
-						'[POST] Agent responses received:',
-						agentResponses.length,
-					);
-
 					// Step 3: Summarize with gpt-5
 					controller.enqueue(
 						encoder.encode(
@@ -279,11 +257,6 @@ export async function POST(req: Request) {
 								`[${ar.agent} Agent Response]\n${ar.response}`,
 						)
 						.join('\n\n');
-
-					console.log(
-						'[POST] Agent context length:',
-						agentContext.length,
-					);
 
 					const result = streamText({
 						model: openai('gpt-5'),
@@ -311,7 +284,7 @@ Synthesize the ACTUAL agent data into a clear answer. Maintain Brian's voice: di
 					});
 
 					// Stream the final response
-					console.log('[POST] Starting to stream response...');
+
 					let chunkCount = 0;
 					for await (const chunk of result.textStream) {
 						chunkCount++;
@@ -325,11 +298,6 @@ Synthesize the ACTUAL agent data into a clear answer. Maintain Brian's voice: di
 						);
 					}
 
-					console.log(
-						'[POST] Stream complete. Sent',
-						chunkCount,
-						'chunks',
-					);
 					controller.close();
 				} catch (error) {
 					console.error('Agent execution error:', error);
