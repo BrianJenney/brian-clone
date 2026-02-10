@@ -86,6 +86,13 @@
 		]
 	},
 	{
+		"title": "AI with Agents and Gemini",
+		"url": "https://www.parsity.io/ai-agent",
+		"category": "ai",
+		"description": "Guide to building an AI agent that can search a SQL DB in a NextJS app and do a web search",
+		"keywords": ["ai", "agents", "gemini", "integration", "openai", "llm"]
+	},
+	{
 		"title": "AI with JavaScript",
 		"url": "https://www.parsity.io/ai-with-js",
 		"category": "ai",

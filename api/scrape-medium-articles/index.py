@@ -1,6 +1,6 @@
 """
 Vercel Python Serverless Function for Medium Article Scraping
-Uses FastAPI and Browserless.io API for lightweight scraping
+Uses Flask and Crawl4AI for AI-friendly web crawling
 """
 
 import asyncio
@@ -8,39 +8,22 @@ import os
 import re
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Optional
 
-import httpx
-from bs4 import BeautifulSoup
-from fastapi import FastAPI, HTTPException, Header, Query
-from pydantic import BaseModel
+from crawl4ai import AsyncWebCrawler
+from flask import Flask, jsonify, request
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
 from openai import OpenAI
 
 
-app = FastAPI(title="Medium Articles Scraper", port=5238)
+app = Flask(__name__)
 
 
 # Configuration
 MEDIUM_PROFILE_URL = "https://brianjenney.medium.com"
 COLLECTION_NAME = "brian-articles"
 CHUNK_SIZE = 1500
-BROWSERLESS_API_TOKEN = os.getenv("BROWSERLESS_API_TOKEN")
-BROWSERLESS_URL = os.getenv("BROWSERLESS_URL", "https://production-sfo.browserless.io")
-
-
-class ScrapeRequest(BaseModel):
-    days: int = 7
-    test_mode: bool = False
-
-
-class ScrapeResponse(BaseModel):
-    success: bool
-    message: str
-    uploaded: int = 0
-    failed: int = 0
-    articles: list = []
 
 
 def get_qdrant_client() -> QdrantClient:
@@ -106,100 +89,89 @@ def chunk_text_with_overlap(text: str, max_chunk_size: int = CHUNK_SIZE) -> list
     return chunks
 
 
-async def fetch_rendered_html(url: str) -> Optional[str]:
-    """Fetch fully rendered HTML from Browserless API"""
-    if not BROWSERLESS_API_TOKEN:
-        raise Exception("BROWSERLESS_API_TOKEN environment variable is required")
+async def crawl_url(url: str) -> Optional[dict]:
+    """Crawl a URL using crawl4ai and return markdown content"""
+    try:
+        async with AsyncWebCrawler(verbose=False) as crawler:
+            result = await crawler.arun(url=url)
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        # Use Browserless /content endpoint to get rendered HTML
-        response = await client.post(
-            f"{BROWSERLESS_URL}/content?token={BROWSERLESS_API_TOKEN}",
-            json={
-                "url": url,
-                "waitFor": 2000,  # Wait 2 seconds for JS to render
-            },
-            headers={"Content-Type": "application/json"},
-        )
-
-        if response.status_code == 200:
-            return response.text
-        else:
-            print(f"Browserless API error: {response.status_code} - {response.text}")
-            return None
+            if result.success:
+                return {
+                    "url": url,
+                    "markdown": result.markdown,
+                    "html": result.html,
+                    "success": True
+                }
+            else:
+                print(f"Failed to crawl {url}: {result.error_message}")
+                return None
+    except Exception as e:
+        print(f"Error crawling {url}: {e}")
+        return None
 
 
 async def scrape_profile_for_articles() -> list[str]:
     """Scrape the Medium profile page to find article URLs"""
     print(f"Fetching profile page: {MEDIUM_PROFILE_URL}")
 
-    html = await fetch_rendered_html(MEDIUM_PROFILE_URL)
-    if not html:
+    result = await crawl_url(MEDIUM_PROFILE_URL)
+    if not result:
         raise Exception("Failed to fetch profile page")
 
-    soup = BeautifulSoup(html, "html.parser")
+    # Extract URLs from the HTML
+    html = result["html"]
+    urls = set()
 
-    # Find all article links
-    urls = set[str]()
-    for link in soup.find_all("a", href=True):
-        href = link["href"].split("?")[0]  # Strip query params
-        if href.startswith("https://brianjenney.medium.com/") and re.search(
-            r"-[a-f0-9]{8,12}$", href
-        ):
-            urls.add(href)
+    # Find all Medium article URLs in the HTML
+    url_pattern = r'href="(https://brianjenney\.medium\.com/[^"?]+)"'
+    matches = re.findall(url_pattern, html)
+
+    for url in matches:
+        # Only keep URLs that look like articles (have the hash at the end)
+        if re.search(r"-[a-f0-9]{8,12}$", url):
+            urls.add(url)
 
     print(f"Found {len(urls)} article URLs")
     return list(urls)
 
 
-def strip_medium_ui(html: str) -> str:
-    """Extract article content from HTML and convert to text"""
-    soup = BeautifulSoup(html, "html.parser")
 
-    # Find article element
-    article = soup.find("article")
-    if not article:
-        return ""
-
-    # Remove scripts, styles, nav, footer
-    for tag in article.find_all(["script", "style", "nav", "footer"]):
-        tag.decompose()
-
-    # Extract text content
-    return article.get_text(separator="\n", strip=True)
-
-
-async def scrape_article_content(url: str) -> Optional[dict]:
+async def scrape_article_content_async(url: str) -> Optional[dict]:
     """Scrape a single article and return its content"""
     print(f"  Scraping: {url.split('/')[-1][:50]}...")
 
-    html = await fetch_rendered_html(url)
-    if not html:
+    result = await crawl_url(url)
+    if not result:
         return None
 
-    soup = BeautifulSoup(html, "html.parser")
+    markdown = result["markdown"]
+    html = result["html"]
 
-    # Extract title
-    title_tag = soup.find("h1")
-    title = title_tag.get_text(strip=True) if title_tag else url.split("/")[-1]
+    # Extract title from markdown (first # heading)
+    title_match = re.search(r"^#\s+(.+)$", markdown, re.MULTILINE)
+    title = title_match.group(1) if title_match else url.split("/")[-1]
 
-    # Extract content
-    content = strip_medium_ui(html)
-
-    # Try to extract publish date
-    time_tag = soup.find("time")
+    # Extract publish date from HTML
+    time_match = re.search(r'<time[^>]*datetime="([^"]+)"', html)
     published_at = datetime.now().isoformat()
-    if time_tag and time_tag.get("datetime"):
-        published_at = time_tag["datetime"]
+    if time_match:
+        published_at = time_match.group(1)
 
-    return {"title": title, "url": url, "content": content, "publishedAt": published_at}
+    # Remove the title from markdown to avoid duplication
+    content = re.sub(r"^#\s+.+\n+", "", markdown, count=1)
+
+    return {
+        "title": title,
+        "url": url,
+        "content": content,
+        "publishedAt": published_at
+    }
 
 
-async def process_articles(days: int, test_mode: bool = False) -> dict:
-    """Main function to scrape and store articles"""
+async def process_articles_async(days: int, test_mode: bool = False) -> dict:
+    """Main async function to scrape and store articles"""
     results = {"success": 0, "failed": 0, "articles": []}
 
-    # Step 1: Get article URLs from profile
     urls = await scrape_profile_for_articles()
 
     if not urls:
@@ -208,27 +180,34 @@ async def process_articles(days: int, test_mode: bool = False) -> dict:
 
     print(f"\nFound {len(urls)} articles to scrape")
 
-    # Step 2: Scrape each article
     print("\nScraping articles...")
     scraped_articles = []
 
-    # Process in batches to avoid overwhelming Browserless API
+    # Process articles in batches of 3 using asyncio.gather
     batch_size = 3
     for i in range(0, len(urls), batch_size):
         batch = urls[i : i + batch_size]
-        tasks = [scrape_article_content(url) for url in batch]
-        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        batch_results = await asyncio.gather(
+            *[scrape_article_content_async(url) for url in batch],
+            return_exceptions=True
+        )
         for result in batch_results:
             if isinstance(result, Exception):
                 print(f"  Error: {result}")
                 results["failed"] += 1
             elif result:
                 scraped_articles.append(result)
+            else:
+                results["failed"] += 1
 
-    # Step 3: Filter by date
+    # Filter by date
     date_threshold = datetime.now() - timedelta(days=days)
-    
-    scraped_articles = [article for article in scraped_articles if article["publishedAt"] >= date_threshold.isoformat()]
+
+    scraped_articles = [
+        article
+        for article in scraped_articles
+        if article["publishedAt"] >= date_threshold.isoformat()
+    ]
 
     # Initialize Qdrant and OpenAI clients (skip in test mode)
     qdrant = None
@@ -248,11 +227,13 @@ async def process_articles(days: int, test_mode: bool = False) -> dict:
         # Test mode: just record the article
         if test_mode:
             results["success"] += 1
-            results["articles"].append({
-                "title": article["title"],
-                "url": article["url"],
-                "content_length": len(content),
-            })
+            results["articles"].append(
+                {
+                    "title": article["title"],
+                    "url": article["url"],
+                    "content_length": len(content),
+                }
+            )
             continue
 
         try:
@@ -278,7 +259,7 @@ async def process_articles(days: int, test_mode: bool = False) -> dict:
                                 "baseId": base_id,
                                 "chunkIndex": chunk["index"],
                                 "totalChunks": chunk["total_chunks"],
-                                "source": "browserless-medium-scraper",
+                                "source": "crawl4ai-medium-scraper",
                                 "title": article["title"],
                                 "sourceUrl": article["url"],
                                 "publishedAt": article["publishedAt"],
@@ -303,9 +284,14 @@ async def process_articles(days: int, test_mode: bool = False) -> dict:
 
     return results
 
+
+def process_articles(days: int, test_mode: bool = False) -> dict:
+    """Sync wrapper for process_articles_async"""
+    return asyncio.run(process_articles_async(days, test_mode))
+
+
 def verify_auth(authorization: str | None) -> bool:
     """Verify CRON_SECRET for security"""
-    print(f"CRON_SECRET: {cron_secret}")
     cron_secret = os.getenv("CRON_SECRET")
     if not cron_secret:
         return True  # No secret configured, allow (dev mode)
@@ -315,27 +301,35 @@ def verify_auth(authorization: str | None) -> bool:
 
     return authorization == f"Bearer {cron_secret}"
 
-@app.get("/scrape-medium-articles", response_model=ScrapeResponse)
-async def scrape_medium_post(
-    request: ScrapeRequest,
-    authorization: str | None = Header(None, alias="Authorization"),
-):
+
+@app.route("/scrape-medium-articles", methods=["GET"])
+def scrape_medium_articles():
     """
-    POST endpoint to scrape Medium articles with custom parameters
-    This endpoint will be available at /api/medium-articles
+    GET endpoint to scrape Medium articles
+    Available at /api/scrape-medium-articles
     """
+    authorization = request.headers.get("Authorization")
+    days = request.args.get("days", default=7, type=int)
+    test_mode = request.args.get("test_mode", default="false").lower() == "true"
+
     if not verify_auth(authorization):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        return jsonify({"error": "Unauthorized"}), 401
 
     try:
-        results = await process_articles(days=request.days, test_mode=request.test_mode)
+        results = process_articles(days=days, test_mode=test_mode)
 
-        return ScrapeResponse(
-            success=True,
-            message=f"Processed articles from last {request.days} days",
-            uploaded=results["success"],
-            failed=results["failed"],
-            articles=results["articles"],
+        return jsonify(
+            {
+                "success": True,
+                "message": f"Processed articles from last {days} days",
+                "uploaded": results["success"],
+                "failed": results["failed"],
+                "articles": results["articles"],
+            }
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(port=5328, debug=True)

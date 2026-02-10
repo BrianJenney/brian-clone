@@ -34,7 +34,7 @@ export const searchWritingSamplesTool = tool({
 								vector: queryEmbedding,
 								limit,
 								with_payload: true,
-							}
+							},
 						);
 
 						return results.map((r) => ({
@@ -46,11 +46,11 @@ export const searchWritingSamplesTool = tool({
 					} catch (error) {
 						console.warn(
 							`Error searching ${collectionName}:`,
-							error
+							error,
 						);
 						return [];
 					}
-				}
+				},
 			);
 
 			const allResults = await Promise.all(searchPromises);

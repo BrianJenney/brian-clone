@@ -30,16 +30,11 @@ export const searchResourcesTool = tool({
 			const resourcesData = await fs.readFile(resourcesPath, 'utf-8');
 			const allResources = JSON.parse(resourcesData);
 
-			// Filter by category if provided
 			let filteredResources = allResources;
 			if (category) {
 				filteredResources = allResources.filter(
 					(r: any) => r.category === category
 				);
-			}
-
-			if (filteredResources.length === 0) {
-				return 'No resources found for that category.';
 			}
 
 			// Use LLM to rank and find most relevant resources

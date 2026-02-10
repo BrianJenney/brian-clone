@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
 	// Allow Vercel cron requests (requires CRON_SECRET for security)
 	if (
 		pathname === '/api/linkedin-posts' ||
-		pathname === '/api/medium-articles'
+		pathname === '/api/scrape-medium-articles'
 	) {
 		const authHeader = request.headers.get('authorization');
 		const cronSecret = process.env.CRON_SECRET;

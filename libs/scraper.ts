@@ -55,11 +55,11 @@ function isWithinThreeMonths(uploadTimeText: string): boolean {
  */
 export async function searchYouTube(
 	query: string,
-	maxResults: number = 10
+	maxResults: number = 10,
 ): Promise<YouTubeSearchResult[]> {
 	// Add upload date filter for "This year" - sp=EgIIBQ%253D%253D
 	// This pre-filters results on YouTube's side, then we filter further client-side
-	const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIIBQ%253D%253D`;
+	const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 
 	console.log(`Searching YouTube for: "${query}" (last 3 months only)`);
 
@@ -110,14 +110,14 @@ export async function searchYouTube(
 
 					// Extract channel name
 					const channelElement = element.querySelector(
-						'#channel-name a, ytd-channel-name a'
+						'#channel-name a, ytd-channel-name a',
 					);
 					const channelName =
 						channelElement?.textContent?.trim() || 'Unknown';
 
 					// Extract metadata (views and upload time)
 					const metadataElements = element.querySelectorAll(
-						'#metadata-line span'
+						'#metadata-line span',
 					);
 					const views =
 						metadataElements[0]?.textContent?.trim() || 'N/A';
@@ -143,7 +143,7 @@ export async function searchYouTube(
 
 				return videos;
 			},
-			maxResults
+			maxResults,
 		);
 
 		await browser.close();
@@ -154,7 +154,7 @@ export async function searchYouTube(
 			.slice(0, maxResults);
 
 		console.log(
-			`Found ${results.length} YouTube results from the last 3 months (filtered from ${allResults.length} total)`
+			`Found ${results.length} YouTube results from the last 3 months (filtered from ${allResults.length} total)`,
 		);
 		return results;
 	} catch (error) {
