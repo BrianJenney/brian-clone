@@ -1,19 +1,12 @@
 {
-	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"crons": [
-		{
-			"path": "/api/linkedin-posts",
-			"schedule": "0 9 * * 1"
-		},
-		{
-			"path": "/api/scrape-medium-articles",
-			"schedule": "0 10 * * 1"
-		}
-	],
-	"functions": {
-		"api/scrape-medium-articles/index.py": {
-			"maxDuration": 60,
-			"excludeFiles": "{data/**,scripts/**,app/**,components/**,public/**,node_modules/**,context/**,hooks/**,libs/**,*.md,package*.json,*.lock,*.ts,.git/**,.next/**,.vercel/**,__pycache__/**,*.pyc,.venv/**,venv/**,*.log,*.cache,dist/**,build/**}"
-		}
-	}
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/linkedin-posts", "schedule": "0 9 * * 1" },
+    { "path": "/api/youtube-transcripts", "schedule": "0 10 * * 1" }
+  ],
+  "functions": {
+    "api/youtube-transcripts/index.py": {
+      "maxDuration": 60
+    }
+  }
 }

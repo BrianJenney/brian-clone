@@ -94,10 +94,10 @@
 			"name": "AIDev",
 			"url": "https://www.parsity.io/ai-dev",
 			"type": "specialized_program",
-			"price": "$997 (or $399/month x 3)",
-			"deposit": "$97 refundable",
-			"duration": "30 days",
-			"format": "Asynchronous lessons + 4 live group office hours + weekly guest speakers",
+			"price": "$1,997 (or $399/month x 3) OR self-paced for $1,197",
+			"deposit": "$987 refundable",
+			"duration": "30 days (or self-paced)",
+			"format": "Asynchronous lessons + 4 live group office hours + weekly guest speakers (or self-paced, asynchronous lessons)",
 			"cohort_size": "15 developers max",
 			"access_period": "90 days after program ends",
 			"description": "Intensive bootcamp for web developers to master applied AI development",
@@ -125,7 +125,7 @@
 	"revenue_model": {
 		"bootcamp": "$9,200 tuition",
 		"dev30": "$49 tripwire with upsell path",
-		"aidev": "$997 specialized program",
+		"aidev": "$1,997 specialized program (or $399/month x 3) OR self-paced for $1,197",
 		"cohorts_per_year": 4,
 		"max_annual_bootcamp_students": 48
 	},
@@ -138,7 +138,8 @@
 			"Focus on practical skills over theory",
 			"Real projects, not tutorial hell",
 			"Highly personalized mentorship (small cohorts)",
-			"Direct access to instructors"
+			"Direct access to instructors",
+			"Senior software engineer mentors"
 		]
 	},
 	"content_pillars": [

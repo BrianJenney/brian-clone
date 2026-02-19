@@ -8,7 +8,6 @@ import {
 	researchTopicTool,
 	excalidrawerTool,
 } from '@/libs/tools';
-
 /**
  * POST /api/chat
  * Chat endpoint with tool calling for content management and business insights
@@ -16,7 +15,12 @@ import {
 export async function POST(req: Request) {
 	try {
 		const body = await req.json();
-		const { messages } = body;
+		const { messages } = body as {
+			messages: {
+				role: 'user' | 'assistant';
+				content: string;
+			}[];
+		};
 
 		const result = streamText({
 			model: openai('gpt-5'),

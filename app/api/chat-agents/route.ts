@@ -1,11 +1,12 @@
 import { openai } from '@/libs/ai';
-import { generateObject, generateText, streamText } from 'ai';
+import { generateObject, generateText, stepCountIs, streamText } from 'ai';
 import {
 	searchWritingSamplesTool,
 	getBusinessContextTool,
 	searchResourcesTool,
 	analyzeChannelTool,
 	researchTopicTool,
+	excalidrawerTool,
 } from '@/libs/tools';
 import { type AgentName, AGENT_CONFIG } from '@/libs/agents/config';
 import { z } from 'zod';
@@ -27,7 +28,9 @@ type AgentResponse = {
 /**
  * Router: Determines which agents to invoke and creates refined query
  */
-async function routeRequest(userMessage: string): Promise<RouterResponse> {
+async function routeRequest(
+	userMessages: { role: 'user' | 'assistant'; content: string }[],
+): Promise<RouterResponse> {
 	const result = await generateObject({
 		model: openai('gpt-4o-mini'),
 		schema: routerResponseSchema,
@@ -38,6 +41,7 @@ Available agents:
 - businessContext: Fetch business data, audience persona, metrics, performance data
 - writingSamples: Search Brian's writing samples to match his style and voice
 - resources: Find learning resources, courses, guides, tutorials
+- excalidrawer: Draw diagrams and flowcharts
 
 Respond with:
 1. agents: Array of agent names to invoke (can be empty, one, or multiple)
@@ -48,7 +52,7 @@ Examples:
 - "Write a post about React" → agents: ["writingSamples", "resources"], refinedQuery: "React development content"
 - "How is my channel doing?" → agents: ["videoResearch", "businessContext"], refinedQuery: "channel and business performance metrics"
 
-User message: ${userMessage}`,
+User messages: ${userMessages.map((message) => `- ${message.role}: ${message.content}`).join('\n')}`,
 	});
 
 	return result.object;
@@ -84,10 +88,12 @@ async function videoResearchAgent(query: string): Promise<string> {
 async function businessContextAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
+		stopWhen: stepCountIs(1),
+		toolChoice: 'required',
 		messages: [
 			{
 				role: 'system',
-				content: `Call the tool to get business context. Return raw tool results.`,
+				content: `Get business context that matches the user's request.`,
 			},
 			{ role: 'user', content: query },
 		],
@@ -105,15 +111,41 @@ async function businessContextAgent(query: string): Promise<string> {
 async function writingSamplesAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
+		maxOutputTokens: 1200,
+		stopWhen: stepCountIs(1),
+		toolChoice: 'required',
 		messages: [
 			{
 				role: 'system',
-				content: `Call the tool to find writing samples. Return raw tool results.`,
+				content: `Find Brian's writing samples that match the user's request.`,
 			},
 			{ role: 'user', content: query },
 		],
 		tools: {
 			searchWritingSamplesTool,
+		},
+	});
+
+	return result.text;
+}
+
+/**
+ * Excalidrawer Agent
+ */
+async function excalidrawerAgent(query: string): Promise<string> {
+	const result = await generateText({
+		model: openai('gpt-4o-mini'),
+		maxOutputTokens: 1200,
+		stopWhen: stepCountIs(1),
+		messages: [
+			{
+				role: 'system',
+				content: `Call the tool to draw a diagram or flowchart. Return raw tool results. This is specifically for excalidraw - you can use Mermaid syntax`,
+			},
+			{ role: 'user', content: query },
+		],
+		tools: {
+			excalidrawerTool,
 		},
 	});
 
@@ -153,6 +185,7 @@ async function executeAgents(
 		businessContext: businessContextAgent,
 		writingSamples: writingSamplesAgent,
 		resources: resourcesAgent,
+		excalidrawer: excalidrawerAgent,
 	};
 
 	const promises = agents.map(async (agentName) => {
@@ -175,8 +208,11 @@ export async function POST(req: Request) {
 
 	try {
 		const body = await req.json();
-		const { messages } = body;
-		const lastMessage = messages[messages.length - 1]?.content || '';
+
+		const { messages } = body as {
+			messages: { role: 'user' | 'assistant'; content: string }[];
+		};
+		const lastMessages = messages.slice(-3);
 
 		// Create a readable stream for progress updates
 		const stream = new ReadableStream({
@@ -192,10 +228,12 @@ export async function POST(req: Request) {
 						),
 					);
 
-					const { agents, refinedQuery } =
-						await routeRequest(lastMessage);
+					const { agents: agentsToUse, refinedQuery } =
+						await routeRequest(lastMessages);
 
-					if (agents.length === 0) {
+					console.log(JSON.stringify({ agentsToUse, refinedQuery }));
+
+					if (agentsToUse.length === 0) {
 						// No agents needed, just respond directly
 						controller.enqueue(
 							encoder.encode(
@@ -227,7 +265,7 @@ export async function POST(req: Request) {
 					}
 
 					// Step 2: Execute agents in parallel
-					for (const agent of agents) {
+					for (const agent of agentsToUse) {
 						controller.enqueue(
 							encoder.encode(
 								JSON.stringify({
@@ -239,7 +277,7 @@ export async function POST(req: Request) {
 					}
 
 					const agentResponses = await executeAgents(
-						agents,
+						agentsToUse,
 						refinedQuery,
 					);
 
@@ -270,7 +308,7 @@ export async function POST(req: Request) {
 Agent Responses:
 ${agentContext}
 
-Original Question: ${lastMessage}
+Recent User Messages: ${lastMessages.map((message: { content: string }) => `- ${message.content}`).join('\n')}
 Refined Query: ${refinedQuery}
 
 CRITICAL: Use ONLY the actual data from the agent responses. Do NOT make up or suggest new things.

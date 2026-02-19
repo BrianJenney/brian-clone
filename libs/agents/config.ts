@@ -30,6 +30,12 @@ export const AGENT_CONFIG = {
 		description: 'Find learning resources, courses, guides, and tutorials',
 		tools: ['searchResourcesTool'],
 	},
+	excalidrawer: {
+		name: 'excalidrawer',
+		displayName: 'Excalidrawer',
+		description: 'Draw diagrams and flowcharts',
+		tools: ['excalidrawerTool'],
+	},
 } as const;
 
 // Derive types from config

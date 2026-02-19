@@ -6,9 +6,8 @@
 		"brian": "./bin/cli.ts"
 	},
 	"scripts": {
-		"dev": "concurrently \"next dev\" \".venv/bin/python api/scrape-medium-articles/index.py\"",
+		"dev": "next dev",
 		"dev:next": "next dev",
-		"dev:flask": ".venv/bin/python api/scrape-medium-articles/index.py",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check",

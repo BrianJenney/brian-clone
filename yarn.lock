@@ -5857,6 +5857,11 @@ yocto-queue@^0.1.0:
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
+youtube-transcript@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/youtube-transcript/-/youtube-transcript-1.2.1.tgz#dd9ddadb7a3b5882e45574a82663c440634e8765"
+  integrity sha512-TvEGkBaajKw+B6y91ziLuBLsa5cawgowou+Bk0ciGpjELDfAzSzTGXaZmeSSkUeknCPpEr/WGApOHDwV7V+Y9Q==
+
 zod-to-json-schema@^3.24.6:
   version "3.24.6"
   resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.24.6.tgz"
