@@ -63,7 +63,9 @@ async function videoResearchAgent(query: string): Promise<string> {
 		messages: [
 			{
 				role: 'system',
-				content: `Call the tools to get data. Return raw tool results with minimal formatting.`,
+				content: `
+				You have tools to analyze Brian's YouTube channel performance and research video topics. 
+				Use the tools to get data and return the results`,
 			},
 			{ role: 'user', content: query },
 		],

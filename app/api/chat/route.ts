@@ -6,6 +6,7 @@ import {
 	searchResourcesTool,
 	analyzeChannelTool,
 	researchTopicTool,
+	excalidrawerTool,
 } from '@/libs/tools';
 
 /**
@@ -73,6 +74,7 @@ Follow this "How To" article structure:
 - **searchResourcesTool**: Find learning resources, tutorials and lead magnets that Brian has created or curated. Use when writing posts that could reference helpful resources.
 - **analyzeChannelTool**: Analyze Brian's YouTube channel performance (recent videos, stats, engagement)
 - **researchTopicTool**: Research YouTube topics to see what's trending and get video suggestions
+- **excalidrawerTool**: Draw diagrams and flowcharts
 - **CRITICAL**: If a tool returns an error or fails, do NOT call it again. Instead, provide a helpful response based on your knowledge without that tool's data. Acknowledge any limitations briefly and focus on what you can help with.
 
 Remember: The target audience (Marcus) values transparency over hype, practical advice over theory, and clear roadmaps over vague inspiration.
@@ -83,10 +85,13 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 				searchResourcesTool,
 				analyzeChannelTool,
 				researchTopicTool,
+				excalidrawerTool,
 			},
 			toolChoice: 'auto',
 			stopWhen: stepCountIs(15),
 		});
+
+		console.log('TOOLS USED', result.toolCalls);
 
 		return result.toTextStreamResponse();
 	} catch (error) {

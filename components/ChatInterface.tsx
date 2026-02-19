@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
-import ReactMarkdown from 'react-markdown';
+import { StlyedMarkdown } from '@/components/ReactMarkdown';
 import remarkGfm from 'remark-gfm';
 import { generateContent } from '@/app/actions/generate-content';
 import { getToolDisplayName } from '@/libs/tools/config';
@@ -79,7 +79,7 @@ export default function ChatInterface() {
 				messages.map((message) => ({
 					role: message.role,
 					content: message.content,
-				}))
+				})),
 			);
 
 			if (result.success && 'options' in result && result.options) {
@@ -89,13 +89,13 @@ export default function ChatInterface() {
 				throw new Error(
 					'message' in result && result.message
 						? result.message
-						: 'Failed to generate posts'
+						: 'Failed to generate posts',
 				);
 			}
 		} catch (error) {
 			console.error('Content generation error:', error);
 			setGenerationError(
-				error instanceof Error ? error.message : 'Unknown error'
+				error instanceof Error ? error.message : 'Unknown error',
 			);
 		} finally {
 			setIsGenerating(false);
@@ -163,9 +163,11 @@ export default function ChatInterface() {
 
 								setMessages((prev) => {
 									const newMessages = [...prev];
-									const lastMessage = newMessages[newMessages.length - 1];
+									const lastMessage =
+										newMessages[newMessages.length - 1];
 									if (lastMessage.role === 'assistant') {
-										lastMessage.content = accumulatedContent;
+										lastMessage.content =
+											accumulatedContent;
 									}
 									return newMessages;
 								});
@@ -177,11 +179,10 @@ export default function ChatInterface() {
 						}
 					}
 				} else {
-					// Old format: AI SDK stream with tool calls
 					const lines = buffer.split('\n');
 					for (const line of lines) {
+						console.log('line', line);
 						if (line.startsWith('9:')) {
-							// Tool call detected
 							try {
 								const toolCall = JSON.parse(line.slice(2));
 								const toolName = toolCall.toolName || '';
@@ -189,15 +190,16 @@ export default function ChatInterface() {
 							} catch (e) {
 								// Ignore parse errors
 							}
-						} else if (line.startsWith('a:') || line.startsWith('0:')) {
-							// Tool result or text - clear tool indicator
+						} else if (
+							line.startsWith('a:') ||
+							line.startsWith('0:')
+						) {
 							setCurrentTool(null);
 						}
 					}
 
 					accumulatedContent += chunk;
 
-					// Update the last message (assistant) with accumulated content
 					setMessages((prev) => {
 						const newMessages = [...prev];
 						const lastMessage = newMessages[newMessages.length - 1];
@@ -230,8 +232,6 @@ export default function ChatInterface() {
 		setInput('');
 		resetTranscript();
 	};
-
-	console.log({ messages });
 
 	return (
 		<div className='flex flex-1 min-h-0 gap-2 sm:gap-3'>
@@ -270,7 +270,9 @@ export default function ChatInterface() {
 							<input
 								type='checkbox'
 								checked={useAgentRouter}
-								onChange={(e) => setUseAgentRouter(e.target.checked)}
+								onChange={(e) =>
+									setUseAgentRouter(e.target.checked)
+								}
 								className='w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500'
 							/>
 							<span className='text-xs sm:text-sm text-gray-400'>
@@ -290,215 +292,220 @@ export default function ChatInterface() {
 			<div className='flex flex-col flex-1 min-w-0 space-y-3 sm:space-y-4'>
 				{/* Messages Container */}
 				<div className='flex-1 overflow-y-auto border border-gray-700 rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-gray-800'>
-				{chatMode === 'contentGen' &&
-					generatedPosts.length === 0 &&
-					!isGenerating && (
+					{chatMode === 'contentGen' &&
+						generatedPosts.length === 0 &&
+						!isGenerating && (
+							<div className='text-center text-gray-400 py-4 sm:py-8 px-2'>
+								<p className='text-base sm:text-lg mb-2'>
+									Content Generation Mode
+								</p>
+								<p className='text-base sm:text-sm'>
+									Generate 3 unique posts based on Airtable
+									templates and your writing style.
+								</p>
+								<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
+									<p className='font-medium text-sm'>
+										Example prompts:
+									</p>
+									<ul className='list-disc list-inside space-y-1 text-gray-400 text-base sm:text-sm'>
+										<li>
+											Create posts about career
+											transitions
+										</li>
+										<li>
+											Write about learning React in 2025
+										</li>
+										<li>
+											Generate content on remote work
+											trends
+										</li>
+										<li>
+											Posts about software engineering
+											career advice
+										</li>
+									</ul>
+								</div>
+							</div>
+						)}
+
+					{chatMode !== 'contentGen' && messages.length === 0 && (
 						<div className='text-center text-gray-400 py-4 sm:py-8 px-2'>
 							<p className='text-base sm:text-lg mb-2'>
-								Content Generation Mode
+								Welcome! I'm your AI writing assistant.
 							</p>
 							<p className='text-base sm:text-sm'>
-								Generate 3 unique posts based on Airtable
-								templates and your writing style.
+								I can help you write transcripts, articles, and
+								posts in your style.
 							</p>
 							<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-								<p className='font-medium text-sm'>
-									Example prompts:
-								</p>
-								<ul className='list-disc list-inside space-y-1 text-gray-400 text-base sm:text-sm'>
+								<p className='font-medium'>Try asking me to:</p>
+								<ul className='list-disc list-inside space-y-1 text-gray-400'>
 									<li>
-										Create posts about career transitions
-									</li>
-									<li>Write about learning React in 2025</li>
-									<li>
-										Generate content on remote work trends
+										Search through your existing content
 									</li>
 									<li>
-										Posts about software engineering career
-										advice
+										Generate a new article about a topic
+									</li>
+									<li>Write a post in your style</li>
+									<li>
+										Upload new content to the knowledge base
 									</li>
 								</ul>
 							</div>
 						</div>
 					)}
 
-				{chatMode !== 'contentGen' && messages.length === 0 && (
-					<div className='text-center text-gray-400 py-4 sm:py-8 px-2'>
-						<p className='text-base sm:text-lg mb-2'>
-							Welcome! I'm your AI writing assistant.
-						</p>
-						<p className='text-base sm:text-sm'>
-							I can help you write transcripts, articles, and
-							posts in your style.
-						</p>
-						<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-							<p className='font-medium'>Try asking me to:</p>
-							<ul className='list-disc list-inside space-y-1 text-gray-400'>
-								<li>Search through your existing content</li>
-								<li>Generate a new article about a topic</li>
-								<li>Write a post in your style</li>
-								<li>
-									Upload new content to the knowledge base
-								</li>
-							</ul>
-						</div>
-					</div>
-				)}
-
-				{/* Generated Posts Display */}
-				{chatMode === 'contentGen' && generatedPosts.length > 0 && (
-					<div className='space-y-3 sm:space-y-4'>
-						<div className='bg-purple-900/30 border border-purple-600 rounded-lg p-3 sm:p-4'>
-							<h3 className='text-purple-400 font-bold mb-1 sm:mb-2 flex items-center gap-2 text-sm sm:text-base'>
-								<svg
-									className='w-4 h-4 sm:w-5 sm:h-5'
-									fill='none'
-									stroke='currentColor'
-									viewBox='0 0 24 24'
-								>
-									<path
-										strokeLinecap='round'
-										strokeLinejoin='round'
-										strokeWidth={2}
-										d='M5 13l4 4L19 7'
-									/>
-								</svg>
-								Generated 3 Posts Successfully
-							</h3>
-							<p className='text-gray-300 text-base sm:text-sm'>
-								Tap any post to copy it to your clipboard
-							</p>
-						</div>
-
-						{generatedPosts.map((post, index) => (
-							<div
-								key={index}
-								onClick={() => {
-									navigator.clipboard.writeText(post);
-								}}
-								className='bg-gray-700 rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-gray-600 active:bg-gray-600 transition-colors border border-gray-600 hover:border-purple-500'
-							>
-								<div className='flex justify-between items-start mb-2'>
-									<h4 className='text-purple-400 font-bold text-sm sm:text-base'>
-										Post {index + 1}
-									</h4>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											navigator.clipboard.writeText(post);
-										}}
-										className='text-gray-400 hover:text-white transition-colors p-1'
-										title='Copy to clipboard'
+					{/* Generated Posts Display */}
+					{chatMode === 'contentGen' && generatedPosts.length > 0 && (
+						<div className='space-y-3 sm:space-y-4'>
+							<div className='bg-purple-900/30 border border-purple-600 rounded-lg p-3 sm:p-4'>
+								<h3 className='text-purple-400 font-bold mb-1 sm:mb-2 flex items-center gap-2 text-sm sm:text-base'>
+									<svg
+										className='w-4 h-4 sm:w-5 sm:h-5'
+										fill='none'
+										stroke='currentColor'
+										viewBox='0 0 24 24'
 									>
-										<svg
-											className='w-4 h-4 sm:w-5 sm:h-5'
-											fill='none'
-											stroke='currentColor'
-											viewBox='0 0 24 24'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
-											/>
-										</svg>
-									</button>
-								</div>
-								<div className='text-white whitespace-pre-wrap text-base sm:text-sm'>
-									{post}
-								</div>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M5 13l4 4L19 7'
+										/>
+									</svg>
+									Generated 3 Posts Successfully
+								</h3>
+								<p className='text-gray-300 text-base sm:text-sm'>
+									Tap any post to copy it to your clipboard
+								</p>
 							</div>
-						))}
-						<div className='text-gray-400 text-base sm:text-sm break-all'>
-							Sources:{' '}
-							{generatedPostsSources
-								?.map((source: string) => (
-									<a
-										key={source}
-										href={source}
-										target='_blank'
-										rel='noopener noreferrer'
-										className='text-blue-400 hover:underline'
-									>
-										{source}
-									</a>
-								))
-								?.join(', ')}
-						</div>
-					</div>
-				)}
 
-				{chatMode !== 'contentGen' &&
-					messages
-						.filter((msg) => msg.role === 'user' || msg.content)
-						.map((message, index) => (
-							<div
-								key={index}
-								className={`flex ${
-									message.role === 'user'
-										? 'justify-end'
-										: 'justify-start'
-								}`}
-							>
+							{generatedPosts.map((post, index) => (
 								<div
-									className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
-										message.role === 'user'
-											? 'bg-blue-600 text-white'
-											: 'bg-gray-700 text-white'
-									}`}
+									key={index}
+									onClick={() => {
+										navigator.clipboard.writeText(post);
+									}}
+									className='bg-gray-700 rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-gray-600 active:bg-gray-600 transition-colors border border-gray-600 hover:border-purple-500'
 								>
-									{/* Role Label */}
-									<div className='text-base font-medium mb-1 opacity-75'>
-										{message.role === 'user'
-											? 'You'
-											: 'Assistant'}
-									</div>
-
-									{/* Message Content */}
-									<div className='text-base'>
-										{message.role === 'assistant' ? (
-											<ReactMarkdown
-												remarkPlugins={[remarkGfm]}
-												className='prose prose-invert prose-sm max-w-none'
+									<div className='flex justify-between items-start mb-2'>
+										<h4 className='text-purple-400 font-bold text-sm sm:text-base'>
+											Post {index + 1}
+										</h4>
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												navigator.clipboard.writeText(
+													post,
+												);
+											}}
+											className='text-gray-400 hover:text-white transition-colors p-1'
+											title='Copy to clipboard'
+										>
+											<svg
+												className='w-4 h-4 sm:w-5 sm:h-5'
+												fill='none'
+												stroke='currentColor'
+												viewBox='0 0 24 24'
 											>
-												{message.content}
-											</ReactMarkdown>
-										) : (
-											<div className='whitespace-pre-wrap'>
-												{message.content}
-											</div>
-										)}
+												<path
+													strokeLinecap='round'
+													strokeLinejoin='round'
+													strokeWidth={2}
+													d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+												/>
+											</svg>
+										</button>
+									</div>
+									<div className='text-white whitespace-pre-wrap text-base sm:text-sm'>
+										{post}
 									</div>
 								</div>
-							</div>
-						))}
-
-				{/* Loading indicator for standard mode - only show when no content yet */}
-				{chatMode === 'standard' &&
-					isLoading &&
-					messages.length > 0 &&
-					messages[messages.length - 1].role === 'assistant' &&
-					!messages[messages.length - 1].content && (
-						<div className='flex justify-start'>
-							<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
-								<div className='text-base font-medium mb-1 opacity-75'>
-									Assistant
-								</div>
-								<div className='flex items-center gap-2 text-sm text-gray-300'>
-									<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
-									<span className='capitalize'>
-										{currentTool || 'Thinking...'}
-									</span>
-								</div>
+							))}
+							<div className='text-gray-400 text-base sm:text-sm break-all'>
+								Sources:{' '}
+								{generatedPostsSources
+									?.map((source: string) => (
+										<a
+											key={source}
+											href={source}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='text-blue-400 hover:underline'
+										>
+											{source}
+										</a>
+									))
+									?.join(', ')}
 							</div>
 						</div>
 					)}
 
+					{chatMode !== 'contentGen' &&
+						messages
+							.filter((msg) => msg.role === 'user' || msg.content)
+							.map((message, index) => (
+								<div
+									key={index}
+									className={`flex ${
+										message.role === 'user'
+											? 'justify-end'
+											: 'justify-start'
+									}`}
+								>
+									<div
+										className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
+											message.role === 'user'
+												? 'bg-blue-600 text-white'
+												: 'bg-gray-700 text-white'
+										}`}
+									>
+										{/* Role Label */}
+										<div className='text-base font-medium mb-1 opacity-75'>
+											{message.role === 'user'
+												? 'You'
+												: 'Assistant'}
+										</div>
+
+										{/* Message Content */}
+										<div className='text-base'>
+											{message.role === 'assistant' ? (
+												<StlyedMarkdown content={message.content} />
+											) : (
+												<div className='whitespace-pre-wrap'>
+													{message.content}
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							))}
+
+					{/* Loading indicator for standard mode - only show when no content yet */}
+					{chatMode === 'standard' &&
+						isLoading &&
+						messages.length > 0 &&
+						messages[messages.length - 1].role === 'assistant' &&
+						!messages[messages.length - 1].content && (
+							<div className='flex justify-start'>
+								<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
+									<div className='text-base font-medium mb-1 opacity-75'>
+										Assistant
+									</div>
+									<div className='flex items-center gap-2 text-sm text-gray-300'>
+										<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
+										<span className='capitalize'>
+											{currentTool || 'Thinking...'}
+										</span>
+									</div>
+								</div>
+							</div>
+						)}
+
 					<div ref={messagesEndRef} />
 				</div>
 
-					{/* Error Messages */}
+				{/* Error Messages */}
 				{error && (
 					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
 						Error: {error}
@@ -531,72 +538,72 @@ export default function ChatInterface() {
 
 				{/* Input Form */}
 				<form onSubmit={handleSubmit} className='flex gap-1.5 sm:gap-2'>
-				<div className='flex-1 flex gap-1.5 sm:gap-2'>
-					<textarea
-						value={input}
-						onChange={handleInputChange}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' && !e.shiftKey) {
-								e.preventDefault();
-								if (input.trim()) {
-									handleSubmit(e as any);
-									// Reset textarea height
-									e.currentTarget.style.height = 'auto';
-								}
-							}
-						}}
-						placeholder='Type a message...'
-						rows={1}
-						className='flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400 resize-none overflow-y-auto max-h-32'
-					/>
-					{isSupported && (
-						<button
-							type='button'
-							onClick={handleVoiceToggle}
-							className={`p-2 rounded-md transition-all shrink-0 ${
-								isListening
-									? 'bg-red-600 hover:bg-red-700 animate-pulse'
-									: 'bg-gray-600 hover:bg-gray-500'
-							} text-white`}
-							title={
-								isListening
-									? 'Stop recording'
-									: 'Start recording'
-							}
-						>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								fill='none'
-								viewBox='0 0 24 24'
-								strokeWidth={1.5}
-								stroke='currentColor'
-								className='w-5 h-5 sm:w-6 sm:h-6'
-							>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									d={
-										isListening
-											? 'M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
-											: 'M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z'
+					<div className='flex-1 flex gap-1.5 sm:gap-2'>
+						<textarea
+							value={input}
+							onChange={handleInputChange}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' && !e.shiftKey) {
+									e.preventDefault();
+									if (input.trim()) {
+										handleSubmit(e as any);
+										// Reset textarea height
+										e.currentTarget.style.height = 'auto';
 									}
-								/>
-							</svg>
-						</button>
-					)}
-				</div>
-				<button
-					type='submit'
-					disabled={!input.trim() || isLoading || isGenerating}
-					className={`px-3 sm:px-6 py-2 shrink-0 text-sm sm:text-base ${
-						chatMode === 'contentGen'
-							? 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400'
-							: 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
-					} disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors`}
-				>
-					{chatMode === 'contentGen' ? 'Generate' : 'Send'}
-				</button>
-			</form>
+								}
+							}}
+							placeholder='Type a message...'
+							rows={1}
+							className='flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400 resize-none overflow-y-auto max-h-32'
+						/>
+						{isSupported && (
+							<button
+								type='button'
+								onClick={handleVoiceToggle}
+								className={`p-2 rounded-md transition-all shrink-0 ${
+									isListening
+										? 'bg-red-600 hover:bg-red-700 animate-pulse'
+										: 'bg-gray-600 hover:bg-gray-500'
+								} text-white`}
+								title={
+									isListening
+										? 'Stop recording'
+										: 'Start recording'
+								}
+							>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									fill='none'
+									viewBox='0 0 24 24'
+									strokeWidth={1.5}
+									stroke='currentColor'
+									className='w-5 h-5 sm:w-6 sm:h-6'
+								>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										d={
+											isListening
+												? 'M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z'
+												: 'M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z'
+										}
+									/>
+								</svg>
+							</button>
+						)}
+					</div>
+					<button
+						type='submit'
+						disabled={!input.trim() || isLoading || isGenerating}
+						className={`px-3 sm:px-6 py-2 shrink-0 text-sm sm:text-base ${
+							chatMode === 'contentGen'
+								? 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400'
+								: 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
+						} disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors`}
+					>
+						{chatMode === 'contentGen' ? 'Generate' : 'Send'}
+					</button>
+				</form>
 			</div>
 		</div>
 	);
