@@ -6,8 +6,9 @@
 		"brian": "./bin/cli.ts"
 	},
 	"scripts": {
-		"dev": "next dev",
+		"dev": "concurrently \"next dev\" \".venv/bin/python api/youtube-transcripts/index.py\"",
 		"dev:next": "next dev",
+		"dev:py": ".venv/bin/python api/youtube-transcripts/index.py",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check",

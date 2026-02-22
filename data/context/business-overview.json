@@ -6,6 +6,10 @@
 	"platform": "Kajabi",
 	"delivery": "100% online",
 	"mission": "Help working professionals transition into tech careers through practical, time-efficient learning paths",
+	"meetingsForProspectiveStudents": {
+		"parsity_bootcamp": "https://calendly.com/brianjenney83/brainstorm",
+		"ai-developer-program": "https://calendly.com/brianjenney83/15-minute-meeting-your-web-dev-roadmap-clone"
+	},
 	"target_audience": {
 		"primary": "Career changers (25-40 years old)",
 		"demographics": {

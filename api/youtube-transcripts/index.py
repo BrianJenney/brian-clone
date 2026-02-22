@@ -166,13 +166,25 @@ def get_new_videos(qdrant: QdrantClient) -> tuple[list[dict], int]:
     return new_videos, skipped_existing
 
 
-def fetch_transcript_text(video_id: str) -> str | None:
+def fetch_transcript_text(video_id: str) -> tuple[str | None, str | None]:
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         text = " ".join(seg.get("text", "") for seg in transcript).strip()
-        return text if len(text) >= 200 else None
+        if len(text) < 200:
+            return None, "Transcript too short"
+        return text, None
     except Exception:
-        return None
+        pass
+
+    try:
+        api = YouTubeTranscriptApi()
+        transcript = api.fetch(video_id)
+        text = " ".join(snippet.text for snippet in transcript).strip()
+        if len(text) < 200:
+            return None, "Transcript too short"
+        return text, None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {str(e)}"
 
 
 def fetch_transcripts_batched(videos: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -182,12 +194,18 @@ def fetch_transcripts_batched(videos: list[dict]) -> tuple[list[dict], list[dict
     for i in range(0, len(videos), TRANSCRIPT_BATCH_SIZE):
         batch = videos[i : i + TRANSCRIPT_BATCH_SIZE]
         with ThreadPoolExecutor(max_workers=TRANSCRIPT_WORKERS) as executor:
-            texts = list(executor.map(lambda v: fetch_transcript_text(v["id"]), batch))
+            results = list(executor.map(lambda v: fetch_transcript_text(v["id"]), batch))
 
-        for video, text in zip(batch, texts):
+        for video, result in zip(batch, results):
+            text, error = result
             if not text:
                 failed_videos.append(
-                    {"id": video["id"], "title": video["title"], "status": "failed"}
+                    {
+                        "id": video["id"],
+                        "title": video["title"],
+                        "status": "failed",
+                        "error": error or "Unknown transcript fetch error",
+                    }
                 )
                 continue
             transcript_rows.append(
@@ -317,6 +335,7 @@ def verify_auth(authorization: str | None) -> bool:
 
 
 @app.route("/api/youtube-transcripts", methods=["GET"])
+@app.route("/youtube-transcripts", methods=["GET"])
 @app.route("/", methods=["GET"])
 def youtube_transcripts():
     if not verify_auth(request.headers.get("Authorization")):
@@ -325,3 +344,7 @@ def youtube_transcripts():
         return jsonify(sync_transcripts())
     except Exception as e:
         return jsonify({"error": "Failed to sync YouTube transcripts", "details": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(port=5328, debug=True)
