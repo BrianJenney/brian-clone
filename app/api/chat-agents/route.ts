@@ -39,18 +39,21 @@ async function routeRequest(
 Available agents:
 - videoResearch: Analyze YouTube channel performance, research video topics, suggest video ideas
 - businessContext: Fetch business data, audience persona, metrics, performance data
-- writingSamples: Search Brian's writing samples to match his style and voice
+- writingSamples: Search Brian's writing samples and transcripts to match his style and voice
 - resources: Find learning resources, courses, guides, tutorials
-- excalidrawer: Draw diagrams and flowcharts
+- excalidrawer: Draw diagrams and flowcharts using Mermaid syntax
 
 Respond with:
 1. agents: Array of agent names to invoke (can be empty, one, or multiple)
-2. refinedQuery: A clear, focused query that all selected agents can use (should capture the core intent)
+2. refinedQuery: A clear, focused query that all selected agents can use (should capture the core intent and information for the agents to use)
 
 Examples:
 - "What videos should I make?" → agents: ["videoResearch"], refinedQuery: "analyze channel performance and suggest video topics"
 - "Write a post about React" → agents: ["writingSamples", "resources"], refinedQuery: "React development content"
 - "How is my channel doing?" → agents: ["videoResearch", "businessContext"], refinedQuery: "channel and business performance metrics"
+- "Write a post about the benefits of using AI" → agents: ["writingSamples", "resources"], refinedQuery: "benefits of using AI"
+- "I need to create a flowchart for my new project" → agents: ["excalidrawer"], refinedQuery: "create a flowchart for my new project"
+- "Help me write a YouTube video script about the benefits of using AI" → agents: ["writingSamples", "resources", "excalidrawer"], refinedQuery: "benefits of using AI"
 
 User messages: ${userMessages.map((message) => `- ${message.role}: ${message.content}`).join('\n')}`,
 	});
@@ -111,7 +114,6 @@ async function businessContextAgent(query: string): Promise<string> {
 async function writingSamplesAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
-		maxOutputTokens: 1200,
 		stopWhen: stepCountIs(1),
 		toolChoice: 'required',
 		messages: [
@@ -135,7 +137,6 @@ async function writingSamplesAgent(query: string): Promise<string> {
 async function excalidrawerAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
-		maxOutputTokens: 1200,
 		stopWhen: stepCountIs(1),
 		messages: [
 			{
@@ -312,10 +313,6 @@ Recent User Messages: ${lastMessages.map((message: { content: string }) => `- ${
 Refined Query: ${refinedQuery}
 
 CRITICAL: Use ONLY the actual data from the agent responses. Do NOT make up or suggest new things.
-
-If agents returned resources, list those exact resources with links.
-If agents returned channel data, show that exact data.
-If agents returned writing samples, reference those samples.
 
 Synthesize the ACTUAL agent data into a clear answer. Maintain Brian's voice: direct, practical, no hype.`,
 							},

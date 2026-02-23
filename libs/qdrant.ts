@@ -11,6 +11,7 @@ export const qdrantClient = new QdrantClient({
 export const COLLECTIONS = {
 	ARTICLES: 'brian-articles',
 	POSTS: 'brian-posts',
+	TRANSCRIPTS: 'brian-transcripts',
 } as const;
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];
