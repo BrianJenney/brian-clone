@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const AUTH_SECRET = process.env.AUTH_SECRET || 'default-secret-change-me';
 
-async function hashString(str: string): Promise<string> {
+async function hashString(str: string) {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(str);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -11,7 +11,7 @@ async function hashString(str: string): Promise<string> {
 	return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function verifySessionToken(token: string): Promise<boolean> {
+async function verifySessionToken(token: string) {
 	try {
 		const parts = token.split(':');
 		if (parts.length !== 3) return false;
@@ -32,7 +32,7 @@ async function verifySessionToken(token: string): Promise<boolean> {
 	}
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	// Allow access to login page and auth API routes
