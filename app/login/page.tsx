@@ -36,13 +36,13 @@ export default function LoginPage() {
 	};
 
 	return (
-		<main className='min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 p-4'>
+		<main className='min-h-screen flex items-center justify-center bg-[#0d0d0d] p-4'>
 			<div className='w-full max-w-md'>
-				<div className='bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-8'>
+				<div className='bg-[#1a1a1a] rounded-lg shadow-xl border border-[#2f2f2f] p-8'>
 					<h1 className='text-2xl font-bold text-center mb-2 text-white'>
 						Brian's AI Writing Assistant
 					</h1>
-					<p className='text-center text-gray-400 mb-8'>
+					<p className='text-center text-[#8b8b8b] mb-8'>
 						Enter password to continue
 					</p>
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder='Password'
 								autoFocus
-								className='w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+								className='w-full px-4 py-3 border border-[#444444] rounded-lg bg-[#2f2f2f] text-white placeholder-[#8b8b8b] focus:ring-0 focus:border-[#444444]'
 							/>
 						</div>
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
 						<button
 							type='submit'
 							disabled={isLoading || !password}
-							className='w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors'
+							className='w-full py-3 bg-white hover:bg-[#e0e0e0] disabled:bg-[#2f2f2f] disabled:text-[#8b8b8b] disabled:cursor-not-allowed text-black font-medium rounded-lg transition-colors'
 						>
 							{isLoading ? 'Signing in...' : 'Sign In'}
 						</button>

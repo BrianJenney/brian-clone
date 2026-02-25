@@ -16,7 +16,7 @@ type Message = {
 
 export default function ChatInterface() {
 	const [chatMode, setChatMode] = useState<ChatMode>('standard');
-	const [useAgentRouter, setUseAgentRouter] = useState(false);
+	const [useAgentRouter, setUseAgentRouter] = useState(true);
 	const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
 	const [generatedPostsSources, setGeneratedPostsSources] = useState<
 		string[]
@@ -237,13 +237,13 @@ export default function ChatInterface() {
 		<div className='flex flex-1 min-h-0 gap-2 sm:gap-3'>
 			{/* Left Sidebar - Options/Toggles */}
 			<div className='flex flex-col gap-2 sm:gap-3 shrink-0'>
-				<div className='flex flex-col gap-1.5 sm:gap-2 bg-gray-800 p-1.5 sm:p-2 rounded-lg border border-gray-700'>
+				<div className='flex flex-col gap-1.5 sm:gap-2 bg-[#1a1a1a] p-1.5 sm:p-2 rounded-lg border border-[#2f2f2f]'>
 					<button
 						onClick={() => setChatMode('standard')}
 						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
 							chatMode === 'standard'
-								? 'bg-blue-600 text-white font-bold'
-								: 'text-gray-400 hover:text-white'
+								? 'bg-white text-black font-bold'
+								: 'text-[#8b8b8b] hover:text-white hover:bg-[#2f2f2f]'
 						}`}
 						title='Standard chat with AI tools'
 					>
@@ -254,8 +254,8 @@ export default function ChatInterface() {
 						onClick={() => setChatMode('contentGen')}
 						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
 							chatMode === 'contentGen'
-								? 'bg-purple-600 text-white font-bold'
-								: 'text-gray-400 hover:text-white'
+								? 'bg-white text-black font-bold'
+								: 'text-[#8b8b8b] hover:text-white hover:bg-[#2f2f2f]'
 						}`}
 						title='Generate 3 posts from templates'
 					>
@@ -265,7 +265,7 @@ export default function ChatInterface() {
 
 				{/* Agent Router Toggle - Only show in standard mode */}
 				{chatMode === 'standard' && (
-					<div className='flex flex-col gap-1.5 bg-gray-800 p-2 rounded-lg border border-gray-700'>
+					<div className='flex flex-col gap-1.5 bg-[#1a1a1a] p-2 rounded-lg border border-[#2f2f2f]'>
 						<label className='flex items-center gap-2 cursor-pointer'>
 							<input
 								type='checkbox'
@@ -273,17 +273,12 @@ export default function ChatInterface() {
 								onChange={(e) =>
 									setUseAgentRouter(e.target.checked)
 								}
-								className='w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500'
+								className='w-4 h-4 text-white bg-[#1a1a1a] border-[#444444] rounded focus:ring-0 focus:ring-offset-0'
 							/>
-							<span className='text-xs sm:text-sm text-gray-400'>
+							<span className='text-xs sm:text-sm text-[#8b8b8b]'>
 								Use Agent Router
 							</span>
 						</label>
-						{useAgentRouter && (
-							<span className='text-xs text-yellow-500'>
-								New architecture: router → agents → summarizer
-							</span>
-						)}
 					</div>
 				)}
 			</div>
@@ -291,11 +286,11 @@ export default function ChatInterface() {
 			{/* Right Side - Chat Content */}
 			<div className='flex flex-col flex-1 min-w-0 space-y-3 sm:space-y-4'>
 				{/* Messages Container */}
-				<div className='flex-1 overflow-y-auto border border-gray-700 rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-gray-800'>
+				<div className='flex-1 overflow-y-auto border border-[#2f2f2f] rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-[#1a1a1a]'>
 					{chatMode === 'contentGen' &&
 						generatedPosts.length === 0 &&
 						!isGenerating && (
-							<div className='text-center text-gray-400 py-4 sm:py-8 px-2'>
+							<div className='text-center text-[#8b8b8b] py-4 sm:py-8 px-2'>
 								<p className='text-base sm:text-lg mb-2'>
 									Content Generation Mode
 								</p>
@@ -307,7 +302,7 @@ export default function ChatInterface() {
 									<p className='font-medium text-sm'>
 										Example prompts:
 									</p>
-									<ul className='list-disc list-inside space-y-1 text-gray-400 text-base sm:text-sm'>
+									<ul className='list-disc list-inside space-y-1 text-[#8b8b8b] text-base sm:text-sm'>
 										<li>
 											Create posts about career
 											transitions
@@ -329,7 +324,7 @@ export default function ChatInterface() {
 						)}
 
 					{chatMode !== 'contentGen' && messages.length === 0 && (
-						<div className='text-center text-gray-400 py-4 sm:py-8 px-2'>
+						<div className='text-center text-[#8b8b8b] py-4 sm:py-8 px-2'>
 							<p className='text-base sm:text-lg mb-2'>
 								Welcome! I'm your AI writing assistant.
 							</p>
@@ -339,7 +334,7 @@ export default function ChatInterface() {
 							</p>
 							<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
 								<p className='font-medium'>Try asking me to:</p>
-								<ul className='list-disc list-inside space-y-1 text-gray-400'>
+								<ul className='list-disc list-inside space-y-1 text-[#8b8b8b]'>
 									<li>
 										Search through your existing content
 									</li>
@@ -358,8 +353,8 @@ export default function ChatInterface() {
 					{/* Generated Posts Display */}
 					{chatMode === 'contentGen' && generatedPosts.length > 0 && (
 						<div className='space-y-3 sm:space-y-4'>
-							<div className='bg-purple-900/30 border border-purple-600 rounded-lg p-3 sm:p-4'>
-								<h3 className='text-purple-400 font-bold mb-1 sm:mb-2 flex items-center gap-2 text-sm sm:text-base'>
+							<div className='bg-[#1a1a1a] border border-[#2f2f2f] rounded-lg p-3 sm:p-4'>
+								<h3 className='text-white font-bold mb-1 sm:mb-2 flex items-center gap-2 text-sm sm:text-base'>
 									<svg
 										className='w-4 h-4 sm:w-5 sm:h-5'
 										fill='none'
@@ -373,10 +368,10 @@ export default function ChatInterface() {
 											d='M5 13l4 4L19 7'
 										/>
 									</svg>
-									Generated 3 Posts Successfully
+									Generated 3 Posts
 								</h3>
-								<p className='text-gray-300 text-base sm:text-sm'>
-									Tap any post to copy it to your clipboard
+								<p className='text-[#8b8b8b] text-base sm:text-sm'>
+									Click any post to copy it to your clipboard
 								</p>
 							</div>
 
@@ -386,10 +381,10 @@ export default function ChatInterface() {
 									onClick={() => {
 										navigator.clipboard.writeText(post);
 									}}
-									className='bg-gray-700 rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-gray-600 active:bg-gray-600 transition-colors border border-gray-600 hover:border-purple-500'
+									className='bg-[#1a1a1a] rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-[#2f2f2f] transition-colors border border-[#2f2f2f]'
 								>
 									<div className='flex justify-between items-start mb-2'>
-										<h4 className='text-purple-400 font-bold text-sm sm:text-base'>
+										<h4 className='text-white font-bold text-sm sm:text-base'>
 											Post {index + 1}
 										</h4>
 										<button
@@ -399,7 +394,7 @@ export default function ChatInterface() {
 													post,
 												);
 											}}
-											className='text-gray-400 hover:text-white transition-colors p-1'
+											className='text-[#8b8b8b] hover:text-white transition-colors p-1'
 											title='Copy to clipboard'
 										>
 											<svg
@@ -422,7 +417,7 @@ export default function ChatInterface() {
 									</div>
 								</div>
 							))}
-							<div className='text-gray-400 text-base sm:text-sm break-all'>
+							<div className='text-[#8b8b8b] text-base sm:text-sm break-all'>
 								Sources:{' '}
 								{generatedPostsSources
 									?.map((source: string) => (
@@ -457,7 +452,7 @@ export default function ChatInterface() {
 										className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
 											message.role === 'user'
 												? 'bg-blue-600 text-white'
-												: 'bg-gray-700 text-white'
+												: 'bg-[#2f2f2f] text-white'
 										}`}
 									>
 										{/* Role Label */}
@@ -470,7 +465,9 @@ export default function ChatInterface() {
 										{/* Message Content */}
 										<div className='text-base'>
 											{message.role === 'assistant' ? (
-												<StlyedMarkdown content={message.content} />
+												<StlyedMarkdown
+													content={message.content}
+												/>
 											) : (
 												<div className='whitespace-pre-wrap'>
 													{message.content}
@@ -488,11 +485,11 @@ export default function ChatInterface() {
 						messages[messages.length - 1].role === 'assistant' &&
 						!messages[messages.length - 1].content && (
 							<div className='flex justify-start'>
-								<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-gray-700 text-white'>
+								<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-[#2f2f2f] text-white'>
 									<div className='text-base font-medium mb-1 opacity-75'>
 										Assistant
 									</div>
-									<div className='flex items-center gap-2 text-sm text-gray-300'>
+									<div className='flex items-center gap-2 text-sm text-[#c5c5d2]'>
 										<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
 										<span className='capitalize'>
 											{currentTool || 'Thinking...'}
@@ -554,16 +551,16 @@ export default function ChatInterface() {
 							}}
 							placeholder='Type a message...'
 							rows={1}
-							className='flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400 resize-none overflow-y-auto max-h-32'
+							className='flex-1 px-3 sm:px-4 py-2.5 text-sm sm:text-base border border-[#444444] rounded-lg shadow-sm focus:ring-0 focus:border-[#444444] bg-[#2f2f2f] text-white placeholder-[#8b8b8b] resize-none overflow-y-auto max-h-32'
 						/>
 						{isSupported && (
 							<button
 								type='button'
 								onClick={handleVoiceToggle}
-								className={`p-2 rounded-md transition-all shrink-0 ${
+								className={`p-2.5 rounded-lg transition-all shrink-0 ${
 									isListening
 										? 'bg-red-600 hover:bg-red-700 animate-pulse'
-										: 'bg-gray-600 hover:bg-gray-500'
+										: 'bg-[#2f2f2f] hover:bg-[#565869] border border-[#444444]'
 								} text-white`}
 								title={
 									isListening
@@ -595,11 +592,7 @@ export default function ChatInterface() {
 					<button
 						type='submit'
 						disabled={!input.trim() || isLoading || isGenerating}
-						className={`px-3 sm:px-6 py-2 shrink-0 text-sm sm:text-base ${
-							chatMode === 'contentGen'
-								? 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400'
-								: 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
-						} disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors`}
+						className='px-3 sm:px-6 py-2.5 shrink-0 text-sm sm:text-base bg-white hover:bg-[#e0e0e0] disabled:bg-[#2f2f2f] disabled:text-[#8b8b8b] disabled:cursor-not-allowed text-black font-medium rounded-lg transition-colors hover:pointer'
 					>
 						{chatMode === 'contentGen' ? 'Generate' : 'Send'}
 					</button>

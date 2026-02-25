@@ -63,7 +63,6 @@ export const searchWritingSamplesTool = tool({
 
 			const topResults = flatResults.slice(0, limit);
 
-			// Format results with metadata for better context
 			const formattedResults = topResults
 				.map((result, index) => {
 					return `Example ${index + 1} (${

@@ -1,14 +1,14 @@
 @import 'tailwindcss';
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+	--background: #0d0d0d;
+	--foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
+		--background: #0d0d0d;
+		--foreground: #ffffff;
 	}
 }
 
@@ -20,8 +20,8 @@ body {
 
 /* Dark mode class-based support */
 .dark {
-	--background: #0a0a0a;
-	--foreground: #ededed;
+	--background: #0d0d0d;
+	--foreground: #ffffff;
 }
 
 /* Ensure form elements use dark mode */
@@ -31,18 +31,19 @@ input[type='text'],
 input[type='email'],
 input[type='password'],
 input[type='number'] {
-	background-color: rgb(55 65 81) !important; /* gray-700 */
-	color: rgb(255 255 255) !important;
+	background-color: #2f2f2f !important;
+	color: #ffffff !important;
+	border: 1px solid #444444 !important;
 }
 
 textarea::placeholder,
 input::placeholder {
-	color: rgb(156 163 175) !important; /* gray-400 */
+	color: #8b8b8b !important;
 }
 
 select option {
-	background-color: rgb(55 65 81); /* gray-700 */
-	color: rgb(255 255 255);
+	background-color: #2f2f2f;
+	color: #ffffff;
 }
 
 @layer utilities {

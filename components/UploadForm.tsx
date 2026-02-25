@@ -86,7 +86,7 @@ export default function UploadForm() {
 				<div>
 					<label
 						htmlFor='contentType'
-						className='block text-sm font-medium text-gray-300 mb-1'
+						className='block text-sm font-medium text-[#b0b0b0] mb-1'
 					>
 						Content Type
 					</label>
@@ -99,13 +99,13 @@ export default function UploadForm() {
 								contentType: e.target.value as ContentType,
 							})
 						}
-						className='w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white'
+						className='w-full px-3 py-2 border border-[#444444] rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-[#2f2f2f] text-white'
 					>
 						<option value='transcript'>Transcript</option>
 						<option value='article'>Article</option>
 						<option value='post'>Post</option>
 					</select>
-					<p className='mt-1 text-xs text-gray-400'>
+					<p className='mt-1 text-xs text-[#8b8b8b]'>
 						{formData.contentType === 'post'
 							? 'Posts are stored as-is (no chunking)'
 							: 'Articles and transcripts will be chunked with overlap'}
@@ -116,7 +116,7 @@ export default function UploadForm() {
 				<div>
 					<label
 						htmlFor='title'
-						className='block text-sm font-medium text-gray-300 mb-1'
+						className='block text-sm font-medium text-[#b0b0b0] mb-1'
 					>
 						Title (Optional)
 					</label>
@@ -134,13 +134,13 @@ export default function UploadForm() {
 							})
 						}
 						placeholder='Enter title...'
-						className='w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400'
+						className='w-full px-3 py-2 border border-[#444444] rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-[#2f2f2f] text-white placeholder-[#8b8b8b]'
 					/>
 				</div>
 
 				{/* Tags */}
 				<div>
-					<label className='block text-sm font-medium text-gray-300 mb-1'>
+					<label className='block text-sm font-medium text-[#b0b0b0] mb-1'>
 						Tags (Optional)
 					</label>
 					<div className='flex gap-2 mb-2'>
@@ -153,12 +153,12 @@ export default function UploadForm() {
 								(e.preventDefault(), addTag())
 							}
 							placeholder='Add tag...'
-							className='flex-1 px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400'
+							className='flex-1 px-3 py-2 border border-[#444444] rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-[#2f2f2f] text-white placeholder-[#8b8b8b]'
 						/>
 						<button
 							type='button'
 							onClick={addTag}
-							className='px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors'
+							className='px-4 py-2 bg-[#2f2f2f] hover:bg-[#2f2f2f] text-white rounded-md transition-colors border border-[#444444]'
 						>
 							Add
 						</button>
@@ -186,7 +186,7 @@ export default function UploadForm() {
 				<div>
 					<label
 						htmlFor='text'
-						className='block text-sm font-medium text-gray-300 mb-1'
+						className='block text-sm font-medium text-[#b0b0b0] mb-1'
 					>
 						Content
 					</label>
@@ -199,9 +199,9 @@ export default function UploadForm() {
 						required
 						rows={10}
 						placeholder='Paste your content here...'
-						className='w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400 font-mono text-sm'
+						className='w-full px-3 py-2 border border-[#444444] rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-[#2f2f2f] text-white placeholder-[#8b8b8b] font-mono text-sm'
 					/>
-					<p className='mt-1 text-xs text-gray-400'>
+					<p className='mt-1 text-xs text-[#8b8b8b]'>
 						{formData.text.length} characters
 					</p>
 				</div>
@@ -210,7 +210,7 @@ export default function UploadForm() {
 				<button
 					type='submit'
 					disabled={loading}
-					className='w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors'
+					className='w-full bg-white hover:bg-[#e0e0e0] disabled:bg-[#2f2f2f] disabled:text-[#8b8b8b] text-black font-medium py-2 px-4 rounded-md transition-colors'
 				>
 					{loading ? 'Uploading...' : 'Upload Content'}
 				</button>

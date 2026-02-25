@@ -170,7 +170,7 @@ export default function SearchDeleteUI() {
 				<div>
 					<label
 						htmlFor='query'
-						className='block text-sm font-medium text-gray-300 mb-1'
+						className='block text-sm font-medium text-[#b0b0b0] mb-1'
 					>
 						Search Query
 					</label>
@@ -181,12 +181,12 @@ export default function SearchDeleteUI() {
 						onChange={(e) => setQuery(e.target.value)}
 						required
 						placeholder='Enter search query...'
-						className='w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white placeholder-gray-400'
+						className='w-full px-3 py-2 border border-[#444444] rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-[#2f2f2f] text-white placeholder-[#8b8b8b]'
 					/>
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium text-gray-300 mb-2'>
+					<label className='block text-sm font-medium text-[#b0b0b0] mb-2'>
 						Content Types
 					</label>
 					<div className='flex gap-4'>
@@ -201,9 +201,9 @@ export default function SearchDeleteUI() {
 									type='checkbox'
 									checked={selectedTypes.includes(type)}
 									onChange={() => toggleType(type)}
-									className='rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500'
+									className='rounded border-[#444444] bg-[#2f2f2f] text-blue-600 focus:ring-blue-500'
 								/>
-								<span className='text-sm text-gray-300 capitalize'>
+								<span className='text-sm text-[#b0b0b0] capitalize'>
 									{type}
 								</span>
 							</label>
@@ -214,7 +214,7 @@ export default function SearchDeleteUI() {
 				<div>
 					<label
 						htmlFor='limit'
-						className='block text-sm font-medium text-gray-300 mb-1'
+						className='block text-sm font-medium text-[#b0b0b0] mb-1'
 					>
 						Results Limit: {limit}
 					</label>
@@ -232,7 +232,7 @@ export default function SearchDeleteUI() {
 				<button
 					type='submit'
 					disabled={loading || selectedTypes.length === 0}
-					className='w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors'
+					className='w-full bg-white hover:bg-[#e0e0e0] disabled:bg-[#2f2f2f] disabled:text-[#8b8b8b] text-black font-medium py-2 px-4 rounded-md transition-colors'
 				>
 					{loading ? 'Searching...' : 'Search'}
 				</button>
@@ -262,13 +262,13 @@ export default function SearchDeleteUI() {
 						<div className='flex gap-2'>
 							<button
 								onClick={selectAll}
-								className='px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors'
+								className='px-3 py-1 text-sm bg-[#2f2f2f] hover:bg-[#2f2f2f] text-white rounded transition-colors'
 							>
 								Select All
 							</button>
 							<button
 								onClick={deselectAll}
-								className='px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors'
+								className='px-3 py-1 text-sm bg-[#2f2f2f] hover:bg-[#2f2f2f] text-white rounded transition-colors'
 							>
 								Deselect All
 							</button>
@@ -291,7 +291,7 @@ export default function SearchDeleteUI() {
 								className={`p-4 border rounded-md cursor-pointer transition-colors ${
 									selectedIds.has(result.id)
 										? 'bg-blue-900 border-blue-500'
-										: 'bg-gray-800 border-gray-700 hover:bg-gray-700'
+										: 'bg-[#1a1a1a] border-[#2f2f2f] hover:bg-[#2f2f2f]'
 								}`}
 								onClick={() => toggleSelection(result.id)}
 							>
@@ -303,19 +303,19 @@ export default function SearchDeleteUI() {
 											onChange={() =>
 												toggleSelection(result.id)
 											}
-											className='rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500'
+											className='rounded border-[#444444] bg-[#2f2f2f] text-blue-600 focus:ring-blue-500'
 											onClick={(e) => e.stopPropagation()}
 										/>
-										<span className='px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs font-medium capitalize'>
+										<span className='px-2 py-1 bg-[#2f2f2f] text-[#b0b0b0] rounded text-xs font-medium capitalize'>
 											{result.contentType}
 										</span>
-										<span className='text-sm text-gray-400'>
+										<span className='text-sm text-[#8b8b8b]'>
 											Score: {result.score.toFixed(3)}
 										</span>
 									</div>
 									<div className='flex items-center gap-2'>
 										{result.chunkIndex !== undefined && (
-											<span className='text-xs text-gray-400'>
+											<span className='text-xs text-[#8b8b8b]'>
 												Chunk {result.chunkIndex + 1} of{' '}
 												{result.totalChunks}
 											</span>
@@ -328,7 +328,7 @@ export default function SearchDeleteUI() {
 													result.id
 												);
 											}}
-											className='px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs transition-colors flex items-center gap-1'
+											className='px-2 py-1 bg-[#2f2f2f] hover:bg-[#2f2f2f] text-white rounded text-xs transition-colors flex items-center gap-1'
 											title='Copy post text'
 										>
 											{copiedId === result.id ? (
@@ -371,12 +371,12 @@ export default function SearchDeleteUI() {
 										</button>
 									</div>
 								</div>
-								<p className='text-sm text-gray-200 line-clamp-3'>
+								<p className='text-sm text-[#b0b0b0] line-clamp-3'>
 									{result.text}
 								</p>
 								<div className='mt-2 space-y-1'>
 									{result.metadata?.title && (
-										<p className='text-xs text-gray-400'>
+										<p className='text-xs text-[#8b8b8b]'>
 											Title: {result.metadata.title}
 										</p>
 									)}

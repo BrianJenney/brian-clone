@@ -38,7 +38,7 @@ async function routeRequest(
 
 Available agents:
 - videoResearch: Analyze YouTube channel performance, research video topics, suggest video ideas
-- businessContext: Fetch business data, audience persona, metrics, performance data
+- businessContext: Fetch business data, audience persona, metrics, performance data or calendly links for meetings
 - writingSamples: Search Brian's writing samples and transcripts to match his style and voice
 - resources: Find learning resources, courses, guides, tutorials
 - excalidrawer: Draw diagrams and flowcharts using Mermaid syntax
