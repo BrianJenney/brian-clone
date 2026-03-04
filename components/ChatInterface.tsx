@@ -234,13 +234,13 @@ export default function ChatInterface() {
 	};
 
 	return (
-		<div className='flex flex-1 min-h-0 gap-2 sm:gap-3'>
-			{/* Left Sidebar - Options/Toggles */}
-			<div className='flex flex-col gap-2 sm:gap-3 shrink-0'>
-				<div className='flex flex-col gap-1.5 sm:gap-2 bg-[#1a1a1a] p-1.5 sm:p-2 rounded-lg border border-[#2f2f2f]'>
+		<div className='flex flex-col sm:flex-row flex-1 min-h-0 gap-2 sm:gap-3'>
+			{/* Sidebar - horizontal on mobile (top), vertical on desktop (left) */}
+			<div className='flex flex-row sm:flex-col gap-2 sm:gap-3 shrink-0 flex-wrap items-start'>
+				<div className='flex flex-row sm:flex-col gap-1.5 sm:gap-2 bg-[#1a1a1a] p-1.5 sm:p-2 rounded-lg border border-[#2f2f2f]'>
 					<button
 						onClick={() => setChatMode('standard')}
-						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
+						className={`px-2 sm:px-3 py-1.5 text-sm rounded transition-colors whitespace-nowrap ${
 							chatMode === 'standard'
 								? 'bg-white text-black font-bold'
 								: 'text-[#8b8b8b] hover:text-white hover:bg-[#2f2f2f]'
@@ -252,7 +252,7 @@ export default function ChatInterface() {
 
 					<button
 						onClick={() => setChatMode('contentGen')}
-						className={`px-2 sm:px-3 py-1.5 text-sm sm:text-base rounded transition-colors whitespace-nowrap ${
+						className={`px-2 sm:px-3 py-1.5 text-sm rounded transition-colors whitespace-nowrap ${
 							chatMode === 'contentGen'
 								? 'bg-white text-black font-bold'
 								: 'text-[#8b8b8b] hover:text-white hover:bg-[#2f2f2f]'
@@ -275,7 +275,7 @@ export default function ChatInterface() {
 								}
 								className='w-4 h-4 text-white bg-[#1a1a1a] border-[#444444] rounded focus:ring-0 focus:ring-offset-0'
 							/>
-							<span className='text-xs sm:text-sm text-[#8b8b8b]'>
+							<span className='text-xs sm:text-sm text-[#8b8b8b] whitespace-nowrap'>
 								Use Agent Router
 							</span>
 						</label>
@@ -283,8 +283,8 @@ export default function ChatInterface() {
 				)}
 			</div>
 
-			{/* Right Side - Chat Content */}
-			<div className='flex flex-col flex-1 min-w-0 space-y-3 sm:space-y-4'>
+			{/* Chat Content */}
+			<div className='flex flex-col flex-1 min-w-0 min-h-0 space-y-3 sm:space-y-4'>
 				{/* Messages Container */}
 				<div className='flex-1 overflow-y-auto border border-[#2f2f2f] rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-[#1a1a1a]'>
 					{chatMode === 'contentGen' &&
