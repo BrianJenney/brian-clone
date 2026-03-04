@@ -67,11 +67,12 @@ User messages: ${userMessages.map((message) => `- ${message.role}: ${message.con
 async function videoResearchAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
+		stopWhen: stepCountIs(2),
 		messages: [
 			{
 				role: 'system',
 				content: `
-				You have tools to analyze Brian's YouTube channel performance and research video topics. 
+				You have tools to analyze Brian's YouTube channel performance and research video topics.
 				Use the tools to get data and return the results`,
 			},
 			{ role: 'user', content: query },
@@ -91,7 +92,7 @@ async function videoResearchAgent(query: string): Promise<string> {
 async function businessContextAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
-		stopWhen: stepCountIs(1),
+		stopWhen: stepCountIs(2),
 		toolChoice: 'required',
 		messages: [
 			{
@@ -114,7 +115,7 @@ async function businessContextAgent(query: string): Promise<string> {
 async function writingSamplesAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
-		stopWhen: stepCountIs(1),
+		stopWhen: stepCountIs(2),
 		toolChoice: 'required',
 		messages: [
 			{
@@ -137,7 +138,7 @@ async function writingSamplesAgent(query: string): Promise<string> {
 async function excalidrawerAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
-		stopWhen: stepCountIs(1),
+		stopWhen: stepCountIs(2),
 		messages: [
 			{
 				role: 'system',
@@ -159,6 +160,7 @@ async function excalidrawerAgent(query: string): Promise<string> {
 async function resourcesAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
+		stopWhen: stepCountIs(2),
 		messages: [
 			{
 				role: 'system',
