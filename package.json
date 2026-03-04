@@ -9,6 +9,7 @@
 		"dev": "concurrently \"next dev\" \".venv/bin/python api/youtube-transcripts/index.py\"",
 		"dev:next": "next dev",
 		"dev:py": ".venv/bin/python api/youtube-transcripts/index.py",
+		"scrape:youtube": "cd api/youtube-transcripts && ../../.venv/bin/python -c \"from index import sync_transcripts; import json; print(json.dumps(sync_transcripts(), indent=2))\"",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check",

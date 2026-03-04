@@ -47,6 +47,12 @@ Respond with:
 1. agents: Array of agent names to invoke (can be empty, one, or multiple)
 2. refinedQuery: A clear, focused query that all selected agents can use (should capture the core intent and information for the agents to use)
 
+Refined query quality rules:
+- Preserve specific user constraints and structure (especially numbered options, candidate lists, and direct comparison requests).
+- Do NOT generalize explicit options into broad categories.
+- If the user asks "which is best among these options", refinedQuery must include those exact options verbatim.
+- Keep the user's timeframe/context words (e.g., "2026", "based on my YouTube history", "high performers").
+
 Examples:
 - "What videos should I make?" → agents: ["videoResearch"], refinedQuery: "analyze channel performance and suggest video topics"
 - "Write a post about React" → agents: ["writingSamples", "resources"], refinedQuery: "React development content"
@@ -54,6 +60,7 @@ Examples:
 - "Write a post about the benefits of using AI" → agents: ["writingSamples", "resources"], refinedQuery: "benefits of using AI"
 - "I need to create a flowchart for my new project" → agents: ["excalidrawer"], refinedQuery: "create a flowchart for my new project"
 - "Help me write a YouTube video script about the benefits of using AI" → agents: ["writingSamples", "resources", "excalidrawer"], refinedQuery: "benefits of using AI"
+- "Considering my YouTube history, what's best next video idea? 1. AI engineer 5 skills you need 2. Best chance at getting hired in 2026 as a developer 3. 3 rites of passage developers must go through to become senior" → agents: ["videoResearch"], refinedQuery: "analyze my YouTube history/high performers and choose the best option among: 1) AI engineer 5 skills you need, 2) Best chance at getting hired in 2026 as a developer, 3) 3 rites of passage developers must go through to become senior"
 
 User messages: ${userMessages.map((message) => `- ${message.role}: ${message.content}`).join('\n')}`,
 	});
@@ -67,12 +74,22 @@ User messages: ${userMessages.map((message) => `- ${message.role}: ${message.con
 async function videoResearchAgent(query: string): Promise<string> {
 	const result = await generateText({
 		model: openai('gpt-4o-mini'),
+		toolChoice: 'required',
 		messages: [
 			{
 				role: 'system',
 				content: `
-				You have tools to analyze Brian's YouTube channel performance and research video topics. 
-				Use the tools to get data and return the results`,
+				You are Brian's YouTube strategy agent.
+				Use the available tools to ground your response in real data.
+
+				Tool policy:
+				- If the user asks for video ideas, prioritization, "what should I post", comparisons, or anything about channel/high performers, call analyzeChannelTool first.
+				- If the user provides candidate ideas or asks about market viability/trends, call researchTopicTool for each candidate idea after channel analysis.
+				- Do not skip tool usage and do not answer from generic memory.
+				- If some requested metrics are unavailable from tools, be explicit about which are unavailable, then still give the best recommendation from available tool output.
+				- If the user gives numbered options, evaluate those exact options and keep their wording in the final recommendation.
+
+				Return a direct recommendation backed by the tool results.`,
 			},
 			{ role: 'user', content: query },
 		],

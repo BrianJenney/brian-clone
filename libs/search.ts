@@ -17,6 +17,9 @@ export async function performSearch(
 ): Promise<SearchResponse> {
 	const { query, collections, limit = 10, filter } = params;
 
+	// Over-fetch to allow for post-query filtering
+	const overFetchLimit = Math.max(limit * 3, 30);
+
 	// Generate embedding for the search query
 	const queryEmbedding = await generateEmbedding(query);
 
@@ -69,7 +72,7 @@ export async function performSearch(
 		try {
 			const searchResult = await qdrantClient.search(collectionName, {
 				vector: queryEmbedding,
-				limit,
+				limit: overFetchLimit,
 				filter: qdrantFilter,
 				with_payload: true,
 			});
@@ -98,7 +101,16 @@ export async function performSearch(
 	});
 
 	const allResults = await Promise.all(searchPromises);
-	const flatResults = allResults.flat();
+	let flatResults = allResults.flat();
+
+	// Filter LinkedIn posts to only include those with 50+ reactions (likes)
+	flatResults = flatResults.filter((result) => {
+		if (result.contentType === 'post') {
+			const reactions = result.metadata?.numReactions as number | undefined;
+			return reactions !== undefined && reactions >= 50;
+		}
+		return true;
+	});
 
 	// Sort by score descending
 	flatResults.sort((a, b) => b.score - a.score);

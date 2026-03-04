@@ -19,6 +19,9 @@ export const searchWritingSamplesTool = tool({
 		limit?: number;
 	}) => {
 		const { query, contentTypes, limit = 5 } = args;
+		// Over-fetch to allow for post-query filtering
+		const overFetchLimit = Math.max(limit * 3, 15);
+
 		try {
 			const queryEmbedding = await generateEmbedding(query);
 
@@ -36,7 +39,7 @@ export const searchWritingSamplesTool = tool({
 							collectionName,
 							{
 								vector: queryEmbedding,
-								limit,
+								limit: overFetchLimit,
 								with_payload: true,
 							},
 						);
@@ -58,7 +61,17 @@ export const searchWritingSamplesTool = tool({
 			);
 
 			const allResults = await Promise.all(searchPromises);
-			const flatResults = allResults.flat();
+			let flatResults = allResults.flat();
+
+			// Filter LinkedIn posts to only include those with 50+ reactions (likes)
+			flatResults = flatResults.filter((result) => {
+				if (result.contentType === 'post') {
+					const reactions = result.metadata?.numReactions as number | undefined;
+					return reactions !== undefined && reactions >= 50;
+				}
+				return true;
+			});
+
 			flatResults.sort((a, b) => b.score - a.score);
 
 			const topResults = flatResults.slice(0, limit);
