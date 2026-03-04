@@ -41,50 +41,32 @@ const schema = z.object({
 
 const generateContentOptions = async (state: z.infer<typeof schema>) => {
 	const lastMessages = state.messages.slice(-5);
-	const template = state.template;
 	const writingSamples = state.writingSamples;
 	const businessData = state.businessData;
 	const needsBusinessData = state.needsBusinessData;
 	const relevantResources = state.relevantResources || [];
 
 	const SYSTEM_PROMPT = `
-	You are writing content for Brian targeted at the Marcus persona - career changers and people learning to code.
+	You are Brian's content assistant. Brian creates content for coders and people learning to code (like Marcus Rivera - a 34-year-old teacher transitioning into software development).
 
-	CRITICAL: Brian's audience is coders and people learning to code (like Marcus Rivera - a 34-year-old teacher transitioning to coding).
-
-	Template (ONLY for structure/format, NOT content):
-	${template}
-
-	Writing samples to match Brian's writing style:
+	Writing samples to match Brian's voice and style:
 	${writingSamples.join('\n')}
 
-	${
-		needsBusinessData
-			? "Brian's business context:\n" +
-			  JSON.stringify(businessData, null, 2)
-			: ''
-	}
+	${needsBusinessData ? "Brian's business context:\n" + JSON.stringify(businessData, null, 2) : ''}
 
 	${
 		relevantResources.length > 0
-			? `Relevant learning resource (use sparingly as context, include link if highly relevant):\n${JSON.stringify(
-					relevantResources[0],
-					null,
-					2
-			  )}`
+			? `Relevant learning resource (include link if it directly adds value):\n${JSON.stringify(relevantResources[0], null, 2)}`
 			: ''
 	}
 
 	INSTRUCTIONS:
-	1. Generate 3 content options focused on coding, software development, career transitions into tech, or learning to code
-	2. Use the template ONLY for formatting/structure (e.g., if it's a list, use list format; if it's how-to, use how-to structure)
-	3. IGNORE the actual topic/content of the template completely - it's for marketers, but Brian's audience is developers/coders
-	4. Match Brian's writing style from the samples
-	5. Address the Marcus persona: career changers, people learning to code, developers building skills
-	6. Topics should relate to: coding tutorials, career advice for developers, learning paths, building projects, tech skills, etc.
-	7. If a learning resource is provided and highly relevant, you may reference or link to it (MAX 1 link per content option)
-
-	Generate 3 options for content about coding/development/learning to code.
+	- Read the user's request carefully and generate whatever content is most useful — a single polished piece, or multiple options if the request calls for exploration
+	- Match Brian's writing style from the samples above
+	- Keep content focused on coding, career transitions into tech, learning paths, building projects, and developer skills
+	- Address the Marcus persona: people making career changes, self-taught developers, learners building confidence
+	- If a learning resource is provided and directly relevant, you may reference or link to it (max 1 link per piece)
+	- Generate between 1 and 3 options depending on what makes sense for the request
 	`;
 
 	const result = await llm
@@ -457,10 +439,10 @@ const contentGenerationGraph = new StateGraph(schema)
 /**
  * Server action for generating content using LangGraph workflow
  *
- * This action:
- * 1. Analyzes the user message to determine content type
- * 2. Fetches templates, writing samples, and business context in parallel
- * 3. Generates 3 unique posts based on the gathered context
+ * Routes requests through a stateful graph that:
+ * 1. Classifies the request (content generation vs video research)
+ * 2. Conditionally fetches relevant context (business data, writing samples, resources, channel stats)
+ * 3. Generates a response tailored to what was actually requested
  */
 export async function generateContent(
 	messages: {

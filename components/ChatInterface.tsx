@@ -89,7 +89,7 @@ export default function ChatInterface() {
 				throw new Error(
 					'message' in result && result.message
 						? result.message
-						: 'Failed to generate posts',
+						: 'Failed to generate content',
 				);
 			}
 		} catch (error) {
@@ -257,7 +257,7 @@ export default function ChatInterface() {
 								? 'bg-white text-black font-bold'
 								: 'text-[#8b8b8b] hover:text-white hover:bg-[#2f2f2f]'
 						}`}
-						title='Generate 3 posts from templates'
+						title='Generate content using AI'
 					>
 						Content Gen
 					</button>
@@ -295,8 +295,9 @@ export default function ChatInterface() {
 									Content Generation Mode
 								</p>
 								<p className='text-base sm:text-sm'>
-									Generate 3 unique posts based on Airtable
-									templates and your writing style.
+									Generate content in your voice — articles,
+									posts, video ideas, or whatever fits the
+									request.
 								</p>
 								<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
 									<p className='font-medium text-sm'>
@@ -304,19 +305,20 @@ export default function ChatInterface() {
 									</p>
 									<ul className='list-disc list-inside space-y-1 text-[#8b8b8b] text-base sm:text-sm'>
 										<li>
-											Create posts about career
-											transitions
+											Write something about career
+											transitions into tech
 										</li>
 										<li>
-											Write about learning React in 2025
+											Help me draft content on learning
+											React in 2025
 										</li>
 										<li>
-											Generate content on remote work
-											trends
+											What videos should I make about
+											AI tools?
 										</li>
 										<li>
-											Posts about software engineering
-											career advice
+											Content ideas for software
+											engineering career advice
 										</li>
 									</ul>
 								</div>
@@ -368,10 +370,10 @@ export default function ChatInterface() {
 											d='M5 13l4 4L19 7'
 										/>
 									</svg>
-									Generated 3 Posts
+									Generated {generatedPosts.length === 1 ? '1 Option' : `${generatedPosts.length} Options`}
 								</h3>
 								<p className='text-[#8b8b8b] text-base sm:text-sm'>
-									Click any post to copy it to your clipboard
+									Click any option to copy it to your clipboard
 								</p>
 							</div>
 
@@ -385,7 +387,7 @@ export default function ChatInterface() {
 								>
 									<div className='flex justify-between items-start mb-2'>
 										<h4 className='text-white font-bold text-sm sm:text-base'>
-											Post {index + 1}
+											Option {index + 1}
 										</h4>
 										<button
 											onClick={(e) => {
@@ -523,7 +525,7 @@ export default function ChatInterface() {
 				{isGenerating && (
 					<div className='flex items-center gap-2 p-3 rounded-md bg-purple-900/50 text-purple-200 text-sm'>
 						<div className='w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin' />
-						<span>Generating 3 posts from templates...</span>
+						<span>Generating content...</span>
 					</div>
 				)}
 				{isListening && (
