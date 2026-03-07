@@ -205,10 +205,7 @@ export async function startTypeformCreation(
 	error?: string;
 }> {
 	try {
-		const config = {
-			configurable: { thread_id: threadId },
-			...getLangSmithConfig('typeform-start', { formDescription, threadId }),
-		};
+		const checkpointConfig = { configurable: { thread_id: threadId } };
 
 		const result = await createTypeformGraph.invoke(
 			{
@@ -220,11 +217,11 @@ export async function startTypeformCreation(
 				result: undefined,
 				statusMessage: undefined,
 			},
-			config
+			{ ...checkpointConfig, ...getLangSmithConfig('typeform-start', { formDescription, threadId }) }
 		);
 
 		// Check whether the graph is waiting at an interrupt
-		const state = await createTypeformGraph.getState(config);
+		const state = await createTypeformGraph.getState(checkpointConfig);
 		const interrupts = state.tasks.flatMap((t) => t.interrupts ?? []);
 
 		if (interrupts.length > 0) {
@@ -271,17 +268,14 @@ export async function resumeTypeformCreation(
 	error?: string;
 }> {
 	try {
-		const config = {
-			configurable: { thread_id: threadId },
-			...getLangSmithConfig('typeform-resume', { threadId, approved }),
-		};
+		const checkpointConfig = { configurable: { thread_id: threadId } };
 
 		await createTypeformGraph.invoke(
 			new Command({ resume: { approved, feedback } }),
-			config
+			{ ...checkpointConfig, ...getLangSmithConfig('typeform-resume', { threadId, approved }) }
 		);
 
-		const state = await createTypeformGraph.getState(config);
+		const state = await createTypeformGraph.getState(checkpointConfig);
 		const interrupts = state.tasks.flatMap((t) => t.interrupts ?? []);
 
 		// Still interrupted — probably because the human rejected and a revision
