@@ -1,8 +1,6 @@
 /**
- * AI Tools for Content Management
- *
- * This module exports all available tools for the chat interface.
- * Each tool is defined separately for better organization and maintainability.
+ * LangChain tools for the LangGraph chat agent.
+ * Each tool uses @langchain/core/tools and is compatible with createReactAgent.
  */
 
 export { searchWritingSamplesTool } from './search-content';

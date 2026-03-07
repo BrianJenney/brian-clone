@@ -3,9 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { StlyedMarkdown } from '@/components/ReactMarkdown';
-import remarkGfm from 'remark-gfm';
 import { generateContent } from '@/app/actions/generate-content';
-import { getToolDisplayName } from '@/libs/tools/config';
 
 type ChatMode = 'standard' | 'contentGen';
 
@@ -16,33 +14,27 @@ type Message = {
 
 export default function ChatInterface() {
 	const [chatMode, setChatMode] = useState<ChatMode>('standard');
-	const [useAgentRouter, setUseAgentRouter] = useState(true);
 	const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
-	const [generatedPostsSources, setGeneratedPostsSources] = useState<
-		string[]
-	>([]);
+	const [generatedPostsSources, setGeneratedPostsSources] = useState<string[]>([]);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentTool, setCurrentTool] = useState<string | null>(null);
-
 	const [input, setInput] = useState('');
-	const messagesEndRef = useRef<HTMLDivElement>(null);
-	const {
-		isListening,
-		transcript,
-		isSupported,
-		error: voiceError,
-		startListening,
-		stopListening,
-		resetTranscript,
-	} = useVoiceInput();
 
-	const scrollToBottom = () => {
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const { isListening, transcript, isSupported, error: voiceError, startListening, stopListening, resetTranscript } =
+		useVoiceInput();
+
+	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
+	}, [messages]);
+
+	useEffect(() => {
+		if (transcript) setInput(transcript);
+	}, [transcript]);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setInput(e.target.value);
@@ -50,22 +42,9 @@ export default function ChatInterface() {
 		e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
 	};
 
-	useEffect(() => {
-		scrollToBottom();
-	}, [messages]);
-
-	useEffect(() => {
-		if (transcript) {
-			setInput(transcript);
-		}
-	}, [transcript]);
-
 	const handleVoiceToggle = () => {
-		if (isListening) {
-			stopListening();
-		} else {
-			startListening();
-		}
+		if (isListening) stopListening();
+		else startListening();
 	};
 
 	const handleGenerateContent = async () => {
@@ -76,27 +55,18 @@ export default function ChatInterface() {
 			setGeneratedPostsSources([]);
 
 			const result = await generateContent(
-				messages.map((message) => ({
-					role: message.role,
-					content: message.content,
-				})),
+				messages.map((m) => ({ role: m.role, content: m.content })),
 			);
 
 			if (result.success && 'options' in result && result.options) {
 				setGeneratedPosts(result.options);
 				setGeneratedPostsSources(result.sources);
 			} else {
-				throw new Error(
-					'message' in result && result.message
-						? result.message
-						: 'Failed to generate posts',
-				);
+				throw new Error('message' in result && result.message ? result.message : 'Failed to generate posts');
 			}
 		} catch (error) {
 			console.error('Content generation error:', error);
-			setGenerationError(
-				error instanceof Error ? error.message : 'Unknown error',
-			);
+			setGenerationError(error instanceof Error ? error.message : 'Unknown error');
 		} finally {
 			setIsGenerating(false);
 		}
@@ -109,105 +79,53 @@ export default function ChatInterface() {
 			setCurrentTool(null);
 
 			const userMessage: Message = { role: 'user', content: message };
-			setMessages((prev) => [...prev, userMessage]);
+			const assistantMessage: Message = { role: 'assistant', content: '' };
 
-			const assistantMessage: Message = {
-				role: 'assistant',
-				content: '',
-			};
-			setMessages((prev) => [...prev, assistantMessage]);
+			setMessages((prev) => [...prev, userMessage, assistantMessage]);
 
-			const endpoint = useAgentRouter ? '/api/chat-agents' : '/api/chat';
-			const response = await fetch(endpoint, {
+			const response = await fetch('/api/chat', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					messages: [...messages, userMessage],
-				}),
+				body: JSON.stringify({ messages: [...messages, userMessage] }),
 			});
 
 			const reader = response.body?.getReader();
+			if (!reader) throw new Error('No response body');
+
 			const decoder = new TextDecoder();
-
-			if (!reader) {
-				throw new Error('No response body');
-			}
-
 			let accumulatedContent = '';
 			let buffer = '';
 
 			while (true) {
 				const { done, value } = await reader.read();
-
 				if (done) break;
 
-				const chunk = decoder.decode(value, { stream: true });
-				buffer += chunk;
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() ?? '';
 
-				if (useAgentRouter) {
-					// New agent router format: JSON lines with {type, message/content}
-					const lines = buffer.split('\n');
-					buffer = lines.pop() || ''; // Keep incomplete line in buffer
+				for (const line of lines) {
+					if (!line.trim()) continue;
+					try {
+						const data = JSON.parse(line);
 
-					for (const line of lines) {
-						if (!line.trim()) continue;
-
-						try {
-							const data = JSON.parse(line);
-
-							if (data.type === 'progress') {
-								setCurrentTool(data.message);
-							} else if (data.type === 'text') {
-								accumulatedContent += data.content;
-								setCurrentTool(null);
-
-								setMessages((prev) => {
-									const newMessages = [...prev];
-									const lastMessage =
-										newMessages[newMessages.length - 1];
-									if (lastMessage.role === 'assistant') {
-										lastMessage.content =
-											accumulatedContent;
-									}
-									return newMessages;
-								});
-							} else if (data.type === 'error') {
-								setError(data.message);
-							}
-						} catch (e) {
-							// Ignore parse errors for incomplete JSON
-						}
-					}
-				} else {
-					const lines = buffer.split('\n');
-					for (const line of lines) {
-						console.log('line', line);
-						if (line.startsWith('9:')) {
-							try {
-								const toolCall = JSON.parse(line.slice(2));
-								const toolName = toolCall.toolName || '';
-								setCurrentTool(getToolDisplayName(toolName));
-							} catch (e) {
-								// Ignore parse errors
-							}
-						} else if (
-							line.startsWith('a:') ||
-							line.startsWith('0:')
-						) {
+						if (data.type === 'progress') {
+							setCurrentTool(data.message);
+						} else if (data.type === 'text') {
+							accumulatedContent += data.content;
 							setCurrentTool(null);
+							setMessages((prev) => {
+								const next = [...prev];
+								const last = next[next.length - 1];
+								if (last.role === 'assistant') last.content = accumulatedContent;
+								return next;
+							});
+						} else if (data.type === 'error') {
+							setError(data.message);
 						}
+					} catch {
+						// ignore incomplete JSON lines
 					}
-
-					accumulatedContent += chunk;
-
-					setMessages((prev) => {
-						const newMessages = [...prev];
-						const lastMessage = newMessages[newMessages.length - 1];
-						if (lastMessage.role === 'assistant') {
-							lastMessage.content = accumulatedContent;
-						}
-						return newMessages;
-					});
 				}
 			}
 		} catch (error) {
@@ -235,7 +153,7 @@ export default function ChatInterface() {
 
 	return (
 		<div className='flex flex-1 min-h-0 gap-2 sm:gap-3'>
-			{/* Left Sidebar - Options/Toggles */}
+			{/* Left Sidebar - Mode selector */}
 			<div className='flex flex-col gap-2 sm:gap-3 shrink-0'>
 				<div className='flex flex-col gap-1.5 sm:gap-2 bg-[#1a1a1a] p-1.5 sm:p-2 rounded-lg border border-[#2f2f2f]'>
 					<button
@@ -262,89 +180,43 @@ export default function ChatInterface() {
 						Content Gen
 					</button>
 				</div>
-
-				{/* Agent Router Toggle - Only show in standard mode */}
-				{chatMode === 'standard' && (
-					<div className='flex flex-col gap-1.5 bg-[#1a1a1a] p-2 rounded-lg border border-[#2f2f2f]'>
-						<label className='flex items-center gap-2 cursor-pointer'>
-							<input
-								type='checkbox'
-								checked={useAgentRouter}
-								onChange={(e) =>
-									setUseAgentRouter(e.target.checked)
-								}
-								className='w-4 h-4 text-white bg-[#1a1a1a] border-[#444444] rounded focus:ring-0 focus:ring-offset-0'
-							/>
-							<span className='text-xs sm:text-sm text-[#8b8b8b]'>
-								Use Agent Router
-							</span>
-						</label>
-					</div>
-				)}
 			</div>
 
 			{/* Right Side - Chat Content */}
 			<div className='flex flex-col flex-1 min-w-0 space-y-3 sm:space-y-4'>
 				{/* Messages Container */}
 				<div className='flex-1 overflow-y-auto border border-[#2f2f2f] rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 bg-[#1a1a1a]'>
-					{chatMode === 'contentGen' &&
-						generatedPosts.length === 0 &&
-						!isGenerating && (
-							<div className='text-center text-[#8b8b8b] py-4 sm:py-8 px-2'>
-								<p className='text-base sm:text-lg mb-2'>
-									Content Generation Mode
-								</p>
-								<p className='text-base sm:text-sm'>
-									Generate 3 unique posts based on Airtable
-									templates and your writing style.
-								</p>
-								<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
-									<p className='font-medium text-sm'>
-										Example prompts:
-									</p>
-									<ul className='list-disc list-inside space-y-1 text-[#8b8b8b] text-base sm:text-sm'>
-										<li>
-											Create posts about career
-											transitions
-										</li>
-										<li>
-											Write about learning React in 2025
-										</li>
-										<li>
-											Generate content on remote work
-											trends
-										</li>
-										<li>
-											Posts about software engineering
-											career advice
-										</li>
-									</ul>
-								</div>
+					{chatMode === 'contentGen' && generatedPosts.length === 0 && !isGenerating && (
+						<div className='text-center text-[#8b8b8b] py-4 sm:py-8 px-2'>
+							<p className='text-base sm:text-lg mb-2'>Content Generation Mode</p>
+							<p className='text-base sm:text-sm'>
+								Generate 3 unique posts based on Airtable templates and your writing style.
+							</p>
+							<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
+								<p className='font-medium text-sm'>Example prompts:</p>
+								<ul className='list-disc list-inside space-y-1 text-[#8b8b8b] text-base sm:text-sm'>
+									<li>Create posts about career transitions</li>
+									<li>Write about learning React in 2025</li>
+									<li>Generate content on remote work trends</li>
+									<li>Posts about software engineering career advice</li>
+								</ul>
 							</div>
-						)}
+						</div>
+					)}
 
 					{chatMode !== 'contentGen' && messages.length === 0 && (
 						<div className='text-center text-[#8b8b8b] py-4 sm:py-8 px-2'>
-							<p className='text-base sm:text-lg mb-2'>
-								Welcome! I'm your AI writing assistant.
-							</p>
+							<p className='text-base sm:text-lg mb-2'>Welcome! I'm your AI writing assistant.</p>
 							<p className='text-base sm:text-sm'>
-								I can help you write transcripts, articles, and
-								posts in your style.
+								I can help you write transcripts, articles, and posts in your style.
 							</p>
 							<div className='mt-3 sm:mt-4 text-left max-w-md mx-auto space-y-2'>
 								<p className='font-medium'>Try asking me to:</p>
 								<ul className='list-disc list-inside space-y-1 text-[#8b8b8b]'>
-									<li>
-										Search through your existing content
-									</li>
-									<li>
-										Generate a new article about a topic
-									</li>
+									<li>Search through your existing content</li>
+									<li>Generate a new article about a topic</li>
 									<li>Write a post in your style</li>
-									<li>
-										Upload new content to the knowledge base
-									</li>
+									<li>Upload new content to the knowledge base</li>
 								</ul>
 							</div>
 						</div>
@@ -355,54 +227,31 @@ export default function ChatInterface() {
 						<div className='space-y-3 sm:space-y-4'>
 							<div className='bg-[#1a1a1a] border border-[#2f2f2f] rounded-lg p-3 sm:p-4'>
 								<h3 className='text-white font-bold mb-1 sm:mb-2 flex items-center gap-2 text-sm sm:text-base'>
-									<svg
-										className='w-4 h-4 sm:w-5 sm:h-5'
-										fill='none'
-										stroke='currentColor'
-										viewBox='0 0 24 24'
-									>
-										<path
-											strokeLinecap='round'
-											strokeLinejoin='round'
-											strokeWidth={2}
-											d='M5 13l4 4L19 7'
-										/>
+									<svg className='w-4 h-4 sm:w-5 sm:h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+										<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
 									</svg>
 									Generated 3 Posts
 								</h3>
-								<p className='text-[#8b8b8b] text-base sm:text-sm'>
-									Click any post to copy it to your clipboard
-								</p>
+								<p className='text-[#8b8b8b] text-base sm:text-sm'>Click any post to copy it to your clipboard</p>
 							</div>
 
 							{generatedPosts.map((post, index) => (
 								<div
 									key={index}
-									onClick={() => {
-										navigator.clipboard.writeText(post);
-									}}
+									onClick={() => navigator.clipboard.writeText(post)}
 									className='bg-[#1a1a1a] rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-[#2f2f2f] transition-colors border border-[#2f2f2f]'
 								>
 									<div className='flex justify-between items-start mb-2'>
-										<h4 className='text-white font-bold text-sm sm:text-base'>
-											Post {index + 1}
-										</h4>
+										<h4 className='text-white font-bold text-sm sm:text-base'>Post {index + 1}</h4>
 										<button
 											onClick={(e) => {
 												e.stopPropagation();
-												navigator.clipboard.writeText(
-													post,
-												);
+												navigator.clipboard.writeText(post);
 											}}
 											className='text-[#8b8b8b] hover:text-white transition-colors p-1'
 											title='Copy to clipboard'
 										>
-											<svg
-												className='w-4 h-4 sm:w-5 sm:h-5'
-												fill='none'
-												stroke='currentColor'
-												viewBox='0 0 24 24'
-											>
+											<svg className='w-4 h-4 sm:w-5 sm:h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
 												<path
 													strokeLinecap='round'
 													strokeLinejoin='round'
@@ -412,73 +261,53 @@ export default function ChatInterface() {
 											</svg>
 										</button>
 									</div>
-									<div className='text-white whitespace-pre-wrap text-base sm:text-sm'>
-										{post}
-									</div>
+									<div className='text-white whitespace-pre-wrap text-base sm:text-sm'>{post}</div>
 								</div>
 							))}
+
 							<div className='text-[#8b8b8b] text-base sm:text-sm break-all'>
 								Sources:{' '}
-								{generatedPostsSources
-									?.map((source: string) => (
-										<a
-											key={source}
-											href={source}
-											target='_blank'
-											rel='noopener noreferrer'
-											className='text-blue-400 hover:underline'
-										>
-											{source}
-										</a>
-									))
-									?.join(', ')}
+								{generatedPostsSources?.map((source: string) => (
+									<a
+										key={source}
+										href={source}
+										target='_blank'
+										rel='noopener noreferrer'
+										className='text-blue-400 hover:underline'
+									>
+										{source}
+									</a>
+								))}
 							</div>
 						</div>
 					)}
 
+					{/* Chat Messages */}
 					{chatMode !== 'contentGen' &&
 						messages
 							.filter((msg) => msg.role === 'user' || msg.content)
 							.map((message, index) => (
-								<div
-									key={index}
-									className={`flex ${
-										message.role === 'user'
-											? 'justify-end'
-											: 'justify-start'
-									}`}
-								>
+								<div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
 									<div
 										className={`max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 ${
-											message.role === 'user'
-												? 'bg-blue-600 text-white'
-												: 'bg-[#2f2f2f] text-white'
+											message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[#2f2f2f] text-white'
 										}`}
 									>
-										{/* Role Label */}
 										<div className='text-base font-medium mb-1 opacity-75'>
-											{message.role === 'user'
-												? 'You'
-												: 'Assistant'}
+											{message.role === 'user' ? 'You' : 'Assistant'}
 										</div>
-
-										{/* Message Content */}
 										<div className='text-base'>
 											{message.role === 'assistant' ? (
-												<StlyedMarkdown
-													content={message.content}
-												/>
+												<StlyedMarkdown content={message.content} />
 											) : (
-												<div className='whitespace-pre-wrap'>
-													{message.content}
-												</div>
+												<div className='whitespace-pre-wrap'>{message.content}</div>
 											)}
 										</div>
 									</div>
 								</div>
 							))}
 
-					{/* Loading indicator for standard mode - only show when no content yet */}
+					{/* Loading indicator — only while no content has arrived yet */}
 					{chatMode === 'standard' &&
 						isLoading &&
 						messages.length > 0 &&
@@ -486,14 +315,10 @@ export default function ChatInterface() {
 						!messages[messages.length - 1].content && (
 							<div className='flex justify-start'>
 								<div className='max-w-[90%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-3 bg-[#2f2f2f] text-white'>
-									<div className='text-base font-medium mb-1 opacity-75'>
-										Assistant
-									</div>
+									<div className='text-base font-medium mb-1 opacity-75'>Assistant</div>
 									<div className='flex items-center gap-2 text-sm text-[#c5c5d2]'>
 										<div className='w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin' />
-										<span className='capitalize'>
-											{currentTool || 'Thinking...'}
-										</span>
+										<span className='capitalize'>{currentTool || 'Thinking...'}</span>
 									</div>
 								</div>
 							</div>
@@ -504,14 +329,10 @@ export default function ChatInterface() {
 
 				{/* Error Messages */}
 				{error && (
-					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
-						Error: {error}
-					</div>
+					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>Error: {error}</div>
 				)}
 				{voiceError && (
-					<div className='p-3 rounded-md bg-yellow-900 text-yellow-200 text-sm'>
-						{voiceError}
-					</div>
+					<div className='p-3 rounded-md bg-yellow-900 text-yellow-200 text-sm'>{voiceError}</div>
 				)}
 				{generationError && (
 					<div className='p-3 rounded-md bg-red-900 text-red-200 text-sm'>
@@ -544,7 +365,6 @@ export default function ChatInterface() {
 									e.preventDefault();
 									if (input.trim()) {
 										handleSubmit(e as any);
-										// Reset textarea height
 										e.currentTarget.style.height = 'auto';
 									}
 								}
@@ -562,11 +382,7 @@ export default function ChatInterface() {
 										? 'bg-red-600 hover:bg-red-700 animate-pulse'
 										: 'bg-[#2f2f2f] hover:bg-[#565869] border border-[#444444]'
 								} text-white`}
-								title={
-									isListening
-										? 'Stop recording'
-										: 'Start recording'
-								}
+								title={isListening ? 'Stop recording' : 'Start recording'}
 							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
