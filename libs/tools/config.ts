@@ -9,7 +9,8 @@ export type ToolName =
 	| 'searchResourcesTool'
 	| 'analyzeChannelTool'
 	| 'researchTopicTool'
-	| 'excalidrawerTool';
+	| 'excalidrawerTool'
+	| 'designTypeformTool';
 
 export type ToolMetadata = {
 	name: ToolName;
@@ -47,6 +48,11 @@ export const TOOL_CONFIG: Record<ToolName, ToolMetadata> = {
 		name: 'excalidrawerTool',
 		displayName: 'drawing diagrams',
 		description: 'Draw diagrams and flowcharts',
+	},
+	designTypeformTool: {
+		name: 'designTypeformTool',
+		displayName: 'designing Typeform',
+		description: 'Design a Typeform survey or form with human approval',
 	},
 };
 

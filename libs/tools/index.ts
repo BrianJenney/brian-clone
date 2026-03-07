@@ -10,6 +10,8 @@ export { getBusinessContextTool } from './get-business-context';
 export { searchResourcesTool } from './search-resources';
 export { analyzeChannelTool, researchTopicTool } from './video-research';
 export { excalidrawerTool } from './excalidrawer';
+export { designTypeformTool } from './typeform';
+export type { TypeformFormDesign, TypeformField } from './typeform';
 
 // Tool configuration and metadata
 export { TOOL_CONFIG, getToolDisplayName } from './config';
