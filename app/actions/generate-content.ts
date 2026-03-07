@@ -10,6 +10,7 @@ import { generateEmbedding } from '@/libs/openai';
 import { analyzeChannel, researchTopic } from '@/libs/videoResearch';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { getLangSmithConfig } from '@/libs/langsmith';
 
 const llm = new ChatOpenAI({ model: 'gpt-5' });
 
@@ -476,9 +477,13 @@ export async function generateContent(
 			};
 		}
 
-		const result = await contentGenerationGraph.invoke({
-			messages,
-		});
+		const result = await contentGenerationGraph.invoke(
+			{ messages },
+			getLangSmithConfig('generate-content', {
+				messageCount: messages.length,
+				lastMessage: messages.at(-1)?.content,
+			}),
+		);
 
 		return {
 			success: true,

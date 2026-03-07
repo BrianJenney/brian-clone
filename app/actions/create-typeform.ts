@@ -18,6 +18,7 @@ import {
 	type TypeformFormDesign,
 	createTypeformForm,
 } from '@/libs/tools/typeform';
+import { getLangSmithConfig } from '@/libs/langsmith';
 
 // ---------------------------------------------------------------------------
 // LLM
@@ -204,7 +205,10 @@ export async function startTypeformCreation(
 	error?: string;
 }> {
 	try {
-		const config = { configurable: { thread_id: threadId } };
+		const config = {
+			configurable: { thread_id: threadId },
+			...getLangSmithConfig('typeform-start', { formDescription, threadId }),
+		};
 
 		const result = await createTypeformGraph.invoke(
 			{
@@ -267,7 +271,10 @@ export async function resumeTypeformCreation(
 	error?: string;
 }> {
 	try {
-		const config = { configurable: { thread_id: threadId } };
+		const config = {
+			configurable: { thread_id: threadId },
+			...getLangSmithConfig('typeform-resume', { threadId, approved }),
+		};
 
 		await createTypeformGraph.invoke(
 			new Command({ resume: { approved, feedback } }),

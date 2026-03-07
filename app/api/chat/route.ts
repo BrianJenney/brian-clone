@@ -1,6 +1,7 @@
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 import { chatAgent } from '@/app/actions/chat-graph';
 import { getToolDisplayName } from '@/libs/tools/config';
+import { getLangSmithConfig } from '@/libs/langsmith';
 
 /**
  * POST /api/chat
@@ -31,9 +32,13 @@ export async function POST(req: Request) {
 					controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
 
 				try {
+					const lastUserMessage = messages.findLast((m) => m.role === 'user')?.content;
 					const eventStream = chatAgent.streamEvents(
 						{ messages: lgMessages },
-						{ version: 'v2' },
+						{
+							version: 'v2',
+							...getLangSmithConfig('chat', { userMessage: lastUserMessage }),
+						},
 					);
 
 					for await (const event of eventStream) {
