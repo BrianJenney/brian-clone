@@ -63,6 +63,7 @@ Remember: The target audience (Marcus) values transparency over hype, practical 
 
 const llm = new ChatOpenAI({ model: 'gpt-5', streaming: true });
 
+// `prompt` is the current API (messageModifier / stateModifier are deprecated in v1.x)
 export const chatAgent = createReactAgent({
 	llm,
 	tools: [
@@ -73,4 +74,5 @@ export const chatAgent = createReactAgent({
 		researchTopicTool,
 		excalidrawerTool,
 	],
+	prompt: CHAT_SYSTEM_PROMPT,
 });

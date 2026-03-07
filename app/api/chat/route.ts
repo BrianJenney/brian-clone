@@ -1,5 +1,5 @@
-import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
-import { chatAgent, CHAT_SYSTEM_PROMPT } from '@/app/actions/chat-graph';
+import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import { chatAgent } from '@/app/actions/chat-graph';
 import { getToolDisplayName } from '@/libs/tools/config';
 
 /**
@@ -20,13 +20,10 @@ export async function POST(req: Request) {
 			messages: { role: 'user' | 'assistant'; content: string }[];
 		};
 
-		// Convert to LangChain messages and prepend the system prompt
-		const lgMessages = [
-			new SystemMessage(CHAT_SYSTEM_PROMPT),
-			...messages.map((m) =>
-				m.role === 'user' ? new HumanMessage(m.content) : new AIMessage(m.content),
-			),
-		];
+		// The system prompt is managed by the agent via `prompt` — only pass conversation messages
+		const lgMessages = messages.map((m) =>
+			m.role === 'user' ? new HumanMessage(m.content) : new AIMessage(m.content),
+		);
 
 		const stream = new ReadableStream({
 			async start(controller) {
@@ -40,8 +37,12 @@ export async function POST(req: Request) {
 					);
 
 					for await (const event of eventStream) {
-						// Stream final response tokens (non-empty string content only)
-						if (event.event === 'on_chat_model_stream') {
+						// Stream LLM tokens — restrict to the `agent` node so we don't
+						// accidentally emit tool-call generation chunks (those have no text content)
+						if (
+							event.event === 'on_chat_model_stream' &&
+							event.metadata?.langgraph_node === 'agent'
+						) {
 							const chunk = event.data?.chunk;
 							const content =
 								typeof chunk?.content === 'string' ? chunk.content : '';
