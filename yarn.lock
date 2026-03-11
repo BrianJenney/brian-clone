@@ -493,17 +493,6 @@
     protobufjs "^7.5.3"
     yargs "^17.7.2"
 
-"@helicone/helicone@^3.1.2":
-  version "3.1.2"
-  resolved "https://registry.npmjs.org/@helicone/helicone/-/helicone-3.1.2.tgz"
-  integrity sha512-8r8Hr65BUf4wxAA+3t3o0+XAKtLA7TbWhOwFVdl4cednLULvReqwl7xEXfGvJjZ0PU7/aIl8wylhjHGn7npc1w==
-  dependencies:
-    "@traceloop/node-server-sdk" "^0.8.6"
-    "@types/uuid" "^9.0.1"
-    "@whatwg-node/fetch" "^0.9.14"
-    openapi-fetch "^0.9.7"
-    uuid "^9.0.1"
-
 "@humanfs/core@^0.19.1":
   version "0.19.1"
   resolved "https://registry.npmjs.org/@humanfs/core/-/core-0.19.1.tgz"

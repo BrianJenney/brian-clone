@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https://api.openai.com;">
+  <title>Genie</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Collapsed State: Genie Icon -->
+    <div id="genie-collapsed" class="genie-icon">
+      <div class="genie-face">
+        <div class="genie-eye left"></div>
+        <div class="genie-eye right"></div>
+        <div class="genie-smile"></div>
+      </div>
+    </div>
+
+    <!-- Expanded State: Chat Interface -->
+    <div id="genie-expanded" class="hidden">
+      <div class="genie-header">
+        <div class="genie-title">
+          <span class="genie-emoji">🧞</span>
+          <span>Genie</span>
+        </div>
+        <div class="header-tabs">
+          <button id="tab-chat" class="tab-btn active" title="Chat">Chat</button>
+          <button id="tab-upload" class="tab-btn" title="Upload">Upload</button>
+        </div>
+        <button id="collapse-btn" class="icon-btn" title="Minimize">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 8h12v1H2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Screen Preview -->
+      <div id="screen-preview" class="hidden">
+        <img id="screenshot-img" alt="Screen capture" />
+        <button id="clear-preview" class="small-btn">Clear</button>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="messages">
+        <div class="message assistant">
+          <p>Hey! I'm Genie, your writing assistant. Capture your screen and I'll help draft replies, rewrite content, or create posts in your voice.</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div id="quick-actions">
+        <button class="action-btn" data-action="draft-reply">
+          <span class="action-icon">✉️</span>
+          <span>Reply</span>
+        </button>
+        <button class="action-btn" data-action="rewrite">
+          <span class="action-icon">✨</span>
+          <span>Rewrite</span>
+        </button>
+        <button class="action-btn" data-action="summarize">
+          <span class="action-icon">📝</span>
+          <span>Summarize</span>
+        </button>
+        <button class="action-btn" data-action="explain">
+          <span class="action-icon">🔍</span>
+          <span>Explain</span>
+        </button>
+      </div>
+
+      <!-- Input Area -->
+      <div id="input-area">
+        <button id="capture-btn" class="capture-btn" title="Capture Screen (⌘+Shift+S)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+        <textarea id="user-input" placeholder="Write a post about..., Reply to this..." rows="1"></textarea>
+        <button id="send-btn" class="send-btn" title="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Upload Panel (hidden by default) -->
+      <div id="upload-panel" class="hidden">
+        <div class="upload-form">
+          <div class="form-row">
+            <label for="upload-collection">Collection</label>
+            <select id="upload-collection">
+              <option value="post">Posts (Social)</option>
+              <option value="article">Articles (Blog)</option>
+              <option value="transcript">Transcripts</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="upload-title">Title (optional)</label>
+            <input type="text" id="upload-title" placeholder="My new post...">
+          </div>
+          <div class="form-row">
+            <label for="upload-tags">Tags (comma separated)</label>
+            <input type="text" id="upload-tags" placeholder="javascript, career, coding">
+          </div>
+          <div class="form-row">
+            <label for="upload-content">Content</label>
+            <textarea id="upload-content" placeholder="Paste your content here..." rows="8"></textarea>
+          </div>
+          <div class="form-actions">
+            <button id="upload-btn" class="primary-btn">
+              <span>Upload to Vector DB</span>
+            </button>
+          </div>
+        </div>
+        <div id="upload-status"></div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden">
+      <span id="toast-message"></span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

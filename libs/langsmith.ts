@@ -3,22 +3,22 @@ import { Client } from 'langsmith';
 /**
  * Shared LangSmith client.
  * Used for programmatic access (e.g., creating datasets, running evals).
- * Automatic run tracing is controlled via LANGCHAIN_TRACING_V2 env var.
+ * Automatic run tracing is controlled via LANGSMITH_TRACING env var.
  */
 export const langSmithClient = new Client({
-	apiKey: process.env.LANGCHAIN_API_KEY,
-	apiUrl: process.env.LANGCHAIN_ENDPOINT ?? 'https://api.smith.langchain.com',
+	apiKey: process.env.LANGSMITH_API_KEY,
+	apiUrl: process.env.LANGSMITH_ENDPOINT ?? 'https://api.smith.langchain.com',
 });
 
 export function isTracingEnabled(): boolean {
-	return process.env.LANGCHAIN_TRACING_V2 === 'true' && !!process.env.LANGCHAIN_API_KEY;
+	return process.env.LANGSMITH_TRACING === 'true' && !!process.env.LANGSMITH_API_KEY;
 }
 
 /**
  * Returns a RunnableConfig fragment with LangSmith metadata.
  * Pass this into `graph.invoke(state, config)` or `graph.streamEvents(input, config)`.
  *
- * When LANGCHAIN_TRACING_V2=true, LangChain/LangGraph automatically sends
+ * When LANGSMITH_TRACING=true, LangChain/LangGraph automatically sends
  * these details to LangSmith — no explicit tracer callback required.
  */
 export function getLangSmithConfig(
@@ -33,7 +33,7 @@ export function getLangSmithConfig(
 		runName,
 		tags: ['brian-clone', runName],
 		metadata: {
-			project: process.env.LANGCHAIN_PROJECT ?? 'brian-clone',
+			project: process.env.LANGSMITH_PROJECT ?? 'brian-clone',
 			...metadata,
 		},
 	};
