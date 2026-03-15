@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https://api.openai.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https://api.openai.com https://api.anthropic.com;">
   <title>Genie</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -28,6 +28,7 @@
         <div class="header-tabs">
           <button id="tab-chat" class="tab-btn active" title="Chat">Chat</button>
           <button id="tab-upload" class="tab-btn" title="Upload">Upload</button>
+          <button id="tab-tasks" class="tab-btn" title="Tasks">Tasks</button>
         </div>
         <button id="collapse-btn" class="icon-btn" title="Minimize">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -115,6 +116,121 @@
           </div>
         </div>
         <div id="upload-status"></div>
+      </div>
+
+      <!-- Tasks Panel (hidden by default) -->
+      <div id="tasks-panel" class="hidden">
+        <!-- Recording Controls -->
+        <div id="recording-controls">
+          <div id="recording-status">
+            <span id="recording-indicator" class="indicator idle"></span>
+            <span id="recording-timer">00:00</span>
+          </div>
+          <div class="recording-buttons">
+            <button id="start-recording-btn" class="record-btn">
+              <span class="record-icon">⏺</span>
+              <span>Start Recording</span>
+            </button>
+            <button id="stop-recording-btn" class="record-btn stop hidden">
+              <span class="record-icon">⏹</span>
+              <span>Stop Recording</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Session Name Input (shown when saving) -->
+        <div id="save-session-form" class="hidden">
+          <input type="text" id="session-name-input" placeholder="Name this task...">
+          <div class="save-actions">
+            <button id="save-session-btn" class="primary-btn small">Save</button>
+            <button id="discard-session-btn" class="secondary-btn small">Discard</button>
+          </div>
+        </div>
+
+        <!-- Sessions List -->
+        <div id="sessions-container">
+          <div class="sessions-header">
+            <span>Saved Tasks</span>
+            <button id="refresh-sessions-btn" class="icon-btn small" title="Refresh">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+              </svg>
+            </button>
+          </div>
+          <div id="sessions-list">
+            <!-- Sessions will be populated here -->
+            <div class="empty-state">
+              <span>No saved tasks yet</span>
+              <span class="hint">Record your first task above</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session Detail (shown when a session is selected) -->
+        <div id="session-detail" class="hidden">
+          <div class="session-detail-header">
+            <button id="back-to-list-btn" class="icon-btn small">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <span id="session-detail-name">Task Name</span>
+          </div>
+          <div class="session-stats">
+            <div class="stat">
+              <span class="stat-value" id="detail-duration">0:00</span>
+              <span class="stat-label">Duration</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="detail-events">0</span>
+              <span class="stat-label">Events</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="detail-screenshots">0</span>
+              <span class="stat-label">Screenshots</span>
+            </div>
+          </div>
+          <div class="session-actions">
+            <button id="replay-btn" class="action-btn-large">
+              <span class="action-icon">▶️</span>
+              <span>Replay</span>
+            </button>
+            <button id="replay-ai-btn" class="action-btn-large ai">
+              <span class="action-icon">✨</span>
+              <span>Replay with AI</span>
+            </button>
+          </div>
+          <!-- AI Computer Use Config -->
+          <div id="ai-config" class="hidden">
+            <div class="ai-config-header">
+              <span class="ai-badge">🤖 Computer Use</span>
+              <span class="ai-hint">Claude will control the computer</span>
+            </div>
+            <div class="form-row">
+              <label for="personalization-prompt">Task Instructions</label>
+              <textarea id="personalization-prompt" placeholder="Describe what Claude should do, e.g., 'Send a personalized LinkedIn message to each connection, mentioning their recent posts'" rows="3"></textarea>
+            </div>
+            <button id="start-ai-replay-btn" class="primary-btn ai-btn">
+              <span>🚀 Start AI Agent</span>
+            </button>
+          </div>
+          <div class="session-danger-zone">
+            <button id="delete-session-btn" class="danger-btn small">Delete Task</button>
+          </div>
+        </div>
+
+        <!-- Replay Progress -->
+        <div id="replay-progress" class="hidden">
+          <div class="replay-header">
+            <span>Replaying...</span>
+            <button id="stop-replay-btn" class="danger-btn small">Stop</button>
+          </div>
+          <div class="progress-bar">
+            <div id="replay-progress-bar" class="progress-fill"></div>
+          </div>
+          <div id="replay-status-text">Event 0 of 0</div>
+        </div>
       </div>
     </div>
 

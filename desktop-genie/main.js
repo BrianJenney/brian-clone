@@ -23,6 +23,12 @@ const {
 const { searchWritingSamples, formatWritingSamples } = require('./lib/search');
 const { uploadContent } = require('./lib/upload');
 
+// Task Recording & Replay
+const { recordingEngine } = require('./lib/recording');
+const { saveSession, loadSession, listSessions, deleteSession, renameSession } = require('./lib/sessions');
+const { replayEngine } = require('./lib/replay');
+const { computerUseEngine } = require('./lib/computer-use');
+
 let mainWindow = null;
 let tray = null;
 let isExpanded = false;
@@ -282,6 +288,256 @@ ipcMain.handle('upload-content', async (event, text, contentType, metadata = {})
     console.error('Upload error:', error);
     return { success: false, error: error.message };
   }
+});
+
+// ============================================
+// TASK RECORDING & REPLAY IPC HANDLERS
+// ============================================
+
+// Recording: Start
+ipcMain.handle('start-recording', async () => {
+  try {
+    const result = await recordingEngine.start();
+    return result;
+  } catch (error) {
+    console.error('Start recording error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Recording: Stop
+ipcMain.handle('stop-recording', async () => {
+  try {
+    const result = await recordingEngine.stop();
+    return result;
+  } catch (error) {
+    console.error('Stop recording error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Recording: Get status
+ipcMain.handle('get-recording-status', async () => {
+  return recordingEngine.getStatus();
+});
+
+// Recording: Add event manually (for mouse/keyboard hooks from renderer)
+ipcMain.handle('record-event', async (event, eventType, data) => {
+  try {
+    if (eventType === 'mouse_click') {
+      await recordingEngine.recordMouseClick(data.button);
+    } else if (eventType === 'key_press') {
+      recordingEngine.recordKeyPress(data.key);
+    } else if (eventType === 'scroll') {
+      await recordingEngine.recordScroll(data.deltaX, data.deltaY);
+    } else {
+      recordingEngine.addEvent(eventType, data);
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Record event error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Sessions: List all
+ipcMain.handle('list-sessions', async () => {
+  try {
+    return await listSessions();
+  } catch (error) {
+    console.error('List sessions error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Sessions: Load one
+ipcMain.handle('load-session', async (event, sessionId) => {
+  try {
+    return await loadSession(sessionId);
+  } catch (error) {
+    console.error('Load session error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Sessions: Save
+ipcMain.handle('save-session', async (event, session) => {
+  try {
+    return await saveSession(session);
+  } catch (error) {
+    console.error('Save session error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Sessions: Delete
+ipcMain.handle('delete-session', async (event, sessionId) => {
+  try {
+    return await deleteSession(sessionId);
+  } catch (error) {
+    console.error('Delete session error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Sessions: Rename
+ipcMain.handle('rename-session', async (event, sessionId, newName) => {
+  try {
+    return await renameSession(sessionId, newName);
+  } catch (error) {
+    console.error('Rename session error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Replay: Start basic replay
+ipcMain.handle('replay-session', async (event, sessionId, config = {}) => {
+  try {
+    const loadResult = await loadSession(sessionId);
+    if (!loadResult.success) {
+      return loadResult;
+    }
+
+    const result = await replayEngine.start(loadResult.session, config);
+    return result;
+  } catch (error) {
+    console.error('Replay session error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Replay: Stop
+ipcMain.handle('stop-replay', async () => {
+  try {
+    return await replayEngine.stop();
+  } catch (error) {
+    console.error('Stop replay error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Replay: Pause/Resume
+ipcMain.handle('pause-replay', async () => {
+  return replayEngine.pause();
+});
+
+ipcMain.handle('resume-replay', async () => {
+  return replayEngine.resume();
+});
+
+// Replay: Get status
+ipcMain.handle('get-replay-status', async () => {
+  return replayEngine.getStatus();
+});
+
+// Replay: AI-powered replay using Anthropic Computer Use API
+ipcMain.handle('replay-with-ai', async (event, sessionId, config = {}) => {
+  try {
+    // Initialize computer use engine with API key
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return { success: false, error: 'Anthropic API key not configured' };
+    }
+    computerUseEngine.init(apiKey);
+
+    // Load session for context
+    const loadResult = await loadSession(sessionId);
+    if (!loadResult.success) {
+      return loadResult;
+    }
+
+    const session = loadResult.session;
+
+    // Build task description from session and personalization prompt
+    let taskDescription = config.personalizationPrompt || 'Complete the recorded task';
+
+    // Add context from the original session
+    if (session.name) {
+      taskDescription = `Task: "${session.name}"\n\n${taskDescription}`;
+    }
+
+    // Forward events to renderer for progress updates
+    computerUseEngine.on('action', (data) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('computer-use-action', data);
+      }
+    });
+
+    computerUseEngine.on('iteration', (data) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('computer-use-iteration', data);
+      }
+    });
+
+    computerUseEngine.on('completed', (data) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('computer-use-completed', data);
+      }
+    });
+
+    computerUseEngine.on('error', (error) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('computer-use-error', { message: error.message });
+      }
+    });
+
+    // Run Computer Use session
+    const result = await computerUseEngine.run(taskDescription, {
+      maxIterations: config.maxIterations || 30,
+      sessionContext: session
+    });
+
+    // Clean up event listeners
+    computerUseEngine.removeAllListeners();
+
+    return result;
+  } catch (error) {
+    console.error('AI replay error:', error);
+    computerUseEngine.removeAllListeners();
+    return { success: false, error: error.message };
+  }
+});
+
+// Stop AI Computer Use session
+ipcMain.handle('stop-computer-use', async () => {
+  try {
+    computerUseEngine.stop();
+    return { success: true };
+  } catch (error) {
+    console.error('Stop computer use error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Get Computer Use status
+ipcMain.handle('get-computer-use-status', async () => {
+  return computerUseEngine.getStatus();
+});
+
+// Check Accessibility permission (required for input monitoring)
+ipcMain.handle('check-accessibility-permission', async () => {
+  if (process.platform === 'darwin') {
+    // On macOS, we need to check accessibility permissions
+    // The systemPreferences API doesn't have a direct method for this
+    // but we can check by trying to access input monitoring
+    try {
+      const { isTrusted } = require('node:process');
+      // Note: There's no direct API to check accessibility permission
+      // The app will prompt when nut.js tries to use input monitoring
+      return { granted: true, message: 'Accessibility permission check requires app to be trusted' };
+    } catch (error) {
+      return { granted: false, message: 'Please grant Accessibility permission in System Settings' };
+    }
+  }
+  return { granted: true };
+});
+
+// Open Accessibility settings
+ipcMain.handle('open-accessibility-settings', async () => {
+  if (process.platform === 'darwin') {
+    shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
+  }
+  return { success: true };
 });
 
 // App lifecycle
