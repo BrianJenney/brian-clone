@@ -245,6 +245,12 @@ ipcMain.handle('get-expanded-state', () => {
   return isExpanded;
 });
 
+ipcMain.handle('move-window', async (event, deltaX, deltaY) => {
+  const [currentX, currentY] = mainWindow.getPosition();
+  mainWindow.setPosition(currentX + deltaX, currentY + deltaY);
+  return { success: true };
+});
+
 ipcMain.handle('get-api-key', () => {
   return process.env.ANTHROPIC_API_KEY || '';
 });

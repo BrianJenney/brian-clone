@@ -1,5 +1,3 @@
-'use server';
-
 import { SystemMessage, type BaseMessage } from '@langchain/core/messages';
 import {
 	StateGraph,
@@ -20,25 +18,19 @@ import {
 } from '@/libs/tools/typeform';
 import { getLangSmithConfig } from '@/libs/langsmith';
 
-// ---------------------------------------------------------------------------
-// LLM
-// ---------------------------------------------------------------------------
 const llm = new ChatOpenAI({ model: 'gpt-4o' });
 
-// ---------------------------------------------------------------------------
-// State schema
-// ---------------------------------------------------------------------------
 const schema = z.object({
 	messages: z.custom<BaseMessage[]>().register(registry, MessagesZodMeta),
-	/** Natural language description the user provided */
+
 	formDescription: z.string(),
-	/** AI-generated form design, ready for human review */
+
 	formDesign: TypeformFormDesignSchema.optional(),
-	/** Human decision: true = approved, false = rejected, undefined = pending */
+
 	approved: z.boolean().optional(),
-	/** Optional feedback the human provides when rejecting */
+
 	feedback: z.string().optional(),
-	/** Final result after successful creation */
+
 	result: z
 		.object({
 			id: z.string(),
@@ -46,16 +38,12 @@ const schema = z.object({
 			editUrl: z.string(),
 		})
 		.optional(),
-	/** Human-readable status for the UI */
+
 	statusMessage: z.string().optional(),
 });
 
 type GraphState = z.infer<typeof schema>;
 
-// ---------------------------------------------------------------------------
-// Node: designForm
-// Asks the LLM to produce a structured Typeform design from the description.
-// ---------------------------------------------------------------------------
 const designForm = async (state: GraphState): Promise<Partial<GraphState>> => {
 	const SYSTEM_PROMPT = `
 You are an expert survey designer. Given a description of what the user wants,
@@ -85,14 +73,7 @@ ${state.formDescription}
 	};
 };
 
-// ---------------------------------------------------------------------------
-// Node: humanApproval
-// Interrupts the graph and surfaces the form design to the human.
-// The graph resumes when the caller passes a Command with { approved, feedback }.
-// ---------------------------------------------------------------------------
 const humanApproval = (state: GraphState): Partial<GraphState> => {
-	// interrupt() suspends the graph here.  The value passed to interrupt() is
-	// included in the interrupt payload that the caller can inspect.
 	const decision = interrupt<
 		{ formDesign: TypeformFormDesign; statusMessage: string },
 		{ approved: boolean; feedback?: string }
@@ -107,13 +88,7 @@ const humanApproval = (state: GraphState): Partial<GraphState> => {
 	};
 };
 
-// ---------------------------------------------------------------------------
-// Node: reviseForm
-// Incorporates human feedback and regenerates the form design.
-// ---------------------------------------------------------------------------
-const reviseForm = async (
-	state: GraphState
-): Promise<Partial<GraphState>> => {
+const reviseForm = async (state: GraphState): Promise<Partial<GraphState>> => {
 	const SYSTEM_PROMPT = `
 You are an expert survey designer. The human rejected the previous form design
 and provided feedback. Revise the design accordingly.
@@ -136,21 +111,16 @@ Produce an improved form design that addresses the feedback.
 
 	return {
 		formDesign: result as TypeformFormDesign,
-		approved: undefined, // reset so humanApproval runs again
+		approved: undefined,
 		feedback: undefined,
-		statusMessage: 'Form revised based on your feedback — please review again.',
+		statusMessage:
+			'Form revised based on your feedback — please review again.',
 	};
 };
 
-// ---------------------------------------------------------------------------
-// Node: createForm
-// Calls the Typeform API to publish the approved form.
-// ---------------------------------------------------------------------------
-const createForm = async (
-	state: GraphState
-): Promise<Partial<GraphState>> => {
+const createForm = async (state: GraphState): Promise<Partial<GraphState>> => {
 	const formResult = await createTypeformForm(
-		state.formDesign as TypeformFormDesign
+		state.formDesign as TypeformFormDesign,
 	);
 
 	return {
@@ -159,21 +129,13 @@ const createForm = async (
 	};
 };
 
-// ---------------------------------------------------------------------------
-// Conditional routing
-// ---------------------------------------------------------------------------
-const routeAfterApproval = (
-	state: GraphState
-): 'createForm' | 'reviseForm' => {
+const routeAfterApproval = (state: GraphState): 'createForm' | 'reviseForm' => {
 	return state.approved ? 'createForm' : 'reviseForm';
 };
 
-// ---------------------------------------------------------------------------
-// Graph assembly
-// ---------------------------------------------------------------------------
 const checkpointer = new MemorySaver();
 
-export const createTypeformGraph = new StateGraph(schema)
+export const createTypeformGraph = (new StateGraph(schema as any) as any)
 	.addNode('designForm', designForm)
 	.addNode('humanApproval', humanApproval)
 	.addNode('reviseForm', reviseForm)
@@ -181,33 +143,27 @@ export const createTypeformGraph = new StateGraph(schema)
 	.addEdge(START, 'designForm')
 	.addEdge('designForm', 'humanApproval')
 	.addConditionalEdges('humanApproval', routeAfterApproval)
-	.addEdge('reviseForm', 'humanApproval') // loop back until approved
+	.addEdge('reviseForm', 'humanApproval')
 	.addEdge('createForm', END)
 	.compile({ checkpointer });
 
-// ---------------------------------------------------------------------------
-// Public server actions
-// ---------------------------------------------------------------------------
-
-/**
- * Start a new form-creation run.
- * Returns the thread ID (to resume later) and the interrupt payload so the
- * caller can show the form design to the user.
- */
 export async function startTypeformCreation(
 	formDescription: string,
-	threadId: string
+	threadId: string,
 ): Promise<{
 	success: boolean;
 	threadId: string;
 	interrupted: boolean;
-	interruptPayload?: { formDesign: TypeformFormDesign; statusMessage: string };
+	interruptPayload?: {
+		formDesign: TypeformFormDesign;
+		statusMessage: string;
+	};
 	error?: string;
 }> {
 	try {
 		const checkpointConfig = { configurable: { thread_id: threadId } };
 
-		const result = await createTypeformGraph.invoke(
+		await createTypeformGraph.invoke(
 			{
 				messages: [],
 				formDescription,
@@ -217,12 +173,19 @@ export async function startTypeformCreation(
 				result: undefined,
 				statusMessage: undefined,
 			},
-			{ ...checkpointConfig, ...getLangSmithConfig('typeform-start', { formDescription, threadId }) }
+			{
+				...checkpointConfig,
+				...getLangSmithConfig('typeform-start', {
+					formDescription,
+					threadId,
+				}),
+			},
 		);
 
-		// Check whether the graph is waiting at an interrupt
 		const state = await createTypeformGraph.getState(checkpointConfig);
-		const interrupts = state.tasks.flatMap((t) => t.interrupts ?? []);
+		const interrupts = state.tasks.flatMap(
+			(t: { interrupts?: unknown[] }) => t.interrupts ?? [],
+		);
 
 		if (interrupts.length > 0) {
 			return {
@@ -236,7 +199,6 @@ export async function startTypeformCreation(
 			};
 		}
 
-		// Graph ran to completion without interruption (shouldn't happen normally)
 		return {
 			success: true,
 			threadId,
@@ -253,17 +215,17 @@ export async function startTypeformCreation(
 	}
 }
 
-/**
- * Resume a paused run with the human's decision (approve or reject + feedback).
- */
 export async function resumeTypeformCreation(
 	threadId: string,
 	approved: boolean,
-	feedback?: string
+	feedback?: string,
 ): Promise<{
 	success: boolean;
 	interrupted: boolean;
-	interruptPayload?: { formDesign: TypeformFormDesign; statusMessage: string };
+	interruptPayload?: {
+		formDesign: TypeformFormDesign;
+		statusMessage: string;
+	};
 	result?: { id: string; url: string; editUrl: string };
 	error?: string;
 }> {
@@ -272,14 +234,20 @@ export async function resumeTypeformCreation(
 
 		await createTypeformGraph.invoke(
 			new Command({ resume: { approved, feedback } }),
-			{ ...checkpointConfig, ...getLangSmithConfig('typeform-resume', { threadId, approved }) }
+			{
+				...checkpointConfig,
+				...getLangSmithConfig('typeform-resume', {
+					threadId,
+					approved,
+				}),
+			},
 		);
 
 		const state = await createTypeformGraph.getState(checkpointConfig);
-		const interrupts = state.tasks.flatMap((t) => t.interrupts ?? []);
+		const interrupts = state.tasks.flatMap(
+			(t: { interrupts?: unknown[] }) => t.interrupts ?? [],
+		);
 
-		// Still interrupted — probably because the human rejected and a revision
-		// was made, so we need another review round.
 		if (interrupts.length > 0) {
 			return {
 				success: true,
@@ -291,7 +259,6 @@ export async function resumeTypeformCreation(
 			};
 		}
 
-		// Completed
 		const finalState = state.values as GraphState;
 		return {
 			success: true,

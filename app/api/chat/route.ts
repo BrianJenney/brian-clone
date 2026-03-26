@@ -1,75 +1,50 @@
-import { HumanMessage, AIMessage } from '@langchain/core/messages';
-import { chatAgent } from '@/app/actions/chat-graph';
-import { getToolDisplayName } from '@/libs/tools/config';
-import { getLangSmithConfig } from '@/libs/langsmith';
+import { z } from 'zod';
+import { chatStream, type StreamEvent } from '@/app/actions/generate-content';
 
 /**
  * POST /api/chat
- * LangGraph ReAct agent with streaming tool-use events.
+ * Streaming LangGraph chat with reasoning support.
  *
  * Stream format (newline-delimited JSON):
- *   { type: "progress", message: "tool display name" }   — tool started
- *   { type: "text",     content: "token..."           }   — LLM token
- *   { type: "error",    message: "..."                }   — error
+ *   { type: "progress",  node: "...", message: "..." }  — node started
+ *   { type: "reasoning", content: "..." }               — model reasoning/thinking
+ *   { type: "text",      content: "..." }               — response token
+ *   { type: "interrupt", payload: {...} }               — typeform approval needed
+ *   { type: "error",     message: "..." }               — error
+ *   { type: "done" }                                    — stream complete
  */
 export async function POST(req: Request) {
-	const encoder = new TextEncoder();
-
 	try {
 		const body = await req.json();
-		const { messages } = body as {
-			messages: { role: 'user' | 'assistant'; content: string }[];
-		};
-
-		// The system prompt is managed by the agent via `prompt` — only pass conversation messages
-		const lgMessages = messages.map((m) =>
-			m.role === 'user' ? new HumanMessage(m.content) : new AIMessage(m.content),
-		);
+		const parsedBody = z
+			.object({
+				messages: z.array(
+					z.object({
+						role: z.enum(['user', 'assistant', 'system']),
+						content: z.string(),
+					}),
+				),
+				threadId: z.string().optional(),
+			})
+			.parse(body);
 
 		const stream = new ReadableStream({
 			async start(controller) {
-				const enqueue = (obj: object) =>
-					controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
+				const encoder = new TextEncoder();
 
 				try {
-					const lastUserMessage = messages.findLast((m) => m.role === 'user')?.content;
-					const eventStream = chatAgent.streamEvents(
-						{ messages: lgMessages },
-						{
-							version: 'v2',
-							...getLangSmithConfig('chat', { userMessage: lastUserMessage }),
-						},
-					);
-
-					for await (const event of eventStream) {
-						// Stream LLM tokens — restrict to the `agent` node so we don't
-						// accidentally emit tool-call generation chunks (those have no text content)
-						if (
-							event.event === 'on_chat_model_stream' &&
-							event.metadata?.langgraph_node === 'agent'
-						) {
-							const chunk = event.data?.chunk;
-							const content =
-								typeof chunk?.content === 'string' ? chunk.content : '';
-							if (content) {
-								enqueue({ type: 'text', content });
-							}
-						}
-
-						// Show tool progress indicator when a tool starts
-						if (event.event === 'on_tool_start') {
-							enqueue({
-								type: 'progress',
-								message: getToolDisplayName(event.name ?? ''),
-							});
-						}
+					for await (const event of chatStream(
+						parsedBody.messages,
+						parsedBody.threadId,
+					)) {
+						controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
 					}
 				} catch (error) {
-					console.error('LangGraph stream error:', error);
-					enqueue({
+					const errorEvent: StreamEvent = {
 						type: 'error',
 						message: error instanceof Error ? error.message : 'Unknown error',
-					});
+					};
+					controller.enqueue(encoder.encode(JSON.stringify(errorEvent) + '\n'));
 				} finally {
 					controller.close();
 				}
@@ -78,13 +53,18 @@ export async function POST(req: Request) {
 
 		return new Response(stream, {
 			headers: {
-				'Content-Type': 'application/json',
+				'Content-Type': 'application/x-ndjson; charset=utf-8',
 				'Cache-Control': 'no-cache',
 				Connection: 'keep-alive',
 			},
 		});
 	} catch (error) {
-		console.error('Error in chat API:', error);
-		return new Response('Internal server error', { status: 500 });
+		const message = error instanceof Error ? error.message : 'Unknown error';
+		return new Response(`${JSON.stringify({ type: 'error', message })}\n`, {
+			status: 400,
+			headers: {
+				'Content-Type': 'application/x-ndjson; charset=utf-8',
+			},
+		});
 	}
 }

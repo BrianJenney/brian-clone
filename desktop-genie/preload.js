@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('genie', {
   // Window management
   toggleExpand: (expand) => ipcRenderer.invoke('toggle-expand', expand),
   getExpandedState: () => ipcRenderer.invoke('get-expanded-state'),
+  moveWindow: (deltaX, deltaY) => ipcRenderer.invoke('move-window', deltaX, deltaY),
 
   // AI API - will be called from renderer
   // Note: API keys are loaded via IPC from the main process where dotenv runs

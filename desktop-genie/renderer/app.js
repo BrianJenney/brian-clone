@@ -2,6 +2,9 @@
 let isExpanded = false;
 let currentScreenshot = null;
 let isProcessing = false;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 
 // DOM Elements
 const collapsedEl = document.getElementById('genie-collapsed');
@@ -153,7 +156,11 @@ async function init() {
 	}
 
 	// Event listeners
-	collapsedEl.addEventListener('click', expand);
+	// Make collapsed view draggable
+	collapsedEl.addEventListener('mousedown', handleDragStart);
+	document.addEventListener('mousemove', handleDragMove);
+	document.addEventListener('mouseup', handleDragEnd);
+
 	collapseBtn.addEventListener('click', collapse);
 	captureBtn.addEventListener('click', captureScreen);
 	sendBtn.addEventListener('click', sendMessage);
@@ -307,6 +314,51 @@ function updateUI() {
 	} else {
 		collapsedEl.classList.remove('hidden');
 		expandedEl.classList.add('hidden');
+	}
+}
+
+function handleDragStart(e) {
+	// Only drag with left mouse button
+	if (e.button !== 0) return;
+
+	isDragging = true;
+	dragStartX = e.clientX;
+	dragStartY = e.clientY;
+	collapsedEl.style.cursor = 'grabbing';
+}
+
+function handleDragMove(e) {
+	if (!isDragging) return;
+
+	e.preventDefault();
+	const deltaX = e.clientX - dragStartX;
+	const deltaY = e.clientY - dragStartY;
+
+	// If moved more than 5px, consider it a drag (not a click)
+	if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+		// Send message to main process to move window
+		// We'll need to add an IPC handler for this
+		window.genie.moveWindow && window.genie.moveWindow(deltaX, deltaY);
+		dragStartX = e.clientX;
+		dragStartY = e.clientY;
+	}
+}
+
+function handleDragEnd(e) {
+	if (!isDragging) {
+		return;
+	}
+
+	const deltaX = e.clientX - dragStartX;
+	const deltaY = e.clientY - dragStartY;
+	const hasMoved = Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5;
+
+	isDragging = false;
+	collapsedEl.style.cursor = '';
+
+	// If didn't move much, treat it as a click to expand
+	if (!hasMoved) {
+		expand();
 	}
 }
 

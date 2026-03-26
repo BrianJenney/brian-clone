@@ -400,6 +400,7 @@ class ComputerUseEngine extends EventEmitter {
     }
 
     const maxIterations = options.maxIterations || 30;
+    const sessionContext = options.sessionContext;
     this.isRunning = true;
     this.shouldStop = false;
 
@@ -419,26 +420,86 @@ IMPORTANT GUIDELINES:
 
 Your task: ${taskDescription}`;
 
+      // Build initial context from session if available
+      let contextText = `Here's the current screen. Please complete this task: ${taskDescription}\n\n`;
+
+      if (sessionContext && sessionContext.events && sessionContext.events.length > 0) {
+        contextText += 'RECORDED SESSION CONTEXT:\n';
+        contextText += `This task was previously recorded with ${sessionContext.events.length} events. `;
+        contextText += 'Here are the key actions that were performed:\n\n';
+
+        // Summarize recorded events
+        const clicks = sessionContext.events.filter(e => e.type === 'mouse_click');
+        const keyPresses = sessionContext.events.filter(e => e.type === 'key_press');
+        const scrolls = sessionContext.events.filter(e => e.type === 'scroll');
+
+        if (clicks.length > 0) {
+          contextText += `- ${clicks.length} mouse click(s) at positions: `;
+          const clickPositions = clicks.slice(0, 5).map(c => `(${c.data.x}, ${c.data.y})`).join(', ');
+          contextText += clickPositions;
+          if (clicks.length > 5) contextText += `, and ${clicks.length - 5} more...`;
+          contextText += '\n';
+        }
+
+        if (keyPresses.length > 0) {
+          contextText += `- ${keyPresses.length} key press(es)\n`;
+        }
+
+        if (scrolls.length > 0) {
+          contextText += `- ${scrolls.length} scroll action(s)\n`;
+        }
+
+        contextText += '\nUse this context to understand what the task involves, then complete it on the current screen.\n\n';
+      }
+
+      contextText += 'Start by analyzing what you see, then take actions to complete the task.';
+
       // Take initial screenshot
       const initialScreenshot = await this.captureScreenshot();
+
+      // Build initial messages - include session screenshots if available
+      const initialContent = [];
+
+      // If session has initial screenshots, include them
+      if (sessionContext && sessionContext.events) {
+        const screenshotEvents = sessionContext.events.filter(e => e.type === 'screenshot' && e.data.screenshot);
+        if (screenshotEvents.length > 0) {
+          // Include the first screenshot from the session
+          const firstScreenshot = screenshotEvents[0];
+          initialContent.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: 'image/png',
+              data: firstScreenshot.data.screenshot
+            }
+          });
+          initialContent.push({
+            type: 'text',
+            text: 'This was the initial screen when the task was recorded.'
+          });
+        }
+      }
+
+      // Always include current screenshot
+      initialContent.push({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: 'image/png',
+          data: initialScreenshot
+        }
+      });
+
+      initialContent.push({
+        type: 'text',
+        text: contextText
+      });
 
       let messages = [
         {
           role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/png',
-                data: initialScreenshot
-              }
-            },
-            {
-              type: 'text',
-              text: `Here's the current screen. Please complete this task: ${taskDescription}\n\nStart by analyzing what you see, then take actions to complete the task.`
-            }
-          ]
+          content: initialContent
         }
       ];
 

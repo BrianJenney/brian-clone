@@ -1,5 +1,5 @@
-import { tool } from 'ai';
-import { z } from 'zod';
+import { tool } from '@langchain/core/tools';
+import { z } from 'zod/v4';
 
 const TYPEFORM_API_BASE = 'https://api.typeform.com';
 
@@ -19,14 +19,16 @@ export const TypeformFieldSchema = z.object({
 	]),
 	title: z.string().describe('The question/prompt shown to the respondent'),
 	ref: z.string().describe('A unique identifier for the field (snake_case)'),
-	required: z.boolean().optional().default(false),
+	required: z.boolean().default(false),
 	choices: z
 		.array(z.object({ label: z.string() }))
-		.optional()
+		.nullable()
+		.default(null)
 		.describe('Required for multiple_choice, dropdown, and ranking fields'),
 	steps: z
 		.number()
-		.optional()
+		.nullable()
+		.default(null)
 		.describe('Number of steps for rating/opinion_scale (1-10)'),
 });
 
@@ -38,15 +40,17 @@ export const TypeformFormDesignSchema = z.object({
 	welcome_screen: z
 		.object({
 			title: z.string(),
-			description: z.string().optional(),
+			description: z.string().nullable().default(null),
 		})
-		.optional(),
+		.nullable()
+		.default(null),
 	thankyou_screen: z
 		.object({
 			title: z.string(),
-			description: z.string().optional(),
+			description: z.string().nullable().default(null),
 		})
-		.optional(),
+		.nullable()
+		.default(null),
 });
 
 export type TypeformFormDesign = z.infer<typeof TypeformFormDesignSchema>;
@@ -77,7 +81,7 @@ export async function createTypeformForm(
 				base.properties = { choices: field.choices };
 			}
 
-			if (field.steps !== undefined) {
+			if (typeof field.steps === 'number') {
 				base.properties = { ...(base.properties as object), steps: field.steps };
 			}
 
@@ -133,22 +137,28 @@ export async function createTypeformForm(
 }
 
 /**
- * Vercel AI SDK tool — generates a Typeform form design (does NOT submit to API).
- * The actual API call happens after human approval in the LangGraph flow.
+ * LangChain tool — signals intent to create a Typeform.
+ * Returns the description and flags for human-in-the-loop approval.
+ * The actual form design and API call happen in the LangGraph subgraph.
  */
-export const designTypeformTool = tool({
-	description:
-		'Design a Typeform survey or form based on a natural language description. Returns a structured form design for human review before creation.',
-	inputSchema: z.object({
-		description: z
-			.string()
-			.describe(
-				'Natural language description of the form: its purpose, audience, and what information to collect.'
-			),
-	}),
-	execute: async (_args: { description: string }) => {
-		// The actual design generation happens in the LangGraph node (designForm).
-		// This tool entry exists so it can be referenced in agent configs if needed.
-		return { message: 'Use the createTypeform LangGraph action instead.' };
+export const createTypeformTool = tool(
+	async (args: { description: string }) => {
+		return {
+			description: args.description,
+			requiresApproval: true,
+			message: 'Form creation requires human approval. Initiating design workflow.',
+		};
 	},
-});
+	{
+		name: 'createTypeformTool',
+		description:
+			'Design and create a Typeform survey or form based on a description. This triggers a human-in-the-loop workflow where the user can review and approve the form design before creation.',
+		schema: z.object({
+			description: z
+				.string()
+				.describe(
+					'Natural language description of the form: its purpose, audience, and what information to collect.'
+				),
+		}),
+	}
+);

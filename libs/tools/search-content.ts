@@ -3,49 +3,83 @@ import { SearchContentToolSchema, ContentType } from '@/libs/schemas';
 import { qdrantClient } from '@/libs/qdrant';
 import { generateEmbedding } from '@/libs/openai';
 import { getCollectionName } from '@/libs/utils';
+import { rerank } from '@/libs/utils/rerank';
+
+const FETCH_LIMIT = 20;
+const RERANK_LIMIT = 5;
 
 /**
  * Search Writing Samples Tool
- * Searches through Brian's previous writing (transcripts, articles, posts) to match style and tone
+ * Fetches 20 candidates, re-ranks with LLM, returns top 5
  */
 export const searchWritingSamplesTool = tool(
-	async (args: { query: string; contentTypes?: ContentType[]; limit?: number }) => {
-		const { query, contentTypes, limit = 5 } = args;
+	async (args: {
+		query: string;
+		contentTypes?: ContentType[];
+		limit?: number;
+	}) => {
+		const { query, contentTypes, limit = RERANK_LIMIT } = args;
 		try {
 			const queryEmbedding = await generateEmbedding(query);
 
-			const collectionsToSearch = contentTypes || ['article', 'post', 'transcript'];
+			const collectionsToSearch: ContentType[] = contentTypes || [
+				'article',
+				'post',
+				'transcript',
+			];
 
-			const searchPromises = collectionsToSearch.map(async (contentType) => {
-				const collectionName = getCollectionName(contentType);
-				try {
-					const results = await qdrantClient.search(collectionName, {
-						vector: queryEmbedding,
-						limit,
-						with_payload: true,
-					});
+			const searchPromises = collectionsToSearch.map(
+				async (contentType) => {
+					console.log('contentType', contentType);
+					const collectionName = getCollectionName(contentType);
+					console.log('collectionName', collectionName);
+					try {
+						const results = await qdrantClient.search(
+							collectionName,
+							{
+								vector: queryEmbedding,
+								limit: FETCH_LIMIT,
+								with_payload: true,
+							},
+						);
 
-					return results.map((r) => ({
-						score: r.score,
-						text: r.payload?.text,
-						contentType,
-					}));
-				} catch (error) {
-					console.warn(`Error searching ${collectionName}:`, error);
-					return [];
-				}
-			});
+						return results.map((r) => {
+							const payload = r.payload as Record<string, any>;
+							return {
+								score: r.score,
+								text: String(payload?.text || ''),
+								contentType,
+								...(contentType === 'post'
+									? {
+											numImpressions:
+												payload?.numImpressions,
+										}
+									: {}),
+							};
+						});
+					} catch (error) {
+						console.warn(
+							`Error searching ${collectionName}:`,
+							error,
+						);
+						return [];
+					}
+				},
+			);
 
 			const allResults = await Promise.all(searchPromises);
 			const flatResults = allResults.flat();
 			flatResults.sort((a, b) => b.score - a.score);
 
-			const topResults = flatResults.slice(0, limit);
+			// Take top 20 candidates for re-ranking
+			const candidates = flatResults.slice(0, FETCH_LIMIT);
 
-			const formattedResults = topResults
+			const reranked = await rerank(query, candidates, limit);
+
+			const formattedResults = reranked
 				.map(
 					(result, index) =>
-						`Example ${index + 1} (${result.contentType}, score: ${result.score.toFixed(3)}):\n${result.text}`,
+						`Example ${index + 1} (${result.contentType}):\n${result.text}`,
 				)
 				.join('\n\n---\n\n');
 
