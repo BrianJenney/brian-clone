@@ -4,6 +4,7 @@ import { MessagesZodMeta } from '@langchain/langgraph';
 import type { BaseMessage } from '@langchain/core/messages';
 
 import { searchWritingSamplesTool } from '@/libs/tools/search-content';
+import { searchLinkedInPostsTool } from '@/libs/tools/search-linkedin';
 import { getBusinessContextTool } from '@/libs/tools/get-business-context';
 import { getRecentContentTool } from '@/libs/tools/get-recent-content';
 import { searchResourcesTool } from '@/libs/tools/search-resources';
@@ -16,6 +17,7 @@ import { createTypeformTool } from '@/libs/tools/typeform';
 
 export const AVAILABLE_TOOLS = [
 	'searchWritingSamples',
+	'searchLinkedInPosts',
 	'getBusinessContext',
 	'getRecentContent',
 	'searchResources',
@@ -30,6 +32,7 @@ export type ToolName = (typeof AVAILABLE_TOOLS)[number];
 /** Input types for each tool - derived keys from AVAILABLE_TOOLS */
 type ToolInputSchemas = {
 	searchWritingSamples: { query: string };
+	searchLinkedInPosts: { query: string };
 	getBusinessContext: Record<string, never>;
 	getRecentContent: Record<string, never>;
 	searchResources: { query: string };
@@ -48,6 +51,7 @@ export const TOOL_MAP: Record<
 	{ invoke: (input: any) => Promise<any> }
 > = {
 	searchWritingSamples: searchWritingSamplesTool,
+	searchLinkedInPosts: searchLinkedInPostsTool,
 	getBusinessContext: getBusinessContextTool,
 	getRecentContent: getRecentContentTool,
 	searchResources: searchResourcesTool,
@@ -79,6 +83,7 @@ When suggesting what to work on, be BRIEF:
 
 ## Available Tools
 - **searchWritingSamples**: Search Brian's previous articles, posts, and transcripts to match his writing style
+- **searchLinkedInPosts**: Search LinkedIn posts with natural language (time range, likes, topics) e.g. "top performing React posts from last month"
 - **getBusinessContext**: Retrieve business strategy and performance data
 - **getRecentContent**: Check recent LinkedIn posts, YouTube videos, and Medium articles to suggest what to work on
 - **searchResources**: Find learning resources, tutorials and lead magnets

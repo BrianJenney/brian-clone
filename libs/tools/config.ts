@@ -5,6 +5,7 @@
 
 export type ToolName =
 	| 'searchWritingSamplesTool'
+	| 'searchLinkedInPostsTool'
 	| 'getBusinessContextTool'
 	| 'getRecentContentTool'
 	| 'searchResourcesTool'
@@ -25,6 +26,12 @@ export const TOOL_CONFIG: Record<ToolName, ToolMetadata> = {
 		name: 'searchWritingSamplesTool',
 		displayName: 'searching writing samples',
 		description: `Search through Brian's writing samples`,
+	},
+	searchLinkedInPostsTool: {
+		name: 'searchLinkedInPostsTool',
+		displayName: 'searching LinkedIn posts',
+		description:
+			'Search LinkedIn posts with natural language filters for time range, likes, and topics',
 	},
 	getBusinessContextTool: {
 		name: 'getBusinessContextTool',

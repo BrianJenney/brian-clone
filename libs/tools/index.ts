@@ -4,6 +4,7 @@
  */
 
 export { searchWritingSamplesTool } from './search-content';
+export { searchLinkedInPostsTool } from './search-linkedin';
 export { getBusinessContextTool } from './get-business-context';
 export { getRecentContentTool } from './get-recent-content';
 export { searchResourcesTool } from './search-resources';
