@@ -1,0 +1,49 @@
+{
+  "name": "desktop-genie",
+  "version": "1.0.0",
+  "description": "AI-powered screen assistant that helps you understand and interact with your screen",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac"
+  },
+  "author": "Brian Jenney",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@qdrant/js-client-rest": "^1.15.1",
+    "dotenv": "^17.3.1",
+    "openai": "^6.27.0",
+    "uuid": "^13.0.0"
+  },
+  "build": {
+    "appId": "com.brianjenney.genie",
+    "productName": "Genie",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "extendInfo": {
+        "NSScreenCaptureDescription": "Genie needs screen recording permission to capture and analyze your screen content."
+      }
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "lib/**/*",
+      "assets/**/*"
+    ]
+  }
+}

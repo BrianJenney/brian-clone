@@ -5,11 +5,15 @@
 
 export type ToolName =
 	| 'searchWritingSamplesTool'
+	| 'searchLinkedInPostsTool'
 	| 'getBusinessContextTool'
+	| 'getRecentContentTool'
 	| 'searchResourcesTool'
 	| 'analyzeChannelTool'
 	| 'researchTopicTool'
-	| 'excalidrawerTool';
+	| 'excalidrawerTool'
+	| 'createTypeformTool'
+	| 'spotifySearchTool';
 
 export type ToolMetadata = {
 	name: ToolName;
@@ -23,15 +27,28 @@ export const TOOL_CONFIG: Record<ToolName, ToolMetadata> = {
 		displayName: 'searching writing samples',
 		description: `Search through Brian's writing samples`,
 	},
+	searchLinkedInPostsTool: {
+		name: 'searchLinkedInPostsTool',
+		displayName: 'searching LinkedIn posts',
+		description:
+			'Search LinkedIn posts with natural language filters for time range, likes, and topics',
+	},
 	getBusinessContextTool: {
 		name: 'getBusinessContextTool',
 		displayName: 'fetching business context',
-		description: 'Fetch business context and data',
+		description:
+			'Fetch business context, value propositions, content strategy, and podcast performance metrics',
+	},
+	getRecentContentTool: {
+		name: 'getRecentContentTool',
+		displayName: 'checking recent activity',
+		description:
+			'Fetch recent LinkedIn posts, YouTube videos, and Medium articles',
 	},
 	searchResourcesTool: {
 		name: 'searchResourcesTool',
 		displayName: 'searching resources',
-		description: 'Search learning resources',
+		description: 'Search learning resources and lead magnets',
 	},
 	analyzeChannelTool: {
 		name: 'analyzeChannelTool',
@@ -47,6 +64,16 @@ export const TOOL_CONFIG: Record<ToolName, ToolMetadata> = {
 		name: 'excalidrawerTool',
 		displayName: 'drawing diagrams',
 		description: 'Draw diagrams and flowcharts',
+	},
+	createTypeformTool: {
+		name: 'createTypeformTool',
+		displayName: 'creating Typeform',
+		description: 'Create a Typeform survey or form with human approval',
+	},
+	spotifySearchTool: {
+		name: 'spotifySearchTool',
+		displayName: 'searching Develop Yourself',
+		description: 'Search Spotify for Develop Yourself podcast and episodes',
 	},
 };
 

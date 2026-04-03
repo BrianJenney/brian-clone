@@ -51,14 +51,7 @@ def get_openai_client() -> OpenAI:
     if not api_key:
         logger.error("OPENAI_API_KEY environment variable not set")
         raise ValueError("OPENAI_API_KEY is required")
-    return OpenAI(
-        api_key=api_key,
-        base_url="https://oai.helicone.ai/v1",
-        default_headers={
-            "Helicone-Auth": f"Bearer {os.getenv('HELICONE_API_KEY')}",
-            "Helicone-Cache-Enabled": "true",
-        },
-    )
+    return OpenAI(api_key=api_key)
 
 
 def chunk_text_with_overlap(text: str, max_chunk_size: int = CHUNK_SIZE) -> list[dict]:

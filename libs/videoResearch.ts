@@ -19,7 +19,7 @@ export type TopicResearch = {
 
 export async function analyzeChannel(
 	channelId: string,
-	maxVideos: number = 10
+	maxVideos: number = 10,
 ): Promise<ChannelAnalysis> {
 	const videos = await fetchChannelVideos(channelId, maxVideos);
 
@@ -42,8 +42,8 @@ ${top3
 			`${i + 1}. "${
 				v.title
 			}" - ${v.viewCount.toLocaleString()} views, ${v.engagementRate.toFixed(
-				2
-			)}% engagement`
+				2,
+			)}% engagement`,
 	)
 	.join('\n')}`;
 
@@ -66,7 +66,7 @@ export async function researchTopic(query: string): Promise<TopicResearch> {
 		model: 'gpt-4o-mini',
 		input: `Generate 3 YouTube search queries for: "${query}"
 
-Focus on what's trending and popular.`,
+Focus on what's trending and popular. The current date is ${new Date().toISOString().split('T')[0]}.`,
 		text: {
 			format: zodTextFormat(QueriesSchema, 'queries'),
 		},
@@ -82,7 +82,7 @@ Focus on what's trending and popular.`,
 			} catch {
 				return { query: q, results: [] };
 			}
-		})
+		}),
 	);
 
 	const resultsText = searchResults

@@ -5,13 +5,12 @@
 This project uses a router → agents → summarizer pattern for intelligent request handling.
 
 **Flow:**
+
 1. Router (gpt-4o-mini) - Analyzes request, selects agents, creates refined query
 2. Agents (parallel, gpt-4o-mini) - Execute specialized tasks using tools
 3. Summarizer (gpt-5) - Combines agent responses into final answer
 
 **Agent Configuration:** See `libs/agents/config.ts` for available agents and their tools.
-
-**Endpoint:** `/api/chat-agents` - Experimental agent-based chat endpoint
 
 ## Structured Outputs with AI SDK
 
