@@ -2,11 +2,30 @@ import { z } from 'zod';
 import { timingSafeEqual } from 'crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { lookupLinkedInWriting } from '@/libs/mcp/lookupLinkedInWriting';
+import { lookupWriting, type WritingHit } from '@/libs/mcp/lookupWriting';
 import { getLeadMagnets } from '@/libs/mcp/getLeadMagnets';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+function formatHit(h: WritingHit, index: number): string {
+	const parts: (string | null)[] = [`#${index} [${h.source}]`];
+
+	if (h.source === 'post') {
+		if (h.numImpressions !== undefined)
+			parts.push(`impressions=${h.numImpressions}`);
+		if (h.numReactions !== undefined)
+			parts.push(`reactions=${h.numReactions}`);
+		if (h.createdAt) parts.push(`createdAt=${h.createdAt}`);
+	} else {
+		if (h.title) parts.push(`title="${h.title}"`);
+		if (h.author) parts.push(`author=${h.author}`);
+		if (h.date) parts.push(`date=${h.date}`);
+	}
+	if (h.sourceUrl) parts.push(`url=${h.sourceUrl}`);
+
+	return `${parts.filter(Boolean).join(' | ')}\n${h.text}`;
+}
 
 function unauthorized(): Response {
 	return new Response(
@@ -46,22 +65,28 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's LinkedIn writing and business lead magnets. Use `lookup_linkedin_writing` to find relevant LinkedIn posts (over-fetches and prefers posts with high impressions, falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets.",
+				"Tools for Brian's writing and business lead magnets. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets.",
 		},
 	);
 
 	server.registerTool(
-		'lookup_linkedin_writing',
+		'lookup_writing',
 		{
-			title: "Lookup Brian's LinkedIn writing",
+			title: "Lookup Brian's writing",
 			description:
-				"Semantic search over Brian's LinkedIn posts. Over-fetches candidates and prefers posts with higher impressions (default minImpressions=50). If no post clears that bar, returns the top 3 closest semantic matches.",
+				"Semantic search across Brian's articles, LinkedIn posts, and transcripts. An LLM router decides which collections are relevant to the query (override with `sources` if you know). LinkedIn posts are over-fetched and filtered to those with `numImpressions >= minImpressions` (default 50), falling back to the top 3 semantic matches if none qualify. Articles and transcripts return the top `topK` semantic matches.",
 			inputSchema: {
 				query: z
 					.string()
 					.min(1)
 					.describe(
-						'Natural language topic or excerpt to find similar LinkedIn posts for.',
+						'Natural language topic or excerpt to search for.',
+					),
+				sources: z
+					.array(z.enum(['article', 'post', 'transcript']))
+					.optional()
+					.describe(
+						'Optional override for which collections to search. Omit to let the router decide.',
 					),
 				minImpressions: z
 					.number()
@@ -69,7 +94,7 @@ function buildServer(): McpServer {
 					.nonnegative()
 					.optional()
 					.describe(
-						'Minimum impression count for filtering. Defaults to 50.',
+						'Minimum impressions for LinkedIn posts. Defaults to 50.',
 					),
 				topK: z
 					.number()
@@ -77,50 +102,41 @@ function buildServer(): McpServer {
 					.positive()
 					.max(25)
 					.optional()
-					.describe(
-						'Max high-impression matches to return. Defaults to 5.',
-					),
+					.describe('Max matches per source. Defaults to 5.'),
 			},
 		},
-		async ({ query, minImpressions, topK }) => {
-			const results = await lookupLinkedInWriting({
+		async ({ query, sources, minImpressions, topK }) => {
+			const response = await lookupWriting({
 				query,
+				sources,
 				minImpressions,
 				topK,
 			});
 
+			const header = `Searched: ${response.chosenSources.join(', ')}${
+				response.routerReasoning
+					? ` — ${response.routerReasoning}`
+					: ''
+			}`;
+
+			const body =
+				response.hits.length === 0
+					? 'No matching writing found.'
+					: response.hits
+							.map((h: WritingHit, i: number) =>
+								formatHit(h, i + 1),
+							)
+							.join('\n\n---\n\n');
+
 			return {
 				content: [
-					{
-						type: 'text' as const,
-						text:
-							results.length === 0
-								? 'No LinkedIn posts found.'
-								: results
-										.map((r, i) => {
-											const parts = [
-												`Post ${i + 1}`,
-												r.numImpressions !== undefined
-													? `impressions=${r.numImpressions}`
-													: null,
-												r.numReactions !== undefined
-													? `reactions=${r.numReactions}`
-													: null,
-												r.createdAt
-													? `createdAt=${r.createdAt}`
-													: null,
-												r.sourceUrl
-													? `url=${r.sourceUrl}`
-													: null,
-											]
-												.filter(Boolean)
-												.join(' | ');
-											return `${parts}\n${r.text}`;
-										})
-										.join('\n\n---\n\n'),
-					},
+					{ type: 'text' as const, text: `${header}\n\n${body}` },
 				],
-				structuredContent: { results },
+				structuredContent: {
+					chosenSources: response.chosenSources,
+					routerReasoning: response.routerReasoning,
+					hits: response.hits,
+				} as unknown as { [x: string]: unknown },
 			};
 		},
 	);
