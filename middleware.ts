@@ -32,7 +32,7 @@ async function verifySessionToken(token: string) {
 	}
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	// Allow access to login page, auth API routes, and MCP server
