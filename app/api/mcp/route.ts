@@ -66,7 +66,7 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's writing, business, and YouTube channel. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` to get analytics, recent videos, and top performers from Brian's YouTube channel.",
+				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` to get analytics from any YouTube channel — defaults to Brian's channel, but pass a handle like @owainlewis to analyze competitors.",
 		},
 	);
 
@@ -169,10 +169,16 @@ function buildServer(): McpServer {
 	server.registerTool(
 		'get_youtube_channel',
 		{
-			title: "Brian's YouTube channel analytics",
+			title: 'YouTube channel analytics',
 			description:
-				"Returns analytics and recent videos from Brian's YouTube channel. Includes subscriber count, total views, recent videos with performance metrics, top performers, and engagement trends. Use when asked about YouTube content, video performance, or channel analytics.",
+				"Returns analytics and recent videos from a YouTube channel. Includes subscriber count, total views, recent videos with performance metrics, top performers, and engagement trends. Defaults to Brian's channel. Pass a handle (e.g. @owainlewis) or channel ID to analyze competitors.",
 			inputSchema: {
+				channel: z
+					.string()
+					.optional()
+					.describe(
+						"YouTube channel handle (e.g. @owainlewis) or channel ID. Defaults to Brian's channel if not provided.",
+					),
 				maxVideos: z
 					.number()
 					.int()
@@ -182,8 +188,8 @@ function buildServer(): McpServer {
 					.describe('Max recent videos to fetch. Defaults to 12.'),
 			},
 		},
-		async ({ maxVideos }) => {
-			const data = await getYouTubeChannel(undefined, maxVideos ?? 12);
+		async ({ channel, maxVideos }) => {
+			const data = await getYouTubeChannel(channel, maxVideos ?? 12);
 
 			const summary = [
 				`Channel: ${data.stats.title}`,

@@ -127,6 +127,48 @@ export async function fetchChannelVideos(
 }
 
 /**
+ * Resolve a YouTube handle (@username) or channel ID to a channel ID
+ */
+export async function resolveChannelId(
+	handleOrId: string,
+	apiKey?: string
+): Promise<string> {
+	const key = apiKey || process.env.YOUTUBE_API_KEY;
+
+	if (!key) {
+		throw new Error('YouTube API key is required');
+	}
+
+	// If it looks like a channel ID (starts with UC), return as-is
+	if (handleOrId.startsWith('UC') && handleOrId.length === 24) {
+		return handleOrId;
+	}
+
+	// Strip @ if present
+	const handle = handleOrId.startsWith('@')
+		? handleOrId.slice(1)
+		: handleOrId;
+
+	// Look up by handle
+	const response = await fetch(
+		`https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${key}`
+	);
+
+	if (!response.ok) {
+		throw new Error(`Failed to resolve handle: ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	const channelId = data.items?.[0]?.id;
+
+	if (!channelId) {
+		throw new Error(`Could not find channel for handle: @${handle}`);
+	}
+
+	return channelId;
+}
+
+/**
  * Get channel statistics
  */
 export async function fetchChannelStats(

@@ -1,6 +1,7 @@
 import {
 	fetchChannelVideos,
 	fetchChannelStats,
+	resolveChannelId,
 	type YouTubeVideo,
 	type YouTubeChannelStats,
 } from '@/libs/youtube';
@@ -23,16 +24,19 @@ export type YouTubeChannelData = {
 const DEFAULT_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID;
 
 export async function getYouTubeChannel(
-	channelId?: string,
+	channelIdOrHandle?: string,
 	maxVideos: number = 12
 ): Promise<YouTubeChannelData> {
-	const id = channelId || DEFAULT_CHANNEL_ID;
+	const input = channelIdOrHandle || DEFAULT_CHANNEL_ID;
 
-	if (!id) {
+	if (!input) {
 		throw new Error(
-			'YouTube channel ID is required. Set YOUTUBE_CHANNEL_ID env var or pass channelId parameter.'
+			'YouTube channel ID or handle is required. Set YOUTUBE_CHANNEL_ID env var or pass channelId parameter.'
 		);
 	}
+
+	// Resolve handle to channel ID if needed
+	const id = await resolveChannelId(input);
 
 	// Fetch channel stats and videos in parallel
 	const [stats, videos] = await Promise.all([
