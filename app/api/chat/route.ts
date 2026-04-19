@@ -1,17 +1,17 @@
 import { z } from 'zod';
-import { chatStream, type StreamEvent } from '@/app/actions/generate-content';
+import { chatStream, type StreamEvent } from '@/app/actions/chat';
 
 /**
  * POST /api/chat
- * Streaming LangGraph chat with reasoning support.
+ * Streaming chat with native Claude tool-calling.
  *
  * Stream format (newline-delimited JSON):
- *   { type: "progress",  node: "...", message: "..." }  — node started
- *   { type: "reasoning", content: "..." }               — model reasoning/thinking
- *   { type: "text",      content: "..." }               — response token
- *   { type: "interrupt", payload: {...} }               — typeform approval needed
- *   { type: "error",     message: "..." }               — error
- *   { type: "done" }                                    — stream complete
+ *   { type: "progress",    message: "..." }        — tool being used
+ *   { type: "tool_use",    name: "...", input: {} } — tool invocation
+ *   { type: "tool_result", name: "...", result: "..." } — tool result
+ *   { type: "text",        content: "..." }        — response token
+ *   { type: "error",       message: "..." }        — error
+ *   { type: "done" }                               — stream complete
  */
 export async function POST(req: Request) {
 	try {
@@ -20,11 +20,10 @@ export async function POST(req: Request) {
 			.object({
 				messages: z.array(
 					z.object({
-						role: z.enum(['user', 'assistant', 'system']),
+						role: z.enum(['user', 'assistant']),
 						content: z.string(),
 					}),
 				),
-				threadId: z.string().optional(),
 			})
 			.parse(body);
 
@@ -33,10 +32,7 @@ export async function POST(req: Request) {
 				const encoder = new TextEncoder();
 
 				try {
-					for await (const event of chatStream(
-						parsedBody.messages,
-						parsedBody.threadId,
-					)) {
+					for await (const event of chatStream(parsedBody.messages)) {
 						controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
 					}
 				} catch (error) {

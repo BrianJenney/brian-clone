@@ -1,145 +1,105 @@
-import { SystemMessage, HumanMessage } from '@langchain/core/messages';
-import { Command } from '@langchain/langgraph';
-import { getLangSmithConfig } from '@/libs/langsmith';
-
-import { createTypeformGraph } from '../create-typeform';
-import type { TypeformFormDesign } from '@/libs/tools/typeform';
-
-import { chatGraph } from './graph';
+import type Anthropic from '@anthropic-ai/sdk';
+import { anthropic } from '@/libs/anthropic';
+import { CHAT_SYSTEM_PROMPT, TOOLS, type StreamEvent } from './types';
+import { executeTool } from './tools';
 import { chatStream } from './stream';
-import type { StreamEvent } from './types';
 
-// Re-export types and streaming (non-server-action)
-export type { StreamEvent, GraphState } from './types';
+export type { StreamEvent };
 export { chatStream };
+
+type Message = { role: 'user' | 'assistant'; content: string };
 
 /**
  * Non-streaming chat (server action)
  */
-export async function chat(
-	messages: { role: string; content: string }[],
-	threadId?: string,
-): Promise<{
+export async function chat(messages: Message[]): Promise<{
 	success: boolean;
 	response?: string;
-	interrupted?: boolean;
-	interruptPayload?: {
-		type: string;
-		threadId: string;
-		formDesign: TypeformFormDesign;
-		message: string;
-	};
 	error?: string;
 }> {
 	try {
-		const lgMessages = messages.map((m) =>
-			m.role === 'user'
-				? new HumanMessage(m.content)
-				: new SystemMessage(m.content),
-		);
+		const anthropicMessages: Anthropic.MessageParam[] = messages.map((m) => ({
+			role: m.role,
+			content: m.content,
+		}));
 
-		const config = {
-			configurable: { thread_id: threadId ?? `chat-${Date.now()}` },
-			...getLangSmithConfig('chat', {
-				messageCount: messages.length,
-				lastMessage: messages.at(-1)?.content,
-			}),
-		};
+		// Tool use loop
+		let response = await anthropic.messages.create({
+			model: 'claude-sonnet-4-20250514',
+			max_tokens: 4096,
+			system: CHAT_SYSTEM_PROMPT,
+			tools: TOOLS,
+			messages: anthropicMessages,
+		});
 
-		const result = await chatGraph.invoke({ messages: lgMessages }, config);
+		// Continue while Claude wants to use tools
+		while (response.stop_reason === 'tool_use') {
+			const toolUseBlocks = response.content.filter(
+				(block): block is Anthropic.ToolUseBlock => block.type === 'tool_use',
+			);
 
-		if (result.typeformState?.interrupted) {
-			const payload = JSON.parse(result.finalResponse ?? '{}');
-			return {
-				success: true,
-				interrupted: true,
-				interruptPayload: payload,
-			};
+			// Execute all tools
+			const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+				toolUseBlocks.map(async (block) => {
+					const result = await executeTool(
+						block.name,
+						block.input as Record<string, unknown>,
+					);
+					return {
+						type: 'tool_result' as const,
+						tool_use_id: block.id,
+						content: result,
+					};
+				}),
+			);
+
+			// Build assistant content
+			const assistantContent: Anthropic.ContentBlockParam[] = [];
+			for (const block of response.content) {
+				if (block.type === 'text') {
+					assistantContent.push({ type: 'text', text: block.text });
+				} else if (block.type === 'tool_use') {
+					assistantContent.push({
+						type: 'tool_use',
+						id: block.id,
+						name: block.name,
+						input: block.input as Record<string, unknown>,
+					});
+				}
+			}
+
+			// Add assistant message and tool results
+			anthropicMessages.push({
+				role: 'assistant',
+				content: assistantContent,
+			});
+
+			anthropicMessages.push({
+				role: 'user',
+				content: toolResults,
+			});
+
+			// Continue conversation
+			response = await anthropic.messages.create({
+				model: 'claude-sonnet-4-20250514',
+				max_tokens: 4096,
+				system: CHAT_SYSTEM_PROMPT,
+				tools: TOOLS,
+				messages: anthropicMessages,
+			});
 		}
+
+		// Extract final text response
+		const textBlock = response.content.find(
+			(block): block is Anthropic.TextBlock => block.type === 'text',
+		);
 
 		return {
 			success: true,
-			response: result.finalResponse,
+			response: textBlock?.text ?? '',
 		};
 	} catch (error) {
 		console.error('Chat error:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
-export async function resumeTypeformInChat(
-	typeformThreadId: string,
-	approved: boolean,
-	feedback?: string,
-): Promise<{
-	success: boolean;
-	response?: string;
-	interrupted?: boolean;
-	interruptPayload?: {
-		type: string;
-		threadId: string;
-		formDesign: TypeformFormDesign;
-		message: string;
-	};
-	error?: string;
-}> {
-	try {
-		const checkpointConfig = {
-			configurable: { thread_id: typeformThreadId },
-		};
-
-		await createTypeformGraph.invoke(
-			new Command({ resume: { approved, feedback } }),
-			{
-				...checkpointConfig,
-				...getLangSmithConfig('typeform-resume', {
-					typeformThreadId,
-					approved,
-				}),
-			},
-		);
-
-		const graphState = await createTypeformGraph.getState(checkpointConfig);
-		const interrupts = graphState.tasks.flatMap(
-			(t: { interrupts?: unknown[] }) => t.interrupts ?? [],
-		);
-
-		if (interrupts.length > 0) {
-			const payload = interrupts[0].value as {
-				formDesign: TypeformFormDesign;
-				statusMessage: string;
-			};
-			return {
-				success: true,
-				interrupted: true,
-				interruptPayload: {
-					type: 'typeform_approval',
-					threadId: typeformThreadId,
-					formDesign: payload.formDesign,
-					message: payload.statusMessage,
-				},
-			};
-		}
-
-		const finalState = graphState.values as {
-			result?: { id: string; url: string; editUrl: string };
-		};
-		if (finalState.result) {
-			return {
-				success: true,
-				response: `Form created successfully!\n\nView form: ${finalState.result.url}\nEdit form: ${finalState.result.editUrl}`,
-			};
-		}
-
-		return {
-			success: true,
-			response: 'Form creation completed.',
-		};
-	} catch (error) {
-		console.error('Resume typeform error:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',

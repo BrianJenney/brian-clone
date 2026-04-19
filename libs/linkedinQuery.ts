@@ -22,8 +22,16 @@ export const LinkedInQueryFiltersSchema = z.object({
 		.describe('Time range filter for createdAt field'),
 	likes: z
 		.object({
-			min: z.number().nullable().describe('Minimum number of likes'),
-			max: z.number().nullable().describe('Maximum number of likes'),
+			min: z
+				.number()
+				.nullable()
+				.describe('Minimum number of likes')
+				.default(20),
+			max: z
+				.number()
+				.describe('Maximum number of likes')
+				.nullable()
+				.default(Infinity),
 		})
 		.nullable()
 		.describe('Filter by numReactions (likes)'),
@@ -54,6 +62,9 @@ Examples:
 - "posts about React from last month" -> searchText: "React", timeRange: {start: "2024-02-01", end: "2024-02-29"}, likes: null
 - "top performing TypeScript posts" -> searchText: "TypeScript", likes: {min: 50, max: null}
 - "recent career advice posts with lots of engagement" -> searchText: "career advice", timeRange: {start: <7 days ago>, end: null}, likes: {min: 50, max: null}
+
+Max should be Infinity if not specified.
+Min should be 20 if not specified.
 
 Return valid JSON matching the schema.`;
 
@@ -87,48 +98,45 @@ export async function parseLinkedInQuery(
 }
 
 /**
+ * Convert date string to RFC3339 format for Qdrant datetime
+ */
+function toRFC3339(dateStr: string, isEnd = false): string {
+	if (dateStr.includes('T')) {
+		return dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
+	}
+	const time = isEnd ? 'T23:59:59Z' : 'T00:00:00Z';
+	return `${dateStr}${time}`;
+}
+
+/**
  * Build Qdrant filter conditions from parsed filters
  */
 function buildQdrantFilter(filters: LinkedInQueryFilters): Record<string, any> {
 	const must: any[] = [];
 
-	// Time range filter
 	if (filters.timeRange) {
+		const range: Record<string, string> = {};
 		if (filters.timeRange.start) {
-			must.push({
-				key: 'createdAt',
-				range: {
-					gte: filters.timeRange.start,
-				},
-			});
+			range.gte = toRFC3339(filters.timeRange.start, false);
 		}
 		if (filters.timeRange.end) {
-			must.push({
-				key: 'createdAt',
-				range: {
-					lte: filters.timeRange.end,
-				},
-			});
+			range.lte = toRFC3339(filters.timeRange.end, true);
+		}
+		if (Object.keys(range).length > 0) {
+			must.push({ key: 'createdAt', range });
 		}
 	}
 
-	// Likes filter
 	if (filters.likes) {
+		const range: Record<string, number> = {};
 		if (filters.likes.min !== null) {
-			must.push({
-				key: 'numReactions',
-				range: {
-					gte: filters.likes.min,
-				},
-			});
+			range.gte = filters.likes.min;
 		}
 		if (filters.likes.max !== null) {
-			must.push({
-				key: 'numReactions',
-				range: {
-					lte: filters.likes.max,
-				},
-			});
+			range.lte = filters.likes.max;
+		}
+		if (Object.keys(range).length > 0) {
+			must.push({ key: 'numReactions', range });
 		}
 	}
 
@@ -143,23 +151,25 @@ function buildQdrantFilter(filters: LinkedInQueryFilters): Record<string, any> {
  * Query LinkedIn posts with natural language - returns raw Qdrant results
  */
 export async function queryLinkedInPosts(naturalLanguageQuery: string) {
-	// Parse the natural language query into structured filters
 	const filters = await parseLinkedInQuery(naturalLanguageQuery);
 	console.log('Parsed filters:', JSON.stringify(filters, null, 2));
 
-	// Generate embedding for semantic search
 	const embedding = await generateEmbedding(filters.searchText);
 
-	// Build Qdrant filter
 	const filter = buildQdrantFilter(filters);
+	console.log('Qdrant filter:', JSON.stringify(filter, null, 2));
 
-	// Query Qdrant and return raw results
-	return qdrantClient.search(COLLECTIONS.POSTS, {
-		vector: embedding,
-		limit: filters.limit,
-		with_payload: true,
-		...(Object.keys(filter).length > 0 && { filter }),
-	});
+	try {
+		return await qdrantClient.search(COLLECTIONS.POSTS, {
+			vector: embedding,
+			limit: filters.limit,
+			with_payload: true,
+			...(Object.keys(filter).length > 0 && { filter }),
+		});
+	} catch (error: any) {
+		console.error('Qdrant error details:', error?.data || error);
+		throw error;
+	}
 }
 
 /**

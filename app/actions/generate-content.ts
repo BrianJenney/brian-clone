@@ -1,13 +1,12 @@
 /**
- * Chat module - LangGraph-based chat with tool execution
+ * Chat module - Native Claude tool-calling
  *
- * This file re-exports the chat functionality from the modular ./chat directory:
- * - types.ts: Types, schemas, constants
- * - nodes.ts: Graph node functions (classifyIntent, executeTools, etc.)
- * - graph.ts: Graph compilation and routing
+ * Re-exports chat functionality from ./chat directory:
+ * - types.ts: Tool definitions and types
+ * - tools.ts: Tool execution logic
  * - stream.ts: Streaming logic
- * - index.ts: Public API (chat, chatStream, resumeTypeformInChat)
+ * - index.ts: Public API (chat, chatStream)
  */
 
-export { chat, chatStream, resumeTypeformInChat } from './chat';
-export type { StreamEvent, GraphState } from './chat';
+export { chat, chatStream } from './chat';
+export type { StreamEvent } from './chat';

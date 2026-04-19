@@ -12,15 +12,27 @@ export const getBusinessContextTool = tool(
 		try {
 			const contextDir = path.join(process.cwd(), 'data', 'context');
 
-			const [overviewData, podcastData] = await Promise.all([
-				fs.readFile(path.join(contextDir, 'business-overview.json'), 'utf-8'),
-				fs.readFile(path.join(contextDir, 'podcast-performance.json'), 'utf-8'),
-			]);
+			const [overviewData, podcastData, podcastTopicsData] =
+				await Promise.all([
+					fs.readFile(
+						path.join(contextDir, 'business-overview.json'),
+						'utf-8',
+					),
+					fs.readFile(
+						path.join(contextDir, 'podcast-performance.json'),
+						'utf-8',
+					),
+					fs.readFile(
+						path.join(contextDir, 'podcast-topics.json'),
+						'utf-8',
+					),
+				]);
 
 			return JSON.stringify(
 				{
 					business_overview: JSON.parse(overviewData),
 					podcast_performance: JSON.parse(podcastData),
+					podcast_topics: podcastTopicsData,
 				},
 				null,
 				2,
