@@ -35,10 +35,11 @@ async function verifySessionToken(token: string) {
 export async function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
-	// Allow access to login page and auth API routes
+	// Allow access to login page, auth API routes, and MCP server
 	if (
 		pathname === '/login' ||
 		pathname.startsWith('/api/auth/') ||
+		pathname.startsWith('/api/mcp') ||
 		pathname.startsWith('/_next/') ||
 		pathname.startsWith('/favicon') ||
 		pathname.endsWith('.ico') ||
