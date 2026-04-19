@@ -60,6 +60,32 @@
 		]
 	},
 	{
+		"name": "5-Day AI Advisory Board",
+		"url": "https://www.parsity.io/5-day-ai-advisory-board",
+		"type": "lead_magnet",
+		"price": "Free",
+		"duration": "5 days",
+		"format": "Email course with hands-on project",
+		"description": "Free 5-day email course teaching AI engineering fundamentals (agents + RAG) through building an AI advisory board app that answers questions based on creator insights",
+		"philosophy": "Light on videos. Heavy on building.",
+		"curriculum": {
+			"day_1": "First LLM API call",
+			"day_2": "System prompts",
+			"day_3": "RAG with knowledge base",
+			"day_4": "Integration of real YouTube transcript data",
+			"day_5": "Review of finished product and possibilities"
+		},
+		"topics": [
+			"RAG (Retrieval-Augmented Generation)",
+			"AI Agents",
+			"System prompts",
+			"LLM API integration",
+			"Working with real data (YouTube transcripts)"
+		],
+		"target_audience": "Developers seeking practical AI knowledge without lengthy instructional content",
+		"upsell": "Converts to AIDev program or Parsity Bootcamp"
+	},
+	{
 		"title": "Form Challenge",
 		"url": "https://docs.google.com/document/d/1zC4wts9HVIxBVdAdGrbk32-JEAbQh-orMGCMZE3sKAI/edit",
 		"category": "javascript-fundamentals",
