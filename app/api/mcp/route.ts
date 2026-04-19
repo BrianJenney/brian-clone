@@ -5,6 +5,12 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { lookupWriting, type WritingHit } from '@/libs/mcp/lookupWriting';
 import { getLeadMagnets } from '@/libs/mcp/getLeadMagnets';
 import { getYouTubeChannel } from '@/libs/mcp/getYouTubeChannel';
+import {
+	getCompetitorChannel,
+	getAllCompetitors,
+	COMPETITORS,
+	type CompetitorKey,
+} from '@/libs/mcp/getCompetitorChannels';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -66,7 +72,7 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` to get analytics from any YouTube channel — defaults to Brian's channel, but pass a handle like @owainlewis to analyze competitors.",
+				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard).",
 		},
 	);
 
@@ -219,6 +225,91 @@ function buildServer(): McpServer {
 			return {
 				content: [{ type: 'text' as const, text: summary }],
 				structuredContent: data as unknown as { [x: string]: unknown },
+			};
+		},
+	);
+
+	server.registerTool(
+		'get_competitors',
+		{
+			title: 'Competitor YouTube analytics',
+			description:
+				'Returns YouTube analytics for tracked competitors: Owain Lewis (@owainlewis) and Louis-François Bouchard (@WhatsAI). Compare their performance, recent videos, and engagement to yours.',
+			inputSchema: {
+				competitor: z
+					.enum(['owainlewis', 'whatsai', 'all'])
+					.optional()
+					.describe(
+						'Which competitor to analyze. "owainlewis" for Owain Lewis, "whatsai" for Louis-François Bouchard, or "all" for both. Defaults to "all".',
+					),
+				maxVideos: z
+					.number()
+					.int()
+					.positive()
+					.max(20)
+					.optional()
+					.describe('Max recent videos per competitor. Defaults to 6.'),
+			},
+		},
+		async ({ competitor, maxVideos }) => {
+			const vids = maxVideos ?? 6;
+
+			if (!competitor || competitor === 'all') {
+				const results = await getAllCompetitors(vids);
+				const summaries = results.map((r) => {
+					const d = r.data;
+					return [
+						`## ${r.competitor.name} (${r.competitor.handle})`,
+						`Subscribers: ${d.stats.subscriberCount.toLocaleString()}`,
+						`Total Views: ${d.stats.totalViews.toLocaleString()}`,
+						`Avg Views/Video: ${d.analysis.averageViews.toLocaleString()}`,
+						`Avg Engagement: ${d.analysis.averageEngagement}%`,
+						'',
+						'Top Videos:',
+						...d.topPerformers.map(
+							(v, i) =>
+								`  ${i + 1}. "${v.title}" - ${v.viewCount.toLocaleString()} views`,
+						),
+					].join('\n');
+				});
+
+				return {
+					content: [
+						{ type: 'text' as const, text: summaries.join('\n\n---\n\n') },
+					],
+					structuredContent: results as unknown as { [x: string]: unknown },
+				};
+			}
+
+			const result = await getCompetitorChannel(
+				competitor as CompetitorKey,
+				vids,
+			);
+			const d = result.data;
+			const summary = [
+				`## ${result.competitor.name} (${result.competitor.handle})`,
+				`Subscribers: ${d.stats.subscriberCount.toLocaleString()}`,
+				`Total Views: ${d.stats.totalViews.toLocaleString()}`,
+				`Total Videos: ${d.stats.videoCount.toLocaleString()}`,
+				`Avg Views/Video: ${d.analysis.averageViews.toLocaleString()}`,
+				`Avg Engagement: ${d.analysis.averageEngagement}%`,
+				'',
+				'Top Performers:',
+				...d.topPerformers.map(
+					(v, i) =>
+						`  ${i + 1}. "${v.title}" - ${v.viewCount.toLocaleString()} views, ${v.engagementRate}% engagement`,
+				),
+				'',
+				'Recent Videos:',
+				...d.recentVideos.map(
+					(v, i) =>
+						`  ${i + 1}. "${v.title}" (${v.publishedAt}) - ${v.viewCount.toLocaleString()} views`,
+				),
+			].join('\n');
+
+			return {
+				content: [{ type: 'text' as const, text: summary }],
+				structuredContent: result as unknown as { [x: string]: unknown },
 			};
 		},
 	);
