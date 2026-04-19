@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { lookupWriting, type WritingHit } from '@/libs/mcp/lookupWriting';
 import { getLeadMagnets } from '@/libs/mcp/getLeadMagnets';
+import { getYouTubeChannel } from '@/libs/mcp/getYouTubeChannel';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -65,7 +66,7 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's writing and business lead magnets. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets.",
+				"Tools for Brian's writing, business, and YouTube channel. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` to get analytics, recent videos, and top performers from Brian's YouTube channel.",
 		},
 	);
 
@@ -161,6 +162,57 @@ function buildServer(): McpServer {
 				structuredContent: payload as unknown as {
 					[x: string]: unknown;
 				},
+			};
+		},
+	);
+
+	server.registerTool(
+		'get_youtube_channel',
+		{
+			title: "Brian's YouTube channel analytics",
+			description:
+				"Returns analytics and recent videos from Brian's YouTube channel. Includes subscriber count, total views, recent videos with performance metrics, top performers, and engagement trends. Use when asked about YouTube content, video performance, or channel analytics.",
+			inputSchema: {
+				maxVideos: z
+					.number()
+					.int()
+					.positive()
+					.max(50)
+					.optional()
+					.describe('Max recent videos to fetch. Defaults to 12.'),
+			},
+		},
+		async ({ maxVideos }) => {
+			const data = await getYouTubeChannel(undefined, maxVideos ?? 12);
+
+			const summary = [
+				`Channel: ${data.stats.title}`,
+				`Subscribers: ${data.stats.subscriberCount.toLocaleString()}`,
+				`Total Views: ${data.stats.totalViews.toLocaleString()}`,
+				`Total Videos: ${data.stats.videoCount.toLocaleString()}`,
+				'',
+				'--- Analysis ---',
+				`Average Views per Video: ${data.analysis.averageViews.toLocaleString()}`,
+				`Average Engagement Rate: ${data.analysis.averageEngagement}%`,
+				`Views Distribution: ${data.analysis.trends.viewsDistribution}`,
+				`Engagement Insights: ${data.analysis.trends.engagementInsights}`,
+				'',
+				'--- Top Performers ---',
+				...data.topPerformers.map(
+					(v, i) =>
+						`${i + 1}. "${v.title}" - ${v.viewCount.toLocaleString()} views, ${v.engagementRate}% engagement`,
+				),
+				'',
+				'--- Recent Videos ---',
+				...data.recentVideos.map(
+					(v, i) =>
+						`${i + 1}. "${v.title}" (${v.publishedAt}) - ${v.viewCount.toLocaleString()} views`,
+				),
+			].join('\n');
+
+			return {
+				content: [{ type: 'text' as const, text: summary }],
+				structuredContent: data as unknown as { [x: string]: unknown },
 			};
 		},
 	);

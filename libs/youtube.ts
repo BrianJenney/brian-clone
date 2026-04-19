@@ -18,6 +18,7 @@ export type YouTubeVideo = {
 
 export type YouTubeChannelStats = {
 	channelId: string;
+	title: string;
 	subscriberCount: number;
 	totalViews: number;
 	videoCount: number;
@@ -139,7 +140,7 @@ export async function fetchChannelStats(
 	}
 
 	const response = await fetch(
-		`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${key}`
+		`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${key}`
 	);
 
 	if (!response.ok) {
@@ -149,10 +150,13 @@ export async function fetchChannelStats(
 	}
 
 	const data = await response.json();
-	const stats = data.items[0]?.statistics;
+	const item = data.items[0];
+	const stats = item?.statistics;
+	const snippet = item?.snippet;
 
 	return {
 		channelId,
+		title: snippet?.title || 'Unknown Channel',
 		subscriberCount: Number.parseInt(stats?.subscriberCount || '0'),
 		totalViews: Number.parseInt(stats?.viewCount || '0'),
 		videoCount: Number.parseInt(stats?.videoCount || '0'),
