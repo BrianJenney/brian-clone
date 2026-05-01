@@ -9,6 +9,10 @@ export const COMPETITORS = {
 		name: 'Louis-François Bouchard',
 		handle: '@WhatsAI',
 	},
+	symonebtech: {
+		name: 'Symone B Tech',
+		handle: '@SymoneBTech',
+	},
 } as const;
 
 export type CompetitorKey = keyof typeof COMPETITORS;
