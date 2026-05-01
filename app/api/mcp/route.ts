@@ -8,7 +8,6 @@ import { getYouTubeChannel } from '@/libs/mcp/getYouTubeChannel';
 import {
 	getCompetitorChannel,
 	getAllCompetitors,
-	COMPETITORS,
 	type CompetitorKey,
 } from '@/libs/mcp/getCompetitorChannels';
 
@@ -121,9 +120,7 @@ function buildServer(): McpServer {
 			});
 
 			const header = `Searched: ${response.chosenSources.join(', ')}${
-				response.routerReasoning
-					? ` — ${response.routerReasoning}`
-					: ''
+				response.routerReasoning ? ` — ${response.routerReasoning}` : ''
 			}`;
 
 			const body =
@@ -248,7 +245,9 @@ function buildServer(): McpServer {
 					.positive()
 					.max(20)
 					.optional()
-					.describe('Max recent videos per competitor. Defaults to 6.'),
+					.describe(
+						'Max recent videos per competitor. Defaults to 6.',
+					),
 			},
 		},
 		async ({ competitor, maxVideos }) => {
@@ -275,9 +274,14 @@ function buildServer(): McpServer {
 
 				return {
 					content: [
-						{ type: 'text' as const, text: summaries.join('\n\n---\n\n') },
+						{
+							type: 'text' as const,
+							text: summaries.join('\n\n---\n\n'),
+						},
 					],
-					structuredContent: results as unknown as { [x: string]: unknown },
+					structuredContent: results as unknown as {
+						[x: string]: unknown;
+					},
 				};
 			}
 
@@ -309,7 +313,9 @@ function buildServer(): McpServer {
 
 			return {
 				content: [{ type: 'text' as const, text: summary }],
-				structuredContent: result as unknown as { [x: string]: unknown },
+				structuredContent: result as unknown as {
+					[x: string]: unknown;
+				},
 			};
 		},
 	);
@@ -335,7 +341,6 @@ async function handle(req: Request): Promise<Response> {
 		await server.close();
 	}
 }
-
 export async function GET(req: Request) {
 	return handle(req);
 }
