@@ -40,6 +40,9 @@ COLLECTION_NAME = "youtube-thumbnails"
 VOYAGE_EMBEDDING_MODEL = "voyage-multimodal-3"
 VOYAGE_EMBEDDING_DIMENSIONS = 1024
 
+# Tracked competitor channels - mirrors libs/mcp/getCompetitorChannels.ts
+DEFAULT_CHANNELS = ["@owainlewis", "@WhatsAI", "@SymoneBTech"]
+
 # Claude prompt for thumbnail analysis
 THUMBNAIL_ANALYSIS_PROMPT = """Analyze this YouTube thumbnail image and extract structured information.
 
@@ -771,16 +774,16 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.channels:
-        for channel in args.channels:
+    channels = args.channels
+    if not channels and not args.videos:
+        channels = DEFAULT_CHANNELS
+        logger.info(f"No --channels/--videos provided, using defaults: {channels}")
+
+    if channels:
+        for channel in channels:
             result = ingest_channel(channel, max_videos=args.max_videos)
             print(json.dumps(result, indent=2))
 
     if args.videos:
         result = ingest_videos(args.videos)
         print(json.dumps(result, indent=2))
-
-    if not args.channels and not args.videos:
-        print("Usage:")
-        print("  python thumbnails.py --channels @Fireship @t3dotgg")
-        print("  python thumbnails.py --videos dQw4w9WgXcQ abc123")

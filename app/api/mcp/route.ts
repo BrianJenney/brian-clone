@@ -71,7 +71,7 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard).",
+				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis, Louis-François Bouchard, and Symone B Tech).",
 		},
 	);
 
@@ -231,13 +231,13 @@ function buildServer(): McpServer {
 		{
 			title: 'Competitor YouTube analytics',
 			description:
-				'Returns YouTube analytics for tracked competitors: Owain Lewis (@owainlewis) and Louis-François Bouchard (@WhatsAI). Compare their performance, recent videos, and engagement to yours.',
+				'Returns YouTube analytics for tracked competitors: Owain Lewis (@owainlewis), Louis-François Bouchard (@WhatsAI), and Symone B Tech (@SymoneBTech). Compare their performance, recent videos, and engagement to yours.',
 			inputSchema: {
 				competitor: z
-					.enum(['owainlewis', 'whatsai', 'all'])
+					.enum(['owainlewis', 'whatsai', 'symonebtech', 'all'])
 					.optional()
 					.describe(
-						'Which competitor to analyze. "owainlewis" for Owain Lewis, "whatsai" for Louis-François Bouchard, or "all" for both. Defaults to "all".',
+						'Which competitor to analyze. "owainlewis" for Owain Lewis, "whatsai" for Louis-François Bouchard, "symonebtech" for Symone B Tech, or "all" for all of them. Defaults to "all".',
 					),
 				maxVideos: z
 					.number()
