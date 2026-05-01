@@ -1,3 +1,4 @@
+// Use Zod v3 for LangChain compatibility
 import { z } from 'zod';
 
 /**
