@@ -5,7 +5,7 @@
  */
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { WebStandardStreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 const MCP_URL = 'https://brian-clone-git-main-js-pros.vercel.app/api/mcp';
@@ -13,18 +13,20 @@ const AUTH_TOKEN = process.env.MCP_AUTH_TOKEN || '9eTQNY9Wu2jBk7L10G7IwlYx+k7MUF
 
 async function main() {
   // Create HTTP client transport to connect to remote server
-  const httpTransport = new WebStandardStreamableHTTPClientTransport({
-    url: MCP_URL,
-    fetch: (url, init) => {
-      return fetch(url, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          'Authorization': `Bearer ${AUTH_TOKEN}`,
-        },
-      });
-    },
-  });
+  const httpTransport = new StreamableHTTPClientTransport(
+    new URL(MCP_URL),
+    {
+      fetch: (url, init) => {
+        return fetch(url, {
+          ...init,
+          headers: {
+            ...init?.headers,
+            'Authorization': `Bearer ${AUTH_TOKEN}`,
+          },
+        });
+      },
+    }
+  );
 
   // Create client
   const client = new Client(
