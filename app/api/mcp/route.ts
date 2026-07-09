@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { timingSafeEqual } from 'crypto';
+import { traceable } from 'langsmith/traceable';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { lookupWriting, type WritingHit } from '@/libs/mcp/lookupWriting';
@@ -13,6 +14,30 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// LangSmith-traced wrappers. When LANGSMITH_TRACING=true each MCP tool call
+// becomes a run (nesting the wrapped OpenAI calls); otherwise these are
+// transparent passthroughs.
+const tracedLookupWriting = traceable(lookupWriting, {
+	name: 'lookup_writing',
+	run_type: 'tool',
+});
+const tracedGetLeadMagnets = traceable(getLeadMagnets, {
+	name: 'get_lead_magnets',
+	run_type: 'tool',
+});
+const tracedGetYouTubeChannel = traceable(getYouTubeChannel, {
+	name: 'get_youtube_channel',
+	run_type: 'tool',
+});
+const tracedGetCompetitorChannel = traceable(getCompetitorChannel, {
+	name: 'get_competitors',
+	run_type: 'tool',
+});
+const tracedGetAllCompetitors = traceable(getAllCompetitors, {
+	name: 'get_competitors_all',
+	run_type: 'tool',
+});
 
 function formatHit(h: WritingHit, index: number): string {
 	const parts: (string | null)[] = [`#${index} [${h.source}]`];
@@ -102,6 +127,32 @@ function buildServer(): McpServer {
 					.describe(
 						'Minimum impressions for LinkedIn posts. Defaults to 50.',
 					),
+				minReactions: z
+					.number()
+					.int()
+					.nonnegative()
+					.optional()
+					.describe(
+						'Minimum reactions for LinkedIn posts. Applied natively in Qdrant (posts only).',
+					),
+				dateFrom: z
+					.string()
+					.optional()
+					.describe(
+						'ISO datetime lower bound on a LinkedIn post’s createdAt (posts only), e.g. "2025-01-01T00:00:00Z".',
+					),
+				dateTo: z
+					.string()
+					.optional()
+					.describe(
+						'ISO datetime upper bound on a LinkedIn post’s createdAt (posts only).',
+					),
+				tags: z
+					.array(z.string())
+					.optional()
+					.describe(
+						'Restrict articles/transcripts to those tagged with any of these tags.',
+					),
 				topK: z
 					.number()
 					.int()
@@ -111,11 +162,24 @@ function buildServer(): McpServer {
 					.describe('Max matches per source. Defaults to 5.'),
 			},
 		},
-		async ({ query, sources, minImpressions, topK }) => {
-			const response = await lookupWriting({
+		async ({
+			query,
+			sources,
+			minImpressions,
+			minReactions,
+			dateFrom,
+			dateTo,
+			tags,
+			topK,
+		}) => {
+			const response = await tracedLookupWriting({
 				query,
 				sources,
 				minImpressions,
+				minReactions,
+				dateFrom,
+				dateTo,
+				tags,
 				topK,
 			});
 
@@ -154,7 +218,7 @@ function buildServer(): McpServer {
 			inputSchema: {},
 		},
 		async () => {
-			const payload = await getLeadMagnets();
+			const payload = await tracedGetLeadMagnets();
 			return {
 				content: [
 					{
@@ -192,7 +256,7 @@ function buildServer(): McpServer {
 			},
 		},
 		async ({ channel, maxVideos }) => {
-			const data = await getYouTubeChannel(channel, maxVideos ?? 12);
+			const data = await tracedGetYouTubeChannel(channel, maxVideos ?? 12);
 
 			const summary = [
 				`Channel: ${data.stats.title}`,
@@ -254,7 +318,7 @@ function buildServer(): McpServer {
 			const vids = maxVideos ?? 6;
 
 			if (!competitor || competitor === 'all') {
-				const results = await getAllCompetitors(vids);
+				const results = await tracedGetAllCompetitors(vids);
 				const summaries = results.map((r) => {
 					const d = r.data;
 					return [
@@ -285,7 +349,7 @@ function buildServer(): McpServer {
 				};
 			}
 
-			const result = await getCompetitorChannel(
+			const result = await tracedGetCompetitorChannel(
 				competitor as CompetitorKey,
 				vids,
 			);

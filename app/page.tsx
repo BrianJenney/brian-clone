@@ -3,12 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UploadForm from '@/components/UploadForm';
 import SearchDeleteUI from '@/components/SearchDeleteUI';
-import ChatInterface from '@/components/ChatInterface';
 
-type Tab = 'upload' | 'search' | 'chat';
+type Tab = 'upload' | 'search';
 
 export default function Home() {
-	const [activeTab, setActiveTab] = useState<Tab>('chat');
+	const [activeTab, setActiveTab] = useState<Tab>('search');
 	const router = useRouter();
 
 	const handleLogout = async () => {
@@ -33,16 +32,15 @@ export default function Home() {
 					{/* Tab Navigation */}
 					<div className='flex overflow-x-auto border-b border-[#2f2f2f] mb-3 sm:mb-4 -mx-3 sm:-mx-4 px-3 sm:px-4 shrink-0'>
 						<button
-							onClick={() => setActiveTab('chat')}
+							onClick={() => setActiveTab('search')}
 							className={`px-4 sm:px-6 py-3 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${
-								activeTab === 'chat'
+								activeTab === 'search'
 									? 'border-b-2 border-white text-white'
 									: 'text-[#8b8b8b] hover:text-white'
 							}`}
 						>
-							Chat
+							Search
 						</button>
-
 						<button
 							onClick={() => setActiveTab('upload')}
 							className={`px-4 sm:px-6 py-3 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${
@@ -53,23 +51,12 @@ export default function Home() {
 						>
 							Upload
 						</button>
-						<button
-							onClick={() => setActiveTab('search')}
-							className={`px-4 sm:px-6 py-3 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${
-								activeTab === 'search'
-									? 'border-b-2 border-white text-white'
-									: 'text-[#8b8b8b] hover:text-white'
-							}`}
-						>
-							Search
-						</button>
 					</div>
 
 					{/* Tab Content */}
 					<div className='flex-1 min-h-0 flex flex-col'>
-						{activeTab === 'chat' && <ChatInterface />}
-						{activeTab === 'upload' && <UploadForm />}
 						{activeTab === 'search' && <SearchDeleteUI />}
+						{activeTab === 'upload' && <UploadForm />}
 					</div>
 				</div>
 			</div>

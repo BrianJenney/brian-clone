@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/linkedin-posts", "schedule": "0 9 * * 1" }
+    { "path": "/api/linkedin-posts", "schedule": "0 9 * * 1" },
+    { "path": "/api/youtube-transcripts", "schedule": "0 10 * * 1" },
+    { "path": "/api/medium-posts", "schedule": "0 11 * * 1" }
   ],
   "functions": {
     "api/youtube-transcripts/index.py": {

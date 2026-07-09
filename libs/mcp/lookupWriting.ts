@@ -26,9 +26,54 @@ export type LookupWritingArgs = {
 	query: string;
 	sources?: WritingSource[];
 	minImpressions?: number;
+	/** Minimum LinkedIn reactions (posts only) — pushed to Qdrant as a native filter. */
+	minReactions?: number;
+	/** ISO datetime lower bound on post `createdAt` (posts only). */
+	dateFrom?: string;
+	/** ISO datetime upper bound on post `createdAt` (posts only). */
+	dateTo?: string;
+	/** Restrict articles/transcripts to those tagged with any of these. */
+	tags?: string[];
 	topK?: number;
 	overFetch?: number;
 };
+
+type MetadataFilters = Pick<
+	LookupWritingArgs,
+	'minReactions' | 'dateFrom' | 'dateTo' | 'tags'
+>;
+
+type QdrantFilter = { must: Array<Record<string, unknown>> };
+
+/**
+ * Builds a Qdrant payload filter scoped to fields that are actually indexed
+ * for the given source (see scripts/createQdrantIndexes.ts):
+ * - posts: `createdAt` (datetime) and `numReactions` (integer)
+ * - articles/transcripts: `tags` (keyword match, no index required)
+ * Returns undefined when no applicable filter is present.
+ */
+function buildFilter(
+	source: WritingSource,
+	{ minReactions, dateFrom, dateTo, tags }: MetadataFilters,
+): QdrantFilter | undefined {
+	const must: Array<Record<string, unknown>> = [];
+
+	if (source === 'post') {
+		if (dateFrom || dateTo) {
+			const range: Record<string, string> = {};
+			if (dateFrom) range.gte = dateFrom;
+			if (dateTo) range.lte = dateTo;
+			must.push({ key: 'createdAt', range });
+		}
+		if (typeof minReactions === 'number') {
+			must.push({ key: 'numReactions', range: { gte: minReactions } });
+		}
+	} else if (tags && tags.length > 0) {
+		must.push({ key: 'tags', match: { any: tags } });
+	}
+
+	return must.length > 0 ? { must } : undefined;
+}
 
 export type LookupWritingResponse = {
 	chosenSources: WritingSource[];
@@ -160,12 +205,14 @@ async function fetchSource(
 	source: WritingSource,
 	embedding: number[],
 	limit: number,
+	filter?: QdrantFilter,
 ): Promise<WritingHit[]> {
 	try {
 		const raw = await qdrantClient.search(COLLECTION_BY_SOURCE[source], {
 			vector: embedding,
 			limit,
 			with_payload: true,
+			...(filter ? { filter } : {}),
 		});
 		return raw.map((r) =>
 			mapPayload(
@@ -195,6 +242,10 @@ export async function lookupWriting(
 		query,
 		sources: requestedSources,
 		minImpressions = 50,
+		minReactions,
+		dateFrom,
+		dateTo,
+		tags,
 		topK = 5,
 		overFetch = 20,
 	} = args;
@@ -215,7 +266,13 @@ export async function lookupWriting(
 	const perSource = await Promise.all(
 		chosenSources.map((source) => {
 			const limit = source === 'post' ? overFetch : topK;
-			return fetchSource(source, embedding, limit);
+			const filter = buildFilter(source, {
+				minReactions,
+				dateFrom,
+				dateTo,
+				tags,
+			});
+			return fetchSource(source, embedding, limit, filter);
 		}),
 	);
 
