@@ -116,6 +116,34 @@ const CASES: EvalCase[] = [
     ],
   },
   {
+    name: "historical-window-2023",
+    description:
+      "Historical date window reaches normalized old posts (regression guard for the createdAt backfill)",
+    args: {
+      query: "programming and career",
+      sources: ["post"],
+      dateFrom: "2023-01-01T00:00:00.000Z",
+      dateTo: "2023-12-31T23:59:59.999Z",
+      topK: 5,
+    },
+    check: (hits, args) => [
+      ok(
+        "returned at least 1 hit from 2023",
+        hits.length > 0,
+        `${hits.length} hits`,
+      ),
+      all(
+        hits,
+        "all hits inside the 2023 window",
+        (h) =>
+          !!h.createdAt &&
+          Date.parse(h.createdAt) >= Date.parse(args.dateFrom!) &&
+          Date.parse(h.createdAt) <= Date.parse(args.dateTo!),
+        (h) => `createdAt=${h.createdAt}`,
+      ),
+    ],
+  },
+  {
     name: "impossible-window-negative-control",
     description:
       "Impossible date window must return 0 posts (proves date filter is applied)",
