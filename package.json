@@ -16,6 +16,7 @@
 		"start": "next start",
 		"lint": "biome check",
 		"format": "biome format --write",
+		"eval:filtering": "tsx evals/filtering.ts",
 		"upload-posts": "tsx scripts/uploadMediumPosts.ts",
 		"upload-linkedin": "tsx scripts/uploadLinkedInPosts.ts",
 		"prepare": "husky",
