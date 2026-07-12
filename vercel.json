@@ -9,8 +9,5 @@
     "api/youtube-transcripts/index.py": {
       "maxDuration": 60
     }
-  },
-  "protection": {
-    "bypassForPathPrefixes": ["/api/mcp"]
   }
 }
