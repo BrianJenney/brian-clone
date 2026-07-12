@@ -13,8 +13,6 @@
 		"scrape:youtube": "cd api/youtube-transcripts && ../../.venv/bin/python -c \"from index import sync_transcripts; import json; print(json.dumps(sync_transcripts(), indent=2))\"",
 		"thumbnails:channels": ".venv/bin/python api/youtube-transcripts/thumbnails.py --channels",
 		"thumbnails:videos": ".venv/bin/python api/youtube-transcripts/thumbnails.py --videos",
-		"leads:scrape": ".venv/bin/python api/lead-scraper/scrape_leads.py",
-		"leads:test": ".venv/bin/python api/lead-scraper/scrape_leads.py --limit 10",
 		"mcp:inspect": "mcp-inspector",
 		"build": "next build",
 		"start": "next start",
