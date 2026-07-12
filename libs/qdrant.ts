@@ -12,7 +12,6 @@ export const COLLECTIONS = {
 	ARTICLES: 'brian-articles',
 	POSTS: 'brian-posts',
 	TRANSCRIPTS: 'brian-transcripts',
-	THUMBNAILS: 'youtube-thumbnails',
 } as const;
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];

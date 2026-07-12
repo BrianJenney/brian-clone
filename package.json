@@ -11,8 +11,6 @@
 		"dev:next": "next dev",
 		"dev:py": ".venv/bin/python api/youtube-transcripts/index.py",
 		"scrape:youtube": "cd api/youtube-transcripts && ../../.venv/bin/python -c \"from index import sync_transcripts; import json; print(json.dumps(sync_transcripts(), indent=2))\"",
-		"thumbnails:channels": ".venv/bin/python api/youtube-transcripts/thumbnails.py --channels",
-		"thumbnails:videos": ".venv/bin/python api/youtube-transcripts/thumbnails.py --videos",
 		"mcp:inspect": "mcp-inspector",
 		"build": "next build",
 		"start": "next start",
@@ -24,7 +22,6 @@
 		"brian": "tsx bin/cli.ts"
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.82.0",
 		"@modelcontextprotocol/sdk": "^1.29.0",
 		"@qdrant/js-client-rest": "^1.15.1",
 		"@spotify/web-api-ts-sdk": "^1.2.0",
@@ -38,8 +35,7 @@
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"uuid": "^13.0.0",
-		"zod": "3",
-		"zod-to-json-schema": "^3.24.6"
+		"zod": "3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
