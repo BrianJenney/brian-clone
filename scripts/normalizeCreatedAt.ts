@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { COLLECTIONS, qdrantClient } from "../libs/qdrant";
+import { toRFC3339 } from "../libs/utils/datetime";
 
 /**
  * Normalizes LinkedIn post `createdAt` values to RFC3339 so Qdrant's datetime
@@ -17,15 +18,8 @@ import { COLLECTIONS, qdrantClient } from "../libs/qdrant";
 
 const RFC3339 =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
-const SPACE = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/;
 
 const APPLY = process.argv.includes("--apply");
-
-function normalize(v: string): string | null {
-  const m = v.match(SPACE);
-  if (!m) return null;
-  return `${m[1]}T${m[2]}Z`;
-}
 
 type Fix = { id: string | number; from: string; to: string };
 
@@ -54,7 +48,7 @@ async function main() {
         alreadyOk++;
         continue;
       }
-      const to = normalize(v);
+      const to = toRFC3339(v);
       if (to) fixes.push({ id: p.id, from: v, to });
       else unknown.push({ id: p.id, value: v });
     }
