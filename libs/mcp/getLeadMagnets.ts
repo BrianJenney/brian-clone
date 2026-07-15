@@ -32,7 +32,9 @@ export async function getLeadMagnets(): Promise<LeadMagnetsPayload> {
 		'learning-resources.json',
 	);
 	const raw = await fs.readFile(resourcesPath, 'utf-8');
-	const resources = JSON.parse(raw) as Array<LeadMagnet & { type?: string; title?: string }>;
+	const resources = JSON.parse(raw) as Array<
+		LeadMagnet & { type?: string; title?: string }
+	>;
 
 	// Return all resources as lead magnets, normalizing title/name
 	const lead_magnets = resources.map(({ type: _type, title, ...rest }) => ({

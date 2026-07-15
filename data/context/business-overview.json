@@ -94,12 +94,12 @@
 			]
 		},
 		{
-			"name": "AIDev",
+			"name": "AI Engineering",
 			"url": "https://www.parsity.io/ai-dev",
 			"type": "specialized_program",
-			"price": "$1,997 (or $399/month x 3) OR self-paced for $1,197",
+			"price": "$2,997 (or $399/month x 3) OR self-paced for $1,197",
 			"deposit": "$97 refundable",
-			"duration": "30 days (or self-paced)",
+			"duration": "45 days (or self-paced)",
 			"format": "Asynchronous lessons + 4 live group office hours + weekly guest speakers (or self-paced, asynchronous lessons)",
 			"cohort_size": "15 developers max",
 			"access_period": "90 days after program ends",
