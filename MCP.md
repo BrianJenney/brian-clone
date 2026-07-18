@@ -47,3 +47,21 @@ Point the Inspector URL at `https://brian-clone.vercel.app/api/mcp` instead
 
 > Note: `MCP_AUTH_TOKEN` must be set in the environment the Next.js server
 > runs in, or every request returns `401 Unauthorized`.
+
+## Connecting from claude.ai / Claude Desktop (OAuth)
+
+Claude Code and the Inspector use the static `MCP_AUTH_TOKEN` bearer above. The
+claude.ai web / Desktop **custom connector** UI only speaks OAuth, so the server
+also exposes a minimal, stateless OAuth 2.1 authorization server:
+
+- Discovery: `/.well-known/oauth-protected-resource` and
+  `/.well-known/oauth-authorization-server` (rewritten to `app/api/oauth/metadata/*`).
+- Endpoints: `/api/oauth/register` (dynamic client registration),
+  `/api/oauth/authorize` (password gate), `/api/oauth/token`.
+- Codes, access/refresh tokens, and `client_id`s are all HMAC-signed tokens —
+  no database. Signed with `AUTH_SECRET`; the authorize page is gated by
+  `AUTH_PASSWORD` (both already used by the site login). PKCE S256 required.
+
+To connect: add `https://brian-clone.vercel.app/api/mcp` as a custom connector.
+Claude runs the OAuth flow, opens the authorize page, you enter `AUTH_PASSWORD`,
+and it's connected. Rotate `AUTH_SECRET` to invalidate every issued token/client.
