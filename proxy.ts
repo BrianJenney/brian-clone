@@ -53,7 +53,8 @@ export async function proxy(request: NextRequest) {
 	// Allow Vercel cron requests (requires CRON_SECRET for security)
 	if (
 		pathname === '/api/linkedin-posts' ||
-		pathname === '/api/youtube-transcripts'
+		pathname === '/api/youtube-transcripts' ||
+		pathname === '/api/medium-posts'
 	) {
 		const authHeader = request.headers.get('authorization');
 		const cronSecret = process.env.CRON_SECRET;
