@@ -40,6 +40,8 @@ export async function proxy(request: NextRequest) {
 		pathname === '/login' ||
 		pathname.startsWith('/api/auth/') ||
 		pathname.startsWith('/api/mcp') ||
+		pathname.startsWith('/api/oauth/') ||
+		pathname.startsWith('/.well-known/oauth-') ||
 		pathname.startsWith('/_next/') ||
 		pathname.startsWith('/favicon') ||
 		pathname.endsWith('.ico') ||
