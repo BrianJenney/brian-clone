@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { timingSafeEqual } from "crypto";
+import { readFile } from "fs/promises";
+import { join } from "path";
 import { traceable } from "langsmith/traceable";
 import { z } from "zod";
 import {
@@ -100,7 +102,7 @@ function buildServer(): McpServer {
     {
       capabilities: { tools: {} },
       instructions:
-        "Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard).",
+        "Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_offer_stack` for the AI Engineering program's objection → solution map — call it together with `lookup_writing` for any writing task touching the AI program, since it supplies the reader's objections and Brian's credible claims while `lookup_writing` supplies voice and prior art. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard).",
     },
   );
 
@@ -109,7 +111,7 @@ function buildServer(): McpServer {
     {
       title: "Lookup Brian's writing",
       description:
-        "Semantic search across Brian's articles, LinkedIn posts, and transcripts. An LLM router decides which collections are relevant to the query (override with `sources` if you know). LinkedIn posts are over-fetched and filtered to those with `numImpressions >= minImpressions` (default 50), falling back to the top 3 semantic matches if none qualify. Articles and transcripts return the top `topK` semantic matches.",
+        "Semantic search across Brian's articles, LinkedIn posts, and transcripts. An LLM router decides which collections are relevant to the query (override with `sources` if you know). LinkedIn posts are over-fetched and filtered to those with `numImpressions >= minImpressions` (default 50), falling back to the top 3 semantic matches if none qualify. Articles and transcripts return the top `topK` semantic matches. When drafting anything (post, email, video script, landing copy), call `get_offer_stack` alongside this tool: this returns voice and prior art, `get_offer_stack` returns the objections to write against and the claims Brian can credibly make.",
       inputSchema: {
         query: z
           .string()
@@ -226,6 +228,23 @@ function buildServer(): McpServer {
           [x: string]: unknown;
         },
       };
+    },
+  );
+
+  server.registerTool(
+    "get_offer_stack",
+    {
+      title: "AI Engineering offer stack",
+      description:
+        "Returns the objection → solution map for the Parsity AI Engineering program (the 'grand slam offer' stack), plus the credibility story behind it. Call this for any writing task about the AI program — posts, emails, video scripts, sales and landing copy, content angles — not just direct objection handling: the objections are the reader's actual state of mind, so they are what the writing has to speak to. Pair with `lookup_writing` for voice and prior art.",
+      inputSchema: {},
+    },
+    async () => {
+      const text = await readFile(
+        join(process.cwd(), "data", "context", "offer-stack.md"),
+        "utf-8",
+      );
+      return { content: [{ type: "text" as const, text }] };
     },
   );
 

@@ -9,6 +9,7 @@ Tool implementations are in `libs/mcp/`.
 | --- | --- |
 | `lookup_writing` | Semantic search across Brian's articles, LinkedIn posts, and transcripts. An LLM router picks which collections to search. |
 | `get_lead_magnets` | Current business lead magnets. |
+| `get_offer_stack` | AI Engineering objection → solution map (`data/context/offer-stack.md`). |
 | `get_youtube_channel` | YouTube analytics for a channel (defaults to Brian's). |
 | `get_competitors` | Analytics for tracked competitors. |
 
