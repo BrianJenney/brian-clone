@@ -63,7 +63,7 @@ export async function researchTopic(query: string): Promise<TopicResearch> {
 	});
 
 	const queriesRes = await openai.responses.parse({
-		model: 'gpt-4o-mini',
+		model: 'gpt-5-mini',
 		input: `Generate 3 YouTube search queries for: "${query}"
 
 Focus on what's trending and popular. The current date is ${new Date().toISOString().split('T')[0]}.`,
@@ -100,7 +100,7 @@ Focus on what's trending and popular. The current date is ${new Date().toISOStri
 	});
 
 	const suggestionsRes = await openai.responses.parse({
-		model: 'gpt-4o',
+		model: 'gpt-5',
 		input: `You are a YouTube strategist. Topic: "${query}"
 
 Current trending content:

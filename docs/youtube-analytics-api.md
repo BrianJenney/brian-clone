@@ -183,9 +183,9 @@ console.log('Topic ideas:', data.topicIdeas);
    - Calculates engagement rate: (likes + comments) / views × 100
    - Identifies top 3 performers by view count
    - Analyzes view distribution (high/medium/low performers)
-3. **Generate Research Queries**: Uses GPT-4 to create 2-3 relevant search queries based on your top performers
+3. **Generate Research Queries**: Uses GPT-5 mini to create 2-3 relevant search queries based on your top performers
 4. **Research YouTube**: Uses Playwright to scrape YouTube search results for each query, filtering for videos uploaded in the last 3 months (5 results per query)
-5. **Generate Topics**: Uses GPT-4 to analyze all data and suggest 5-7 video topic ideas with rationale
+5. **Generate Topics**: Uses GPT-5 to analyze all data and suggest 5-7 video topic ideas with rationale
 
 ## Performance Considerations
 

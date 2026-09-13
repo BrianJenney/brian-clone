@@ -6,8 +6,8 @@ This project uses a router → agents → summarizer pattern for intelligent req
 
 **Flow:**
 
-1. Router (gpt-4o-mini) - Analyzes request, selects agents, creates refined query
-2. Agents (parallel, gpt-4o-mini) - Execute specialized tasks using tools
+1. Router (gpt-5-mini) - Analyzes request, selects agents, creates refined query
+2. Agents (parallel, gpt-5-mini) - Execute specialized tasks using tools
 3. Summarizer (gpt-5) - Combines agent responses into final answer
 
 **Agent Configuration:** See `libs/agents/config.ts` for available agents and their tools.
@@ -47,7 +47,7 @@ const responseSchema = z.object({
 });
 
 const result = await generateObject({
-	model: openai('gpt-4o'),
+	model: openai('gpt-5'),
 	schema: responseSchema,
 	prompt: 'Your prompt here',
 });
@@ -87,7 +87,7 @@ import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 const result = await streamText({
-	model: openai('gpt-4o'),
+	model: openai('gpt-5'),
 	system: 'Your system prompt',
 	messages: [...request.messages],
 	temperature: 0.7,

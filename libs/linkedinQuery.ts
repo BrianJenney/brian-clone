@@ -31,7 +31,7 @@ export const LinkedInQueryFiltersSchema = z.object({
 				.number()
 				.describe('Maximum number of likes')
 				.nullable()
-				.default(Infinity),
+				.default(null),
 		})
 		.nullable()
 		.describe('Filter by numReactions (likes)'),
@@ -63,7 +63,7 @@ Examples:
 - "top performing TypeScript posts" -> searchText: "TypeScript", likes: {min: 50, max: null}
 - "recent career advice posts with lots of engagement" -> searchText: "career advice", timeRange: {start: <7 days ago>, end: null}, likes: {min: 50, max: null}
 
-Max should be Infinity if not specified.
+Max should be null if not specified.
 Min should be 20 if not specified.
 
 Return valid JSON matching the schema.`;
@@ -75,8 +75,8 @@ export async function parseLinkedInQuery(
 	naturalLanguageQuery: string,
 ): Promise<LinkedInQueryFilters> {
 	const result = await openai.responses.parse({
-		model: 'gpt-4o-mini',
-		temperature: 0,
+		model: 'gpt-5-mini',
+		reasoning: { effort: 'low' },
 		input: [
 			{ role: 'system', content: SYSTEM_PROMPT },
 			{ role: 'user', content: naturalLanguageQuery },
@@ -132,7 +132,9 @@ function buildQdrantFilter(filters: LinkedInQueryFilters): Record<string, any> {
 		if (filters.likes.min !== null) {
 			range.gte = filters.likes.min;
 		}
-		if (filters.likes.max !== null) {
+		// A max below min is the model's way of saying "no upper bound" -
+		// treat it as unbounded rather than emitting an impossible range.
+		if (filters.likes.max !== null && filters.likes.max >= (filters.likes.min ?? 0)) {
 			range.lte = filters.likes.max;
 		}
 		if (Object.keys(range).length > 0) {

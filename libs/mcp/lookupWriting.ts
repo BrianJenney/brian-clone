@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { zodTextFormat } from 'openai/helpers/zod';
 import { qdrantClient, COLLECTIONS } from '@/libs/qdrant';
 import { openai, generateEmbedding } from '@/libs/openai';
+import { TRACKED_MEDIUM_AUTHORS } from '@/libs/trackedAuthors';
+
+const OTHER_AUTHORS = Object.keys(TRACKED_MEDIUM_AUTHORS);
 
 export type WritingSource = 'article' | 'post' | 'transcript';
 
@@ -43,13 +46,20 @@ type MetadataFilters = Pick<
 	'minReactions' | 'dateFrom' | 'dateTo' | 'tags'
 >;
 
-type QdrantFilter = { must: Array<Record<string, unknown>> };
+type QdrantFilter = {
+	must: Array<Record<string, unknown>>;
+	must_not?: Array<Record<string, unknown>>;
+};
 
 /**
  * Builds a Qdrant payload filter scoped to fields that are actually indexed
  * for the given source (see scripts/createQdrantIndexes.ts):
  * - posts: `createdAt` (datetime) and `numReactions` (integer)
  * - articles/transcripts: `tags` (keyword match, no index required)
+ *
+ * Articles also exclude tracked-other-authors' Medium posts by default -
+ * "Brian's writing" search should surface Brian's voice, not a competitor's,
+ * even though both share the `brian-articles` collection (see libs/trackedAuthors.ts).
  * Returns undefined when no applicable filter is present.
  */
 function buildFilter(
@@ -57,6 +67,7 @@ function buildFilter(
 	{ minReactions, dateFrom, dateTo, tags }: MetadataFilters,
 ): QdrantFilter | undefined {
 	const must: Array<Record<string, unknown>> = [];
+	const must_not: Array<Record<string, unknown>> = [];
 
 	if (source === 'post') {
 		if (dateFrom || dateTo) {
@@ -68,11 +79,20 @@ function buildFilter(
 		if (typeof minReactions === 'number') {
 			must.push({ key: 'numReactions', range: { gte: minReactions } });
 		}
-	} else if (tags && tags.length > 0) {
-		must.push({ key: 'tags', match: { any: tags } });
+	} else {
+		if (tags && tags.length > 0) {
+			must.push({ key: 'tags', match: { any: tags } });
+		}
+		if (source === 'article' && OTHER_AUTHORS.length > 0) {
+			must_not.push({ key: 'author', match: { any: OTHER_AUTHORS } });
+		}
 	}
 
-	return must.length > 0 ? { must } : undefined;
+	if (must.length === 0 && must_not.length === 0) return undefined;
+	return {
+		must,
+		...(must_not.length > 0 && { must_not }),
+	};
 }
 
 export type LookupWritingResponse = {
@@ -120,8 +140,8 @@ async function routeQuery(
 ): Promise<{ sources: WritingSource[]; reasoning: string }> {
 	try {
 		const result = await openai.responses.parse({
-			model: 'gpt-4o-mini',
-			temperature: 0,
+			model: 'gpt-5-mini',
+			reasoning: { effort: 'minimal' },
 			input: [
 				{ role: 'system', content: ROUTER_SYSTEM_PROMPT },
 				{ role: 'user', content: query },
