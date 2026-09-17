@@ -44,8 +44,12 @@ function validateParams(p: Record<string, string>): Response | null {
   const client = verify(p.client_id, "client");
   if (!client) return errorPage("Unknown or invalid client_id.");
   const uris = client.redirect_uris as string[] | undefined;
-  if (!Array.isArray(uris) || !uris.includes(p.redirect_uri))
-    return errorPage("redirect_uri is not registered for this client.");
+  const registered = Array.isArray(uris) && uris.find((uri) =>
+    uri === p.redirect_uri ||
+    uri.replace(/^http:\/\/127\.0\.0\.1:/, "http://localhost:") === p.redirect_uri
+  );
+  if (!registered) return errorPage("redirect_uri is not registered for this client.");
+  p.redirect_uri = registered;
   return null;
 }
 
