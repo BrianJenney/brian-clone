@@ -10,7 +10,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fetchBroll } from "../broll/pexels";
-import { FONTS_DIR } from "../config";
+import { FONTS_DIR, X264_PRESET } from "../config";
 import { ensureDir, exists, run } from "../lib/util";
 import type { Script, Segment } from "../schemas";
 import type { SegmentTiming } from "../voice/alignment";
@@ -99,9 +99,13 @@ async function renderSegment(
   let fit: "cover" | "contain" = "cover";
   const v = seg.visual;
   if (v.kind === "broll") {
-    visualFile = v.file
-      ? resolveFile(input.jobDir, v.file)
-      : await fetchBroll(v.query, dur).catch(() => null);
+    const given = v.file ? resolveFile(input.jobDir, v.file) : null;
+    if (given && !(await exists(given)))
+      warnings.push(`seg ${i + 1}: b-roll file ${v.file} not found`);
+    visualFile =
+      given && (await exists(given))
+        ? given
+        : await fetchBroll(v.query, dur).catch(() => null);
     if (!visualFile)
       warnings.push(
         `seg ${i + 1}: no b-roll for "${v.query}" (set PEXELS_API_KEY or visual.file) — used avatar`,
@@ -280,7 +284,7 @@ export async function compose(input: ComposeInput): Promise<ComposeResult> {
     "-c:v",
     "libx264",
     "-preset",
-    "medium",
+    X264_PRESET,
     "-crf",
     "18",
     "-profile:v",

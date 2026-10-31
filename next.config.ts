@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The video renderer shells out to a static FFmpeg build and reads fonts and
+  // the format library from disk; make sure Vercel bundles them with the
+  // functions that need them.
+  outputFileTracingIncludes: {
+    "/api/inngest": [
+      "./node_modules/ffmpeg-static/ffmpeg",
+      "./video/assets/fonts/**",
+      "./data/video/**",
+    ],
+    "/api/mcp": ["./data/video/**"],
+  },
   rewrites: async () => {
     const metadata = [
       ["oauth-authorization-server", "authorization-server"],

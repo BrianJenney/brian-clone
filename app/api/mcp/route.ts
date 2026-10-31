@@ -15,9 +15,12 @@ import { getRoundsRoles } from '@/libs/mcp/getRoundsRoles';
 import { getYouTubeChannel } from '@/libs/mcp/getYouTubeChannel';
 import { lookupWriting, type WritingHit } from '@/libs/mcp/lookupWriting';
 import { baseUrl, verify } from '@/libs/mcp/oauth';
+import { registerVideoTools, VIDEO_INSTRUCTIONS } from '@/libs/mcp/video';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+// video_write_script makes two LLM calls (~30-60s).
+export const maxDuration = 300;
 
 // LangSmith-traced wrappers. When LANGSMITH_TRACING=true each MCP tool call
 // becomes a run (nesting the wrapped OpenAI calls); otherwise these are
@@ -108,7 +111,8 @@ function buildServer(): McpServer {
 		{
 			capabilities: { tools: {} },
 			instructions:
-				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_offer_stack` for the AI Engineering program's objection → solution map — call it together with `lookup_writing` for any writing task touching the AI program, since it supplies the reader's objections and Brian's credible claims while `lookup_writing` supplies voice and prior art. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard).",
+				"Tools for Brian's writing, business, and YouTube analytics. Use `lookup_writing` to find relevant content across articles, LinkedIn posts, and transcripts — an internal router picks which collections to search, and LinkedIn posts are over-fetched and preferred by impressions (falls back to top 3). Use `get_lead_magnets` to retrieve Brian's current business lead magnets. Use `get_offer_stack` for the AI Engineering program's objection → solution map — call it together with `lookup_writing` for any writing task touching the AI program, since it supplies the reader's objections and Brian's credible claims while `lookup_writing` supplies voice and prior art. Use `get_youtube_channel` for Brian's YouTube analytics. Use `get_competitors` to analyze tracked competitors (Owain Lewis and Louis-François Bouchard)." +
+				VIDEO_INSTRUCTIONS,
 		},
 	);
 
@@ -446,6 +450,8 @@ function buildServer(): McpServer {
 			};
 		},
 	);
+
+	registerVideoTools(server);
 
 	return server;
 }

@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ffmpegEnv, ffmpegPath } from "../config";
 
 export async function ensureDir(dir: string) {
   await fs.mkdir(dir, { recursive: true });
@@ -109,7 +110,11 @@ export function run(
   { quiet = true } = {},
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const p = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
+    const isFfmpeg = cmd === "ffmpeg";
+    const p = spawn(isFfmpeg ? ffmpegPath() : cmd, args, {
+      stdio: ["ignore", "pipe", "pipe"],
+      env: isFfmpeg ? ffmpegEnv() : process.env,
+    });
     let out = "";
     let errOut = "";
     p.stdout.on("data", (d) => {
@@ -127,17 +132,23 @@ export function run(
   });
 }
 
-export async function probeDuration(file: string): Promise<number> {
-  const out = await run("ffprobe", [
-    "-v",
-    "error",
-    "-show_entries",
-    "format=duration",
-    "-of",
-    "default=nw=1:nk=1",
-    file,
-  ]);
-  return Number.parseFloat(out.trim());
+/** Media duration in seconds. Parses `ffmpeg -i` so we don't need ffprobe on Vercel. */
+export function probeDuration(file: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const p = spawn(ffmpegPath(), ["-hide_banner", "-i", file], {
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    let err = "";
+    p.stderr.on("data", (d) => {
+      err += d;
+    });
+    p.on("error", reject);
+    p.on("close", () => {
+      const m = err.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
+      if (!m) return reject(new Error(`Could not read duration of ${file}`));
+      resolve(Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]));
+    });
+  });
 }
 
 export function money(n: number) {

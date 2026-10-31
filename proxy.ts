@@ -40,6 +40,8 @@ export async function proxy(request: NextRequest) {
 		pathname === '/login' ||
 		pathname.startsWith('/api/auth/') ||
 		pathname.startsWith('/api/mcp') ||
+		// Inngest calls back here to run render steps; it verifies INNGEST_SIGNING_KEY itself.
+		pathname.startsWith('/api/inngest') ||
 		pathname.startsWith('/api/oauth/') ||
 		pathname.startsWith('/.well-known/oauth-') ||
 		pathname.startsWith('/_next/') ||

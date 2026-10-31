@@ -12,6 +12,33 @@ Tool implementations are in `libs/mcp/`.
 | `get_offer_stack` | AI Engineering objection → solution map (`data/context/offer-stack.md`). |
 | `get_youtube_channel` | YouTube analytics for a channel (defaults to Brian's). |
 | `get_competitors` | Analytics for tracked competitors. |
+| `video_list_formats` | Short-form format library (hooks, beats, visual plan). |
+| `video_write_script` | Draft a clone video script from a topic, grounded in Brian's writing. Creates a job. |
+| `video_update_script` | Edit any part of a draft script. |
+| `video_attach_media` | Use a screen recording / clip URL as a segment's visual. |
+| `video_render` | **Async.** Queue a `mock` (free) / `voice` (~$0.05) / `final` (~$2–3) render on Inngest. Paid modes need `maxCostUsd`. |
+| `video_get_job` | Script, render stage, video + cover links, cost. |
+| `video_list_jobs` | Every video job, newest first: how you find one from an earlier chat. |
+| `video_log_result` / `video_report` | Record post stats; clone vs real-face report. |
+
+### Video rendering: Inngest + Vercel Blob
+
+`video_render` doesn't render inside the MCP request. It sends a
+`video/render.requested` event to [Inngest](https://www.inngest.com), which
+calls `app/api/inngest/route.ts` once per step:
+voice → HeyGen submit → status checks (sleeping 30s between, no function held
+open) → FFmpeg composite. Each step writes progress into the job record in
+Vercel Blob, so `video_get_job` / `video_list_jobs` always know where a render
+is. Code: `video/inngest.ts`, `video/steps.ts`, tools in `libs/mcp/video.ts`.
+
+One-time setup on Vercel:
+1. **Storage → Blob → Create store**, connect it to this project (sets `BLOB_READ_WRITE_TOKEN`). Public access is the default; set `VIDEO_BLOB_ACCESS=private` if you made a private store.
+2. **Integrations → Inngest**, install for this project (sets `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY`, and syncs `/api/inngest` on each deploy).
+3. Add the vendor keys from `video/README.md` (`HEYGEN_*`, `ELEVENLABS_*`, optional `PEXELS_API_KEY`).
+4. Redeploy. `/api/inngest` is exempt from the site login in `proxy.ts`; Inngest authenticates with its signing key.
+
+Local: `yarn dev:next` + `yarn dev:inngest` (Inngest dev server UI at
+http://localhost:8288), with `INNGEST_DEV=1` in `.env`.
 
 ## Testing with the MCP Inspector
 

@@ -12,6 +12,22 @@ topic ─► script (format + your writing via Qdrant RAG) ─► review/approve
                                            log results ─► report (clone vs real, by format)
 ```
 
+## Using it from Claude (MCP)
+
+The video tools are on the existing Brian-Clone MCP server, so you never open another app. In any Claude chat:
+
+> "Write a contrarian short about not needing a vector DB for your first RAG app."
+> → `video_write_script` returns the script table and a job id. Ask for edits (`video_update_script`).
+> "Render a free preview." → `video_render` mode `mock`, then "is it done?" → `video_get_job` gives the video link.
+> "Looks good, do the final, up to $3." → `video_render` mode `final`, `maxCostUsd: 3`.
+> "What videos did I make last week?" → `video_list_jobs`.
+
+Renders run in the background on **Inngest** (a final takes ~3–10 min, mostly HeyGen). The tool call returns right away. Jobs and media live in **Vercel Blob**, so a video is always findable later with `video_list_jobs`, from any chat or from the CLI. Setup (Blob store + Inngest integration on Vercel) is in [MCP.md](../MCP.md#video-rendering-inngest--vercel-blob).
+
+For screen-recording beats, upload the clip somewhere with a direct link (Vercel Blob, S3, a Dropbox `?dl=1` link) and say "attach this to segment 4": `video_attach_media`.
+
+The trend engine (`trends:*`, `formats:mine`) stays CLI-only on purpose: it writes the format library into this repo (`data/video/`), so changes to the library get reviewed and committed like code.
+
 ## One-time setup
 
 ### 1. Film your digital twin in HeyGen (about 30 min, once)
@@ -49,6 +65,10 @@ OPENAI_API_KEY=
 QDRANT_URL=
 QDRANT_API_KEY=
 # VIDEO_LLM_MODEL=gpt-5
+
+# shared job store + async renders (needed for MCP; optional for CLI-only)
+BLOB_READ_WRITE_TOKEN=     # `vercel env pull` brings this down once the Blob store is connected
+INNGEST_DEV=1              # local only; on Vercel the Inngest integration sets INNGEST_EVENT_KEY / INNGEST_SIGNING_KEY
 
 # trend engine (≈ $47 for 25k calls at scrapecreators.com)
 SCRAPECREATORS_API_KEY=
@@ -90,9 +110,9 @@ yarn video log https://tiktok.com/@you/video/... --platform tiktok --views 15000
 yarn video report
 ```
 
-Each job folder (`out/video/<id>/`) has `script.md` for review, `job.json`, which you edit to change anything, and, after render, `final.mp4`, `cover.jpg`, `captions.ass`. Every step is cached: editing a card or b-roll only re-runs FFmpeg, and editing words re-runs voice + avatar. If a render gets interrupted, re-running resumes polling the same paid HeyGen job instead of paying again.
+`yarn video show <id>` prints the script, render status and links. Without `BLOB_READ_WRITE_TOKEN`, jobs live in `out/video/jobs/<id>/` (`job.json` is editable). With it, the CLI and MCP share the same jobs, and `render --remote` queues on Inngest instead of rendering on your machine. Every step is cached: editing a card or b-roll only re-runs FFmpeg, and editing words re-runs voice + avatar. If a render gets interrupted, re-running resumes polling the same paid HeyGen job instead of paying again.
 
-**Screen recordings:** if a script has a 🎥 SCREEN beat, record it and drop it in the job folder as `screen-N.mp4`, using the segment number shown in `script.md`. Missing recordings fall back to an avatar punch-in, so you can still render.
+**Screen recordings:** if a script has a 🎥 SCREEN beat, record it and drop it in the job folder as `screen-N.mp4` (local store), or attach a URL with `video_attach_media`, using the segment number shown in the script table. Missing recordings fall back to an avatar punch-in, so you can still render.
 
 ## How the edit hides avatar tells
 

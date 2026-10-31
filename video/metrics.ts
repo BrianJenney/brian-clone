@@ -4,11 +4,10 @@
  * report lives here: if clone retention < 80% of real after ~20 posts, stop
  * using the clone and keep the trend/script engine.
  */
-import path from "node:path";
-import { DATA_DIR } from "./config";
-import { appendJsonl, median, readJsonl } from "./lib/util";
+import { median } from "./lib/util";
+import { store } from "./store";
 
-export const RESULTS_PATH = path.join(DATA_DIR, "results.jsonl");
+const RESULTS_KEY = "results.json";
 
 export type Result = {
   jobId: string | null;
@@ -25,14 +24,14 @@ export type Result = {
 };
 
 export async function logResult(r: Omit<Result, "loggedAt">) {
-  await appendJsonl(RESULTS_PATH, [
-    { ...r, loggedAt: new Date().toISOString() },
-  ]);
+  const all = (await store().readJson<Result[]>(RESULTS_KEY)) ?? [];
+  all.push({ ...r, loggedAt: new Date().toISOString() });
+  await store().writeJson(RESULTS_KEY, all);
 }
 
 /** Latest entry per URL wins, so you can re-log as numbers grow. */
 export async function latestResults(): Promise<Result[]> {
-  const all = await readJsonl<Result>(RESULTS_PATH);
+  const all = (await store().readJson<Result[]>(RESULTS_KEY)) ?? [];
   return [...new Map(all.map((r) => [r.url, r])).values()];
 }
 

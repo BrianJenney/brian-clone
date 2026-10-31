@@ -3,18 +3,18 @@
  * yarn video <command>   — run `yarn video help` for the list.
  */
 import fs from "node:fs/promises";
-import path from "node:path";
 import { z } from "zod";
 import { heygenMe, listMyLooks } from "./avatar/heygen";
-import { env, OUT_DIR } from "./config";
+import { env } from "./config";
 import {
   createJob,
   estimateCost,
-  jobDir,
+  estimateRunCost,
   listJobs,
   loadJob,
-  renderJob,
+  type RenderMode,
   saveJob,
+  scriptMarkdown,
 } from "./jobs";
 import { llmParse } from "./lib/llm";
 import { money, readJson, readJsonl, run } from "./lib/util";
@@ -22,6 +22,9 @@ import { ANALYSES_PATH, loadFormats, mineFormats } from "./library/formats";
 import { logResult, report } from "./metrics";
 import type { ScoredPost, StoredAnalysis } from "./schemas";
 import { writeScript } from "./script/write";
+import { jobSummary, startRender } from "./service";
+import { runRenderLocal } from "./steps";
+import { store } from "./store";
 import {
   analyzeOutliers,
   discoverAccounts,
@@ -71,10 +74,12 @@ SCRIPTS
   approve <id...>                Mark drafts ready to render (spends money on render)
 
 RENDER
-  render <id> [--mock] [--mock-avatar] [--music file.mp3] [--label "AI clone"] [--max-cost 5]
+  render <id> [--mock | --mock-avatar] [--remote] [--music file.mp3] [--label "AI clone"] [--max-cost 5]
       --mock         free dry run: silent voice + placeholder avatar (layout/timing/captions)
       --mock-avatar  real ElevenLabs voice, placeholder avatar (cheap: hear it before HeyGen)
+      --remote       queue on Inngest instead of rendering on this machine
   render:approved [--yes] [--max-total 100]   Render every approved, unrendered job
+  show <id>                      Script, render status and links
   list                           All jobs with status + cost
 
 LEARN
@@ -114,6 +119,12 @@ async function main() {
       console.log(`${ok(env.scrapeKey)} SCRAPECREATORS_API_KEY (trend engine)`);
       console.log(
         `${ok(env.pexelsKey)} PEXELS_API_KEY (stock b-roll; optional)`,
+      );
+      console.log(
+        `${ok(process.env.BLOB_READ_WRITE_TOKEN)} BLOB_READ_WRITE_TOKEN (shared job store for MCP; without it jobs stay in out/video/jobs)`,
+      );
+      console.log(
+        `${ok(process.env.INNGEST_EVENT_KEY || process.env.INNGEST_DEV)} INNGEST_EVENT_KEY or INNGEST_DEV=1 (async renders from MCP / --remote)`,
       );
       if (env.heygenKey) {
         try {
@@ -277,9 +288,7 @@ ${
         hasScreenRecording: !!flags.screen,
       });
       const job = await createJob(script);
-      console.log(
-        await fs.readFile(path.join(jobDir(job.id), "script.md"), "utf8"),
-      );
+      console.log(scriptMarkdown(job));
       return;
     }
 
@@ -309,9 +318,7 @@ ${
           console.log(`✗ ${topic}: ${(e as Error).message}`);
         }
       }
-      console.log(
-        `\nReview the script.md files under ${OUT_DIR}, then approve <id...>`,
-      );
+      console.log("\nReview with `yarn video show <id>`, then approve <id...>");
       return;
     }
 
@@ -330,24 +337,46 @@ ${
 
     case "render": {
       const id = positional[0];
-      if (!id) throw new Error("Usage: render <id> [--mock|--mock-avatar]");
-      const job = await renderJob(id, {
-        mock: !!flags.mock,
-        mockAvatarOnly: !!flags["mock-avatar"],
+      if (!id)
+        throw new Error("Usage: render <id> [--mock|--mock-avatar] [--remote]");
+      const mode: RenderMode = flags.mock
+        ? "mock"
+        : flags["mock-avatar"]
+          ? "voice"
+          : "final";
+      const job = await loadJob(id);
+      const cost = estimateRunCost(job, mode);
+      if (mode === "final" && job.status === "draft")
+        throw new Error(
+          `Job ${id} is a draft. Review it (yarn video show ${id}), then: yarn video approve ${id}`,
+        );
+      const cap = num("max-cost");
+      if (cap !== undefined && cost > cap)
+        throw new Error(
+          `Estimated ${money(cost)} exceeds --max-cost ${money(cap)}`,
+        );
+      if (flags.remote) {
+        await startRender(id, mode, { maxCostUsd: cost, label: flag("label") });
+        console.log(
+          `Queued ${mode} render on Inngest (est. ${money(cost)}). Check: yarn video show ${id}`,
+        );
+        return;
+      }
+      const r = await runRenderLocal(id, mode, {
         music: flag("music") ?? null,
         label: flag("label"),
-        maxCost: num("max-cost"),
       });
-      for (const w of job.render?.warnings ?? []) console.log(`  ⚠ ${w}`);
+      for (const w of r.warnings) console.log(`  ⚠ ${w}`);
+      const after = await loadJob(id);
       console.log(
-        `\n✓ ${job.render?.path}\n  cover: ${job.render?.cover}\n  spent so far on this job: ${money(job.costUsd)}`,
+        `\n✓ ${r.video}\n  cover: ${r.cover}\n  spent so far on this job: ${money(after.costUsd)}`,
       );
       return;
     }
 
     case "render:approved": {
       const todo = (await listJobs()).filter((j) => j.status === "approved");
-      const total = todo.reduce((n, j) => n + estimateCost(j.script).total, 0);
+      const total = todo.reduce((n, j) => n + estimateRunCost(j, "final"), 0);
       console.log(`${todo.length} approved job(s), est. ${money(total)}`);
       const cap = num("max-total") ?? 100;
       if (total > cap)
@@ -361,14 +390,27 @@ ${
       for (const j of todo) {
         console.log(`\n▶ ${j.id}`);
         try {
-          await renderJob(j.id, {
-            music: flag("music") ?? null,
-            label: flag("label"),
-          });
+          if (flags.remote)
+            await startRender(j.id, "final", {
+              maxCostUsd: total,
+              label: flag("label"),
+            });
+          else
+            await runRenderLocal(j.id, "final", {
+              music: flag("music") ?? null,
+              label: flag("label"),
+            });
         } catch (e) {
           console.log(`  ✗ ${(e as Error).message}`);
         }
       }
+      return;
+    }
+
+    case "show": {
+      const id = positional[0];
+      if (!id) throw new Error("Usage: show <id>");
+      console.log(jobSummary(await loadJob(id)));
       return;
     }
 
@@ -377,11 +419,14 @@ ${
       let spent = 0;
       for (const j of jobs) {
         spent += j.costUsd;
+        const run = j.run ? `${j.run.mode}:${j.run.stage}` : "";
         console.log(
-          `${j.status.padEnd(9)} ${j.id.padEnd(58)} ${money(j.costUsd).padStart(7)}  ${j.script.formatId}`,
+          `${j.status.padEnd(9)} ${run.padEnd(18)} ${j.id.padEnd(58)} ${money(j.costUsd).padStart(7)}  ${j.script.formatId}`,
         );
       }
-      console.log(`\n${jobs.length} jobs, ${money(spent)} spent`);
+      console.log(
+        `\n${jobs.length} jobs, ${money(spent)} spent (store: ${store().kind})`,
+      );
       return;
     }
 

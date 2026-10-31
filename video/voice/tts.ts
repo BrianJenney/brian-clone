@@ -27,7 +27,7 @@ export async function elevenLabsTTS(
     audio_base64: string;
     alignment: CharAlignment;
   }>(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`,
+    `${process.env.ELEVENLABS_API_BASE ?? "https://api.elevenlabs.io"}/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`,
     {
       method: "POST",
       headers: { "xi-api-key": key, "Content-Type": "application/json" },

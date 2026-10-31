@@ -5,9 +5,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { env, type HeygenEngine, requireEnv } from "../config";
-import { download, fetchJson, probeDuration, run, sleep } from "../lib/util";
+import { fetchJson, probeDuration, run } from "../lib/util";
 
-const BASE = "https://api.heygen.com";
+// Overridable for testing against a local fake.
+const BASE = process.env.HEYGEN_API_BASE ?? "https://api.heygen.com";
 
 function headers(json = true): Record<string, string> {
   const key = requireEnv(env.heygenKey, "HEYGEN_API_KEY");
@@ -95,82 +96,53 @@ export async function heygenStatus(videoId: string) {
   ).data;
 }
 
-/**
- * Submit (or resume) a render. Pass `existingVideoId` to resume polling a render
- * that was already paid for, e.g. after the CLI was interrupted.
- */
-export async function heygenRender(
+/** Upload narration and start a lip-sync render. Returns HeyGen's video id. */
+export async function heygenSubmit(
   audioPath: string,
-  outDir: string,
   {
     avatarId = env.heygenAvatarId,
     engine = env.heygenEngine,
-    existingVideoId,
-    onSubmitted,
     title,
-  }: {
-    avatarId?: string;
-    engine?: HeygenEngine;
-    existingVideoId?: string | null;
-    onSubmitted?: (videoId: string) => Promise<void>;
-    title?: string;
-  } = {},
-): Promise<AvatarResult> {
+  }: { avatarId?: string; engine?: HeygenEngine; title?: string } = {},
+): Promise<string> {
   const look = requireEnv(avatarId, "HEYGEN_AVATAR_ID");
-  let videoId = existingVideoId ?? null;
+  const assetId = await uploadAudio(audioPath);
+  const body: Record<string, unknown> = {
+    type: "avatar",
+    avatar_id: look,
+    audio_asset_id: assetId,
+    aspect_ratio: "9:16",
+    resolution: "1080p",
+    fit: "cover",
+    title: title ?? "brian-clone short",
+  };
+  // Omitting engine = Avatar IV. Only send it when asking for something else.
+  if (engine && engine !== "avatar_iv") body.engine = { type: engine };
+  const res = await fetchJson<{ data: { video_id: string } }>(
+    `${BASE}/v3/videos`,
+    { method: "POST", headers: headers(), body: JSON.stringify(body) },
+  );
+  return res.data.video_id;
+}
 
-  if (!videoId) {
-    const assetId = await uploadAudio(audioPath);
-    const body: Record<string, unknown> = {
-      type: "avatar",
-      avatar_id: look,
-      audio_asset_id: assetId,
-      aspect_ratio: "9:16",
-      resolution: "1080p",
-      fit: "cover",
-      title: title ?? path.basename(outDir),
+export type HeygenCheck =
+  | { state: "pending"; status: string }
+  | { state: "done"; videoUrl: string; durationSec: number | null };
+
+/** One status check. Throws if HeyGen reports the render failed. */
+export async function heygenCheck(videoId: string): Promise<HeygenCheck> {
+  const s = await heygenStatus(videoId);
+  if (s.status === "completed" && s.video_url)
+    return {
+      state: "done",
+      videoUrl: s.video_url,
+      durationSec: s.duration ?? null,
     };
-    // Omitting engine = Avatar IV. Only send it when asking for something else.
-    if (engine && engine !== "avatar_iv") body.engine = { type: engine };
-    const res = await fetchJson<{ data: { video_id: string } }>(
-      `${BASE}/v3/videos`,
-      {
-        method: "POST",
-        headers: headers(),
-        body: JSON.stringify(body),
-      },
+  if (s.status === "failed")
+    throw new Error(
+      `HeyGen render ${videoId} failed: ${s.failure_code ?? ""} ${s.failure_message ?? ""}`.trim(),
     );
-    videoId = res.data.video_id;
-    await onSubmitted?.(videoId);
-    console.log(`  HeyGen render submitted: ${videoId}`);
-  }
-
-  const started = Date.now();
-  for (;;) {
-    const s = await heygenStatus(videoId);
-    if (s.status === "completed" && s.video_url) {
-      const dest = path.join(outDir, "avatar.mp4");
-      await download(s.video_url, dest);
-      return {
-        provider: "heygen",
-        videoId,
-        engine,
-        path: dest,
-        durationSec: await probeDuration(dest),
-      };
-    }
-    if (s.status === "failed") {
-      throw new Error(
-        `HeyGen render failed: ${s.failure_code ?? ""} ${s.failure_message ?? ""}`,
-      );
-    }
-    if (Date.now() - started > 30 * 60_000)
-      throw new Error(`HeyGen render ${videoId} timed out (still ${s.status})`);
-    process.stdout.write(
-      `  HeyGen ${s.status}… ${Math.round((Date.now() - started) / 1000)}s\r`,
-    );
-    await sleep(10_000);
-  }
+  return { state: "pending", status: s.status };
 }
 
 /**

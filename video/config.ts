@@ -1,14 +1,68 @@
 import "dotenv/config";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-/** Repo root, resolved from this file so the CLI works from any cwd. */
-export const ROOT = path.resolve(import.meta.dirname, "..");
+/**
+ * True inside a deployed function (read-only filesystem except /tmp). Not just
+ * `VERCEL=1`: `vercel env pull` copies that into local .env files too.
+ */
+export const SERVERLESS =
+  process.env.VIDEO_SERVERLESS === "1" ||
+  (!!process.env.VERCEL && process.cwd().startsWith("/var/task"));
+
+/**
+ * Repo root. The CLI runs from the repo root (yarn), and Next.js functions run
+ * with cwd = project root, so cwd works for both (import.meta paths don't
+ * survive bundling).
+ */
+export const ROOT = process.env.VIDEO_ROOT ?? process.cwd();
 /** Committed, curated data: format library, tracked accounts, mined analyses. */
 export const DATA_DIR = path.join(ROOT, "data", "video");
-/** Generated media (gitignored via /out/). One folder per video job. */
-export const OUT_DIR = path.join(ROOT, "out", "video");
+/**
+ * Local job folders (CLI without Blob) and scratch space for rendering.
+ * Gitignored via /out/. On Vercel this has to live in /tmp.
+ */
+export const OUT_DIR = SERVERLESS
+  ? path.join(os.tmpdir(), "brian-video")
+  : path.join(ROOT, "out", "video");
 export const CACHE_DIR = path.join(OUT_DIR, "_cache");
 export const FONTS_DIR = path.join(ROOT, "video", "assets", "fonts");
+
+/**
+ * FFmpeg binary: $FFMPEG_PATH, else the bundled static build (has libass, and is
+ * what runs on Vercel), else whatever `ffmpeg` is on PATH.
+ */
+export function ffmpegPath(): string {
+  if (process.env.FFMPEG_PATH) return process.env.FFMPEG_PATH;
+  const bundled = path.join(ROOT, "node_modules", "ffmpeg-static", "ffmpeg");
+  if (SERVERLESS && existsSync(bundled)) return bundled;
+  return "ffmpeg";
+}
+
+/**
+ * Env for FFmpeg. Vercel's runtime has no /etc/fonts, so the static build's
+ * fontconfig would find nothing; point it at a generated config that only
+ * knows our bundled fonts.
+ */
+export function ffmpegEnv(): NodeJS.ProcessEnv {
+  if (process.env.FONTCONFIG_FILE || existsSync("/etc/fonts/fonts.conf"))
+    return process.env;
+  const dir = path.join(os.tmpdir(), "brian-video-fontconfig");
+  const file = path.join(dir, "fonts.conf");
+  if (!existsSync(file)) {
+    mkdirSync(path.join(dir, "cache"), { recursive: true });
+    writeFileSync(
+      file,
+      `<?xml version="1.0"?>\n<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n<fontconfig><dir>${FONTS_DIR}</dir><cachedir>${path.join(dir, "cache")}</cachedir></fontconfig>\n`,
+    );
+  }
+  return { ...process.env, FONTCONFIG_FILE: file };
+}
+
+/** x264 preset for the final encode. Serverless CPUs are slow; trade size for time. */
+export const X264_PRESET =
+  process.env.VIDEO_X264_PRESET ?? (SERVERLESS ? "veryfast" : "medium");
 
 export type HeygenEngine = "avatar_iii" | "avatar_iv" | "avatar_v";
 

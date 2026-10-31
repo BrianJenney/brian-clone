@@ -1,37 +1,30 @@
 /**
- * A job = one short. Everything lives in out/video/<id>/ so any step can be
- * re-run without re-paying for the steps before it:
- *
- *   job.json        state + script (edit the script here before approving)
- *   script.md       human-readable review copy
- *   narration.mp3   + alignment.json   (voice step)
- *   avatar.mp4      (avatar step — the only expensive one)
- *   screen-N.mp4    your screen recordings, if the script asks for them
- *   final.mp4       + cover.jpg + captions.ass
+ * A job = one short. State lives in the store (Vercel Blob or out/video/jobs/<id>/)
+ * so the same job can be created from Claude via MCP, rendered by Inngest, and
+ * inspected from the CLI, or any mix of those.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type AvatarResult, heygenRender, mockAvatar } from "./avatar/heygen";
 import { env, type HeygenEngine, OUT_DIR, PRICING } from "./config";
-import {
-  ensureDir,
-  exists,
-  money,
-  readJson,
-  sha1,
-  slug,
-  writeJson,
-} from "./lib/util";
-import { compose, missingAssets } from "./render/compose";
+import { money, sha1, slug } from "./lib/util";
 import { type Script, ScriptSchema } from "./schemas";
 import { estimateSeconds, wordCount } from "./script/write";
-import {
-  type CharAlignment,
-  charsToWords,
-  narrationText,
-  segmentTimeline,
-} from "./voice/alignment";
-import { elevenLabsTTS, mockTTS, type VoiceResult } from "./voice/tts";
+import { store } from "./store";
+import { narrationText } from "./voice/alignment";
+
+/**
+ * mock  = $0: silent voice + placeholder avatar (layout, timing, captions)
+ * voice = ~$0.05: real ElevenLabs voice + placeholder avatar
+ * final = real voice + HeyGen digital twin (~$2–3)
+ */
+export type RenderMode = "mock" | "voice" | "final";
+export type Stage =
+  | "queued"
+  | "voice"
+  | "avatar"
+  | "compositing"
+  | "done"
+  | "failed";
 
 export type Job = {
   id: string;
@@ -39,69 +32,156 @@ export type Job = {
   status: "draft" | "approved" | "rendered";
   approvedAt: string | null;
   script: Script;
-  voice: (VoiceResult & { textHash: string }) | null;
-  avatar:
-    | (AvatarResult & { audioHash: string; pendingVideoId?: string | null })
-    | null;
+  /** Per-segment media overrides (1-based segment number → ref), e.g. a screen recording URL. */
+  media: Record<string, string>;
+  voice: {
+    provider: "elevenlabs" | "mock";
+    audio: string;
+    alignment: string;
+    durationSec: number;
+    chars: number;
+    /** Hash of text + voice settings: the cache key for everything downstream. */
+    key: string;
+  } | null;
+  avatar: {
+    provider: "heygen" | "mock";
+    videoId: string | null;
+    engine: HeygenEngine | null;
+    file: string | null;
+    durationSec: number;
+    /** voice.key this avatar was rendered against. */
+    key: string;
+    /** Submitted to HeyGen but not downloaded yet — resume instead of paying twice. */
+    pending: boolean;
+  } | null;
   render: {
-    path: string;
+    mode: RenderMode;
+    video: string;
     cover: string;
     at: string;
     warnings: string[];
+  } | null;
+  run: {
+    mode: RenderMode;
+    stage: Stage;
+    startedAt: string;
+    updatedAt: string;
+    error: string | null;
+    detail: string | null;
   } | null;
   costUsd: number;
   posts: Array<{ platform: string; url: string; postedAt: string }>;
 };
 
-export const jobDir = (id: string) => path.join(OUT_DIR, id);
-const jobPath = (id: string) => path.join(jobDir(id), "job.json");
+const jobKey = (id: string) => `jobs/${id}/job.json`;
+
+/** Local scratch dir for a job. In local-store mode this IS the job folder. */
+export function workDir(id: string) {
+  return store().kind === "local"
+    ? path.join(OUT_DIR, "jobs", id)
+    : path.join(OUT_DIR, "work", id);
+}
+
+function normalizeJob(raw: Job): Job {
+  return {
+    ...raw,
+    media: raw.media ?? {},
+    run: raw.run ?? null,
+    // Re-validate in case the script was hand-edited.
+    script: ScriptSchema.parse(raw.script),
+  };
+}
 
 export async function loadJob(id: string): Promise<Job> {
-  if (!(await exists(jobPath(id))))
-    throw new Error(`No job "${id}" in ${OUT_DIR}`);
-  const job = await readJson<Job>(jobPath(id));
-  // Re-validate in case the script was hand-edited.
-  job.script = ScriptSchema.parse(job.script);
-  return job;
+  const raw = await store().readJson<Job>(jobKey(id));
+  if (!raw)
+    throw new Error(
+      `No video job "${id}". Use video_list_jobs / \`yarn video list\` to find it.`,
+    );
+  return normalizeJob(raw);
 }
 
 export async function saveJob(job: Job) {
-  await writeJson(jobPath(job.id), job);
-  await fs.writeFile(
-    path.join(jobDir(job.id), "script.md"),
-    scriptMarkdown(job),
-  );
+  await store().writeJson(jobKey(job.id), job);
+  if (store().kind === "local") {
+    await fs.writeFile(
+      path.join(workDir(job.id), "script.md"),
+      scriptMarkdown(job),
+    );
+  }
+}
+
+/** Read-modify-write helper used by every step. */
+export async function updateJob(
+  id: string,
+  fn: (job: Job) => void | Promise<void>,
+) {
+  const job = await loadJob(id);
+  await fn(job);
+  await saveJob(job);
+  return job;
+}
+
+export async function setRun(
+  id: string,
+  patch: Partial<NonNullable<Job["run"]>>,
+) {
+  return updateJob(id, (job) => {
+    const now = new Date().toISOString();
+    job.run = {
+      mode: patch.mode ?? job.run?.mode ?? "mock",
+      stage: patch.stage ?? job.run?.stage ?? "queued",
+      startedAt: patch.startedAt ?? job.run?.startedAt ?? now,
+      updatedAt: now,
+      error: patch.error !== undefined ? patch.error : (job.run?.error ?? null),
+      detail:
+        patch.detail !== undefined ? patch.detail : (job.run?.detail ?? null),
+    };
+  });
 }
 
 export async function listJobs(): Promise<Job[]> {
-  if (!(await exists(OUT_DIR))) return [];
-  const ids = (await fs.readdir(OUT_DIR)).filter((d) => !d.startsWith("_"));
+  const keys = await store().listKeys("jobs/", "job.json");
   const jobs = await Promise.all(
-    ids.map((id) => readJson<Job | null>(jobPath(id), null)),
+    keys.map((k) =>
+      store()
+        .readJson<Job>(k)
+        .catch(() => null),
+    ),
   );
   return jobs
     .filter((j): j is Job => !!j)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    .map((j) => ({ ...j, media: j.media ?? {}, run: j.run ?? null }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function createJob(script: Script): Promise<Job> {
   const date = new Date().toISOString().slice(0, 10);
   const id = `${date}-${slug(script.title, 36)}-${sha1(JSON.stringify(script) + Date.now()).slice(0, 4)}`;
-  await ensureDir(jobDir(id));
   const job: Job = {
     id,
     createdAt: new Date().toISOString(),
     status: "draft",
     approvedAt: null,
     script,
+    media: {},
     voice: null,
     avatar: null,
     render: null,
+    run: null,
     costUsd: 0,
     posts: [],
   };
+  if (store().kind === "local")
+    await fs.mkdir(workDir(id), { recursive: true });
   await saveJob(job);
   return job;
+}
+
+export function voiceKey(script: Script, mode: RenderMode) {
+  return sha1(
+    `${narrationText(script.segments)}|${mode === "mock" ? "mock" : `${env.elevenVoiceId}|${env.elevenModel}`}`,
+  );
 }
 
 export function estimateCost(
@@ -115,27 +195,46 @@ export function estimateCost(
   return { secs, voice, avatar, total: voice + avatar };
 }
 
+/** What a render in this mode will actually charge, given what's already cached. */
+export function estimateRunCost(job: Job, mode: RenderMode) {
+  if (mode === "mock") return 0;
+  const est = estimateCost(job.script);
+  const key = voiceKey(job.script, mode);
+  const voiceCached =
+    job.voice?.key === key && job.voice.provider === "elevenlabs";
+  const avatarCached =
+    job.avatar?.key === key &&
+    job.avatar.provider === "heygen" &&
+    (!!job.avatar.file || job.avatar.pending);
+  return (
+    (voiceCached ? 0 : est.voice) +
+    (mode === "final" && !avatarCached ? est.avatar : 0)
+  );
+}
+
 export function scriptMarkdown(job: Job) {
   const s = job.script;
   const est = estimateCost(s);
   const rows = s.segments
     .map((seg, i) => {
       const v = seg.visual;
-      const vis =
-        v.kind === "avatar"
+      const attached = job.media[String(i + 1)];
+      const vis = attached
+        ? `📎 attached media${seg.layout === "split" ? "" : ""}`
+        : v.kind === "avatar"
           ? `avatar (${v.framing})`
           : v.kind === "card"
             ? `card: **${v.headline}**${v.sub ? ` / ${v.sub}` : ""}`
             : v.kind === "broll"
               ? `b-roll: "${v.query}"${v.file ? ` [${v.file}]` : ""}`
-              : `🎥 SCREEN (you record → screen-${i + 1}.mp4): ${v.note}`;
+              : `🎥 SCREEN (needs recording): ${v.note}`;
       return `| ${i + 1} | ${seg.text.replace(/\|/g, "/")} | ${vis}${seg.layout === "split" ? " · split" : ""} |`;
     })
     .join("\n");
   return `# ${s.title}
 
-- **Job:** \`${job.id}\` · **Status:** ${job.status} · **Format:** ${s.formatId}
-- **Length:** ~${Math.round(est.secs)}s (${wordCount(s)} words) · **Est. cost:** ${money(est.total)} (voice ${money(est.voice)}, avatar ${money(est.avatar)})
+- **Job:** \`${job.id}\` · **Status:** ${job.status}${job.run ? ` · **Render:** ${job.run.mode} → ${job.run.stage}` : ""} · **Format:** ${s.formatId}
+- **Length:** ~${Math.round(est.secs)}s (${wordCount(s)} words) · **Est. final cost:** ${money(est.total)} (voice ${money(est.voice)}, avatar ${money(est.avatar)})
 - **Hook overlay:** ${s.hookOverlay}
 
 | # | Says | Visual |
@@ -147,137 +246,5 @@ ${rows}
 **Hashtags:** ${s.hashtags.map((h) => `#${h}`).join(" ")}
 
 **Drawn from:** ${s.sources.join("; ") || "—"}
-
----
-Edit \`job.json\` → \`script\` to change anything, then \`yarn video approve ${job.id}\`.
-`;
-}
-
-export type RenderOptions = {
-  mock?: boolean;
-  mockAvatarOnly?: boolean;
-  music?: string | null;
-  label?: string;
-  maxCost?: number;
-};
-
-/** voice → avatar → compose, each step cached against its inputs. */
-export async function renderJob(
-  id: string,
-  opts: RenderOptions = {},
-): Promise<Job> {
-  const job = await loadJob(id);
-  const dir = jobDir(id);
-  const mockVoice = !!opts.mock;
-  const mockAv = !!opts.mock || !!opts.mockAvatarOnly;
-
-  if (job.status === "draft" && !mockAv) {
-    throw new Error(
-      `Job ${id} is not approved. Review ${path.join(dir, "script.md")} then run: yarn video approve ${id}`,
-    );
-  }
-
-  const missing = await missingAssets(dir, job.script);
-  if (missing.length) {
-    console.log(
-      "  ⚠ Screen recordings this script wants (placeholders will be used):",
-    );
-    for (const m of missing)
-      console.log(`    - ${path.join(dir, m.expected)}: ${m.note}`);
-  }
-
-  const est = estimateCost(job.script);
-  if (!mockAv && opts.maxCost !== undefined && est.total > opts.maxCost) {
-    throw new Error(
-      `Estimated ${money(est.total)} exceeds --max-cost ${money(opts.maxCost)}`,
-    );
-  }
-
-  // 1. Voice
-  const text = narrationText(job.script.segments);
-  const textHash = sha1(
-    `${text}|${mockVoice ? "mock" : env.elevenVoiceId}|${env.elevenModel}`,
-  );
-  if (
-    !job.voice ||
-    job.voice.textHash !== textHash ||
-    !(await exists(job.voice.audioPath))
-  ) {
-    console.log(`  🎙  voice (${mockVoice ? "mock" : "ElevenLabs"})…`);
-    const v = mockVoice
-      ? await mockTTS(text, dir)
-      : await elevenLabsTTS(text, dir);
-    if (!mockVoice) job.costUsd += (v.chars / 1000) * PRICING.elevenPer1kChars;
-    job.voice = { ...v, textHash };
-    job.avatar = null; // new audio invalidates the lip-sync
-    await saveJob(job);
-  } else console.log("  🎙  voice cached");
-
-  // 2. Avatar
-  const audioHash = sha1(await fs.readFile(job.voice.audioPath));
-  const avatarStale =
-    !job.avatar ||
-    job.avatar.audioHash !== audioHash ||
-    (job.avatar.provider === "mock") !== mockAv ||
-    !(await exists(job.avatar.path));
-  if (avatarStale) {
-    if (mockAv) {
-      console.log("  🧍 avatar (mock)…");
-      job.avatar = {
-        ...(await mockAvatar(job.voice.audioPath, dir)),
-        audioHash,
-      };
-    } else {
-      console.log(
-        `  🧍 avatar (HeyGen ${env.heygenEngine}, ~${money(est.avatar)})…`,
-      );
-      const resumeId =
-        job.avatar?.audioHash === audioHash ? job.avatar.pendingVideoId : null;
-      const a = await heygenRender(job.voice.audioPath, dir, {
-        existingVideoId: resumeId,
-        title: job.script.title,
-        onSubmitted: async (videoId) => {
-          job.avatar = {
-            provider: "heygen",
-            videoId,
-            engine: env.heygenEngine,
-            path: "",
-            durationSec: 0,
-            audioHash,
-            pendingVideoId: videoId,
-          };
-          await saveJob(job);
-        },
-      });
-      job.costUsd +=
-        (a.durationSec / 60) * PRICING.heygenPerMin[env.heygenEngine];
-      job.avatar = { ...a, audioHash, pendingVideoId: null };
-    }
-    await saveJob(job);
-  } else console.log("  🧍 avatar cached");
-
-  // 3. Compose
-  if (!job.avatar) throw new Error("avatar step produced no video");
-  console.log("  🎬 compositing…");
-  const alignment = await readJson<CharAlignment>(job.voice.alignmentPath);
-  const words = charsToWords(alignment);
-  const timeline = segmentTimeline(
-    job.script.segments,
-    words,
-    job.voice.durationSec,
-  );
-  const r = await compose({
-    jobDir: dir,
-    script: job.script,
-    timeline,
-    avatarPath: job.avatar.path,
-    audioPath: job.voice.audioPath,
-    durationSec: job.voice.durationSec,
-    musicPath: opts.music,
-    label: opts.label,
-  });
-  job.render = { ...r, at: new Date().toISOString() };
-  if (!mockAv) job.status = "rendered";
-  await saveJob(job);
-  return job;
+${job.render ? `\n**Latest render (${job.render.mode}):** ${job.render.video}\n` : ""}`;
 }
