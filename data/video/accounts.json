@@ -1,0 +1,12 @@
+{
+  "_readme": "Accounts to benchmark. Pick 30-100 creators in your lane (dev careers, AI engineering, tech business). Use `yarn video trends:discover \"<keyword>\"` to find more. Handles have no @. Add your own handles too, so your real-face posts give a baseline to compare the clone against. Example entry: {\"platform\": \"tiktok\", \"handle\": \"someone\"}",
+  "keywords": [
+    "learn to code 2026",
+    "ai engineer",
+    "rag tutorial",
+    "software engineer career advice",
+    "coding bootcamp",
+    "junior developer jobs"
+  ],
+  "accounts": []
+}

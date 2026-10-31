@@ -20,7 +20,9 @@
 		"upload-posts": "tsx scripts/uploadMediumPosts.ts",
 		"upload-linkedin": "tsx scripts/uploadLinkedInPosts.ts",
 		"prepare": "husky",
-		"brian": "tsx bin/cli.ts"
+		"brian": "tsx bin/cli.ts",
+		"video": "tsx video/cli.ts",
+		"test:video": "tsx --test video/**/*.test.ts"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.29.0",

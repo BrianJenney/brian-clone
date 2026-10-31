@@ -1,0 +1,251 @@
+[
+  {
+    "id": "contrarian-take",
+    "name": "Contrarian take",
+    "whenToUse": "You disagree with common advice developers keep hearing. Strongest share driver for expert accounts.",
+    "hookPatterns": [
+      "Stop [common advice]. It's [why it's wrong].",
+      "Unpopular opinion: [belief most devs hold] is wrong.",
+      "Everyone says [X]. After [credential], I think it's backwards."
+    ],
+    "beats": [
+      "Hook: name the common belief and reject it in one line",
+      "Credential in one clause (why you get to say this)",
+      "The real reason it's wrong, with one concrete example",
+      "What to do instead (specific, actionable)",
+      "Punchline or CTA that invites disagreement in comments"
+    ],
+    "lengthSec": { "min": 20, "max": 40 },
+    "visualPlan": "Avatar wide on hook, tight on the credential, card for the 'instead' rule, avatar wide for CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "Stop doing LeetCode to get your first dev job.",
+      "Unpopular opinion: you don't need a vector database for RAG."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["opinion", "shares"]
+  },
+  {
+    "id": "built-it-with-ai",
+    "name": "I built X with AI",
+    "whenToUse": "You have a screen recording of something real you built. Highest credibility format for a technical audience.",
+    "hookPatterns": [
+      "I built [useful thing] in [short time] with [tool]. Here's how.",
+      "This [thing] used to take me [long time]. Now it takes [short time]."
+    ],
+    "beats": [
+      "Hook: show the finished result first, state the time/effort",
+      "Step 1 on screen",
+      "Step 2 on screen (the non-obvious part)",
+      "Result + one gotcha you hit",
+      "CTA: comment a keyword for the repo/template"
+    ],
+    "lengthSec": { "min": 25, "max": 45 },
+    "visualPlan": "Avatar hook (≤3s), then split layout: screen recording top, avatar bottom. End on avatar wide.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "I built a RAG chatbot over my own YouTube transcripts in 20 minutes."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["demo", "screen-recording", "saves"]
+  },
+  {
+    "id": "myth-bust",
+    "name": "Myth vs reality",
+    "whenToUse": "A widely-repeated claim about tech careers or AI that you can correct with experience.",
+    "hookPatterns": [
+      "'[Myth].' That's a myth. Here's what actually happens.",
+      "You've been told [myth]. I've seen [N] cases. It's not true."
+    ],
+    "beats": [
+      "Hook: state the myth on a card",
+      "Reality, one sentence",
+      "Proof: a stat, a story fragment, or an example",
+      "So what: what the viewer should do",
+      "CTA"
+    ],
+    "lengthSec": { "min": 20, "max": 35 },
+    "visualPlan": "Card with the myth (strike-through feel), avatar for reality, b-roll during proof.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "'AI will replace junior developers.' Here's what I'm actually seeing in hiring."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["education"]
+  },
+  {
+    "id": "numbered-tips",
+    "name": "N things",
+    "whenToUse": "Packable, saveable advice. Keep N at 3 so each item gets a real beat.",
+    "hookPatterns": [
+      "3 [skills/tools/mistakes] that [outcome].",
+      "If I were [situation] in 2026, I'd learn these 3 things."
+    ],
+    "beats": [
+      "Hook with the number and the payoff",
+      "Item 1 (fast)",
+      "Item 2",
+      "Item 3 (the best one, saved for last)",
+      "CTA: save this"
+    ],
+    "lengthSec": { "min": 25, "max": 40 },
+    "visualPlan": "Card per item number, avatar delivering each item, alternate wide/tight framing every beat.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "3 AI skills that will get you hired faster than another React project."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["list", "saves"]
+  },
+  {
+    "id": "news-react",
+    "name": "AI news, what it means for devs",
+    "whenToUse": "Something shipped in the last 48 hours. Speed beats polish; this is the best use of the clone.",
+    "hookPatterns": [
+      "[Company] just shipped [thing]. Here's what it means if you're a developer.",
+      "Everyone's hyping [release]. Here's the part nobody's talking about."
+    ],
+    "beats": [
+      "Hook: the news in one line",
+      "What it actually is (plain English)",
+      "Why it matters for working developers / job seekers",
+      "Your take (opinion, not summary)",
+      "CTA"
+    ],
+    "lengthSec": { "min": 20, "max": 40 },
+    "visualPlan": "Split layout with a screenshot/screen recording of the announcement on top, avatar below. Avatar wide for the take.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "OpenAI just changed how agents work. Here's what that means for your job search."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["news", "timely"]
+  },
+  {
+    "id": "explainer-30s",
+    "name": "X explained in 30 seconds",
+    "whenToUse": "A concept your audience hears constantly but can't define (RAG, embeddings, agents, MCP).",
+    "hookPatterns": [
+      "[Concept] explained like you're a developer, not a data scientist.",
+      "You keep hearing about [concept]. Here it is in 30 seconds."
+    ],
+    "beats": [
+      "Hook",
+      "Analogy",
+      "How it actually works (3 steps)",
+      "When you'd use it",
+      "CTA"
+    ],
+    "lengthSec": { "min": 25, "max": 40 },
+    "visualPlan": "Cards for each step, avatar between cards. B-roll only if concrete.",
+    "cloneSuitable": true,
+    "exampleHooks": ["RAG explained in 30 seconds, for developers."],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["education", "saves"]
+  },
+  {
+    "id": "hiring-manager-pov",
+    "name": "Hiring manager POV",
+    "whenToUse": "Lean on your experience hiring and mentoring developers. Authority hook.",
+    "hookPatterns": [
+      "I've [hired/mentored] [N] developers. This is what gets people rejected.",
+      "As someone who reviews resumes: [specific red flag]."
+    ],
+    "beats": [
+      "Hook with credential + stakes",
+      "The specific mistake",
+      "Why it matters to the person hiring",
+      "The fix",
+      "CTA"
+    ],
+    "lengthSec": { "min": 20, "max": 35 },
+    "visualPlan": "Avatar tight on the credential, b-roll of resumes/interviews, card for the fix.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "I've mentored hundreds of career changers. This one resume line kills your chances."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["career", "authority"]
+  },
+  {
+    "id": "mistake-confession",
+    "name": "My mistake",
+    "whenToUse": "A real failure with a cost attached. Film this one yourself: viewers punish an AI face on personal stories.",
+    "hookPatterns": [
+      "I wasted [time/money] on [thing]. Don't do what I did.",
+      "Biggest mistake I made [doing X]."
+    ],
+    "beats": [
+      "Hook with the cost",
+      "What happened",
+      "What I learned",
+      "What you should do",
+      "CTA"
+    ],
+    "lengthSec": { "min": 25, "max": 45 },
+    "visualPlan": "Real footage. If using the pipeline, use it only for captions and cutaways over your own clip.",
+    "cloneSuitable": false,
+    "exampleHooks": ["I spent $40k building a feature nobody used."],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["story", "real-footage"]
+  },
+  {
+    "id": "reply-to-comment",
+    "name": "Reply to a comment",
+    "whenToUse": "A real comment or DM question. Native-feeling and drives more comments.",
+    "hookPatterns": [
+      "Someone asked: '[question]'. Here's my honest answer.",
+      "'[Pushback comment].' Let me explain."
+    ],
+    "beats": [
+      "Hook: read the question (card shows it)",
+      "Short answer",
+      "Nuance / the 'it depends'",
+      "What I'd do",
+      "CTA: drop your question"
+    ],
+    "lengthSec": { "min": 20, "max": 40 },
+    "visualPlan": "Card styled as the comment for the hook, avatar for the answer.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "'Is it too late to learn to code in 2026?' Honest answer."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["community", "comments"]
+  },
+  {
+    "id": "roadmap",
+    "name": "If I were starting today",
+    "whenToUse": "Career-changer audience. A concrete path beats general encouragement.",
+    "hookPatterns": [
+      "If I had to become a [role] in [timeframe] starting today, here's exactly what I'd do.",
+      "The [N]-step roadmap I give every career changer."
+    ],
+    "beats": [
+      "Hook with timeframe",
+      "Step 1",
+      "Step 2",
+      "Step 3",
+      "What to skip",
+      "CTA"
+    ],
+    "lengthSec": { "min": 30, "max": 50 },
+    "visualPlan": "Cards for each step with a running checklist feel, avatar between, b-roll of focused work.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "If I had to become an AI engineer in 6 months starting today, here's exactly what I'd do."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["career", "saves"]
+  }
+]
