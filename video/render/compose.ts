@@ -90,7 +90,10 @@ function avatarFilter(framing: "wide" | "tight") {
 }
 
 /** Where the host's face sits in her 9:16 render (top of the 1080x960 crop). */
-const HOST_CROP_Y = Number(process.env.VIDEO_HOST_CROP_Y ?? 380);
+const HOST_CROP_Y = Number(process.env.VIDEO_HOST_CROP_Y ?? 140);
+/** Brian's twin sits small in frame; punch in for the two-up so both faces read the same size. */
+const TWOUP_ZOOM = Number(process.env.VIDEO_TWOUP_ZOOM ?? 1.15);
+const TWOUP_BRIAN_Y = Number(process.env.VIDEO_TWOUP_BRIAN_Y ?? 380);
 const ACCENT = "0xFFD60A";
 
 function nameTag(text: string) {
@@ -131,7 +134,7 @@ async function renderTwoUp(
     input.avatarPath,
     "-filter_complex",
     `[0:v]${COVER},crop=${W}:${half}:0:${HOST_CROP_Y},setsar=1${hostTalking ? on : off}${nameTag(env.hostName)}[t];` +
-      `[1:v]${AVATAR_PRE}${COVER},crop=${W}:${half}:0:${FACE_CROP_Y},setsar=1${hostTalking ? off : on}${nameTag("Brian Jenney")}[b];` +
+      `[1:v]${AVATAR_PRE}${COVER},scale=${Math.round((W * TWOUP_ZOOM) / 2) * 2}:${Math.round((H * TWOUP_ZOOM) / 2) * 2},crop=${W}:${half}:${Math.round((Math.round((W * TWOUP_ZOOM) / 2) * 2 - W) / 2)}:${TWOUP_BRIAN_Y},setsar=1${hostTalking ? off : on}${nameTag("Brian Jenney")}[b];` +
       `[t][b]vstack=inputs=2,fps=${FPS}[v]`,
     "-map",
     "[v]",
