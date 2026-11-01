@@ -1,98 +1,114 @@
 [
   {
-    "hook": "Shocking and not so shocking takeaways from the 2024 Stack Overflow Developer Survey:",
-    "impressions": 91134,
-    "pattern": "list-promise + data",
+    "hook": "Side effects of vibe coding:",
+    "impressions": 493714,
+    "date": "2025-03",
+    "pattern": "label + list (short, ironic)",
+    "source": "linkedin"
+  },
+  {
+    "hook": "As an engineering manager, when I came across a resume from a Stanford grad, I would read it a little more closely. That's it.",
+    "impressions": 90456,
+    "date": "2025-04",
+    "pattern": "credential + anticlimax",
+    "source": "linkedin"
+  },
+  {
+    "hook": "I've spoken with over 500 developers in the last 12 months. I won't be doing any more 15 minute chats.",
+    "impressions": 71149,
+    "date": "2025-07",
+    "pattern": "big number + reversal",
     "source": "linkedin"
   },
   {
     "hook": "In this case AI stood for Actually, Indians.",
     "impressions": 64310,
+    "date": "2025-06",
     "pattern": "punchline twist",
     "source": "linkedin"
   },
   {
     "hook": "These are 2 takes on the software job market that I absolutely can't stand:",
     "impressions": 62498,
+    "date": "2026-10",
     "pattern": "strong opinion + list",
     "source": "linkedin"
   },
   {
-    "hook": "Some uncomfortable truths for software engineers:",
-    "impressions": 53933,
-    "pattern": "uncomfortable truths list",
+    "hook": "I once worked at a coding bootcamp where a student didn't know how to open his file explorer.",
+    "impressions": 48563,
+    "date": "2025-06",
+    "pattern": "vivid story",
+    "source": "linkedin"
+  },
+  {
+    "hook": "Junior developers are inherently risky (in every industry, not just tech btw).",
+    "impressions": 42636,
+    "date": "2025-04",
+    "pattern": "blunt claim",
+    "source": "linkedin"
+  },
+  {
+    "hook": "He created a full stack app that worked pretty well. It even looked nice. But when I asked how it worked... Oof.",
+    "impressions": 38142,
+    "date": "2025-02",
+    "pattern": "setup + 'oof' turn",
     "source": "linkedin"
   },
   {
     "hook": "A look back at software engineering in 2024 (according to social media):",
     "impressions": 32388,
+    "date": "2025-01",
     "pattern": "ironic recap",
     "source": "linkedin"
   },
   {
-    "hook": "A few controversial things I believe about careers in software development:",
-    "impressions": 25150,
-    "pattern": "controversial beliefs",
-    "source": "linkedin"
-  },
-  {
-    "hook": "AI is coming for your tech job! There's no hope for coders in 2024! Do these click bait titles sound familiar?",
-    "impressions": 24654,
-    "pattern": "mock the hype",
-    "source": "linkedin"
-  },
-  {
-    "hook": "I got paid a total of 0 dollars from doing 500 calls with software developers over the last 18 months. It was a great investment.",
-    "impressions": 21423,
-    "pattern": "surprising number + reversal",
+    "hook": "At first people laughed. Now, I'm more convinced this is true.",
+    "impressions": 20514,
+    "date": "2025-01",
+    "pattern": "prediction vindicated",
     "source": "linkedin"
   },
   {
     "hook": "2 things: Are CEOs of large companies really begging their eng department for... anything?",
     "impressions": 20502,
+    "date": "2026-01",
     "pattern": "skeptical question",
     "source": "linkedin"
   },
   {
     "hook": "Here's why your company is (probably) struggling to find good developers.",
     "impressions": 17825,
+    "date": "2026-09",
     "pattern": "diagnosis",
     "source": "linkedin"
   },
   {
     "hook": "CEOs want to believe the myth of AI.",
     "impressions": 16829,
+    "date": "2025-05",
     "pattern": "myth callout",
     "source": "linkedin"
   },
   {
     "hook": "Breaking into software as: an 18 year old, a 25 year old with no money, a 30 year old with kids.",
     "impressions": 16593,
+    "date": "2025-02",
     "pattern": "segmented advice",
     "source": "linkedin"
   },
   {
-    "hook": "No one is going to pay you thousands of dollars to build a website. But they might pay you to get more clients.",
-    "impressions": 15172,
-    "pattern": "blunt negation + reframe",
-    "source": "linkedin"
-  },
-  {
-    "hook": "The problem with developers in general and content creators specifically:",
-    "impressions": 12780,
-    "pattern": "name the problem",
+    "hook": "New coders are obsessed with going to Google, Meta, Amazon or Netflix. These make up a solid .6% of software engineering roles.",
+    "impressions": 13826,
+    "date": "2025-05",
+    "pattern": "obsession + deflating stat",
     "source": "linkedin"
   },
   {
     "hook": "As usual, software developers greatly underestimate their own skill while greatly OVER-estimating everyone else.",
     "impressions": 8567,
+    "date": "2026-10",
     "pattern": "contrarian observation",
-    "source": "linkedin"
-  },
-  {
-    "hook": "If you're a Vibe Coder, I honestly don't think you need to learn to code.",
-    "impressions": 8444,
-    "pattern": "unexpected permission",
     "source": "linkedin"
   }
 ]
