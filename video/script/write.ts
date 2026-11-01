@@ -14,8 +14,8 @@ import {
   type StoredAnalysis,
 } from "../schemas";
 
-/** ElevenLabs narration runs ~2.6 words/sec at speed 1.0. */
-export const WORDS_PER_SEC = 2.6;
+/** Measured on Brian's clone at speed 1.05: 2.8-3.9 words/sec across the first renders. */
+export const WORDS_PER_SEC = 3.3;
 
 export function wordCount(script: Script) {
   return script.segments.reduce(
