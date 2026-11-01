@@ -1,0 +1,15 @@
+{
+  "_readme": "Spoken forms for words TTS gets wrong. Keys match whole words (case-insensitive, punctuation kept). Values must be ONE token (use hyphens, no spaces) so captions still show the original spelling.",
+  "AIVARA": "Eye-vara",
+  "evals": "ee-vals",
+  "eval": "ee-val",
+  "SaaS": "sass",
+  "MCP": "M-C-P",
+  "LLM": "L-L-M",
+  "LLMs": "L-L-Ms",
+  "CRM": "C-R-M",
+  "CRMs": "C-R-Ms",
+  "UI": "U-I",
+  "API": "A-P-I",
+  "APIs": "A-P-Is"
+}

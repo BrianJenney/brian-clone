@@ -35,11 +35,11 @@ export async function elevenLabsTTS(
         text,
         model_id: env.elevenModel,
         voice_settings: {
-          stability: Number(process.env.ELEVENLABS_STABILITY ?? 0.45),
+          stability: Number(process.env.ELEVENLABS_STABILITY ?? 0.5),
           similarity_boost: Number(process.env.ELEVENLABS_SIMILARITY ?? 0.85),
           style: Number(process.env.ELEVENLABS_STYLE ?? 0.2),
           use_speaker_boost: true,
-          speed: Number(process.env.ELEVENLABS_SPEED ?? 1.05),
+          speed: Number(process.env.ELEVENLABS_SPEED ?? 1.0),
         },
       }),
     },

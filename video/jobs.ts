@@ -11,6 +11,7 @@ import { type Script, ScriptSchema } from "./schemas";
 import { estimateSeconds, wordCount } from "./script/write";
 import { store } from "./store";
 import { narrationText } from "./voice/alignment";
+import { applyLexicon } from "./voice/lexicon";
 
 /**
  * mock  = $0: silent voice + placeholder avatar (layout, timing, captions)
@@ -91,6 +92,7 @@ function normalizeJob(raw: Job): Job {
     script: ScriptSchema.parse({
       ...raw.script,
       audience: (raw.script as { audience?: string | null }).audience ?? null,
+      hookOptions: (raw.script as { hookOptions?: string[] }).hookOptions ?? [],
     }),
   };
 }
@@ -183,7 +185,7 @@ export async function createJob(script: Script): Promise<Job> {
 
 export function voiceKey(script: Script, mode: RenderMode) {
   return sha1(
-    `${narrationText(script.segments)}|${mode === "mock" ? "mock" : `${env.elevenVoiceId}|${env.elevenModel}`}`,
+    `${applyLexicon(narrationText(script.segments))}|${mode === "mock" ? "mock" : `${env.elevenVoiceId}|${env.elevenModel}`}`,
   );
 }
 
@@ -231,7 +233,10 @@ export function scriptMarkdown(job: Job) {
             : v.kind === "broll"
               ? `b-roll: "${v.query}"${v.file ? ` [${v.file}]` : ""}`
               : `🎥 SCREEN (needs recording): ${v.note}`;
-      return `| ${i + 1} | ${seg.text.replace(/\|/g, "/")} | ${vis}${seg.layout === "split" ? " · split" : ""} |`;
+      const spoken = applyLexicon(seg.text);
+      const said =
+        spoken === seg.text ? seg.text : `${seg.text} _(says: ${spoken})_`;
+      return `| ${i + 1} | ${said.replace(/\|/g, "/")} | ${vis}${seg.layout === "split" ? " · split" : ""} |`;
     })
     .join("\n");
   return `# ${s.title}
@@ -239,6 +244,7 @@ export function scriptMarkdown(job: Job) {
 - **Job:** \`${job.id}\` · **Audience:** ${s.audience ?? "general"} · **Status:** ${job.status}${job.run ? ` · **Render:** ${job.run.mode} → ${job.run.stage}` : ""} · **Format:** ${s.formatId}
 - **Length:** ~${Math.round(est.secs)}s (${wordCount(s)} words) · **Est. final cost:** ${money(est.total)} (voice ${money(est.voice)}, avatar ${money(est.avatar)})
 - **Hook overlay:** ${s.hookOverlay}
+${s.hookOptions.length ? `- **Hook options:** ${s.hookOptions.map((h, i) => `(${i + 1}) ${h}`).join("  ")}` : ""}
 
 | # | Says | Visual |
 |---|------|--------|

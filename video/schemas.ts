@@ -50,6 +50,8 @@ export const ScriptSchema = z.object({
   /** Audience id from data/video/audiences.json (students | business), or null. */
   audience: z.string().nullable(),
   topic: z.string(),
+  /** Alternative opening lines for Brian to pick from (the first segment uses the best one). */
+  hookOptions: z.array(z.string()),
   /** Big text shown over the first ~2s; usually a punchier rewrite of the spoken hook. */
   hookOverlay: z.string(),
   segments: z.array(SegmentSchema),

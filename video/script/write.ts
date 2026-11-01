@@ -1,6 +1,8 @@
+import path from "node:path";
 import { z } from "zod";
-import { env } from "../config";
+import { DATA_DIR, env } from "../config";
 import { llmParse } from "../lib/llm";
+import { readJson } from "../lib/util";
 import {
   type Audience,
   audienceBrief,
@@ -37,6 +39,21 @@ const VOICE_RULES = `Voice rules (Brian Jenney: senior dev, bootcamp owner, blun
 - Never invent personal anecdotes, numbers, tools Brian used, or credentials that aren't in the provided source material.
 - Write for the ear: this is read aloud by TTS. No URLs, slashes, parentheses, "1)" lists, arrows, emoji or abbreviations that read badly. Say "first, second, third". Links go in the caption, never in speech.
 - Every segment must add something new. Never restate the previous line ("Myth. Nope, total myth.").`;
+
+type Hook = { hook: string; impressions: number; pattern: string };
+
+/** Brian's best-performing LinkedIn first lines: the style every video hook should match. */
+async function hookBank(): Promise<string> {
+  const hooks = await readJson<Hook[]>(path.join(DATA_DIR, "hooks.json"), []);
+  return hooks
+    .sort((a, b) => b.impressions - a.impressions)
+    .slice(0, 12)
+    .map(
+      (h) =>
+        `- "${h.hook}" (${h.impressions.toLocaleString()} impressions; ${h.pattern})`,
+    )
+    .join("\n");
+}
 
 async function retrieveContext(
   topic: string,
@@ -104,6 +121,7 @@ export async function writeScript(opts: WriteOptions): Promise<Script> {
     Math.round((format.lengthSec.min + format.lengthSec.max) / 2);
   const targetWords = Math.round(targetSec * WORDS_PER_SEC);
   const ctx = await retrieveContext(opts.topic);
+  const hooks = await hookBank();
 
   const script = await llmParse(
     ScriptSchema,
@@ -129,12 +147,22 @@ ${ctx.text || "(none retrieved — stick to general, verifiable claims)"}
 ${opts.notes ? `\nEXTRA NOTES FROM BRIAN (treat as true):\n${opts.notes}\n` : ""}
 ${VOICE_RULES}
 
+HOOK (the most important line in the video):
+Brian's best LinkedIn openers, ranked by impressions. Match their energy: blunt, specific, opinionated, a twist or a number, never generic. The first sentence alone must make the target viewer stop scrolling.
+${hooks}
+Bad hooks (too soft, never do this): "Your CRM is a landlord." "Let's talk about software costs." "Here are some tips."
+- Write 5 hookOptions in Brian's style, each a different pattern (blunt claim, surprising number, twist, callout of a belief, direct question with a number). Segment 1 must be the strongest of the five, word for word.
+
+PACING (the voice reads punctuation literally):
+- Periods for full stops. Commas only where Brian would breathe. Use "..." for a deliberate beat before a punchline.
+- Keep sentences under 14 words. Spell numbers the way they should be said ("about fifteen thousand dollars").
+
 HARD CONSTRAINTS:
 - Total spoken words across all segments: ${targetWords - 10} to ${targetWords + 10}.
 - 5 to 9 segments. Each segment is one beat of 2 to 6 seconds of speech. A new visual every segment.
 - Segment 1 is the hook: visual.kind "avatar", framing "wide", and it must land the promise in under 3 seconds of speech.
 - Payoff (the useful part) must start before second 15.
-- Never use the same visual kind on more than 2 consecutive segments. Alternate avatar framing wide/tight.
+- The avatar is on screen for at most 3 segments: the hook, at most one middle beat, and the CTA. Every other segment shows something: a card with a number or claim, b-roll of the viewer's world, or a screen recording. Never two avatar segments in a row.
 - Use "card" for numbers, rules, and lists (headline ≤ 5 words, sub ≤ 8 words or null).
 - Only state a credential (years, students, hires) if it appears in Brian's material above; otherwise skip the credential beat rather than being vague. Use "broll" with a concrete, filmable stock query. ${
       opts.hasScreenRecording

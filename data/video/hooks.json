@@ -1,0 +1,98 @@
+[
+  {
+    "hook": "Shocking and not so shocking takeaways from the 2024 Stack Overflow Developer Survey:",
+    "impressions": 91134,
+    "pattern": "list-promise + data",
+    "source": "linkedin"
+  },
+  {
+    "hook": "In this case AI stood for Actually, Indians.",
+    "impressions": 64310,
+    "pattern": "punchline twist",
+    "source": "linkedin"
+  },
+  {
+    "hook": "These are 2 takes on the software job market that I absolutely can't stand:",
+    "impressions": 62498,
+    "pattern": "strong opinion + list",
+    "source": "linkedin"
+  },
+  {
+    "hook": "Some uncomfortable truths for software engineers:",
+    "impressions": 53933,
+    "pattern": "uncomfortable truths list",
+    "source": "linkedin"
+  },
+  {
+    "hook": "A look back at software engineering in 2024 (according to social media):",
+    "impressions": 32388,
+    "pattern": "ironic recap",
+    "source": "linkedin"
+  },
+  {
+    "hook": "A few controversial things I believe about careers in software development:",
+    "impressions": 25150,
+    "pattern": "controversial beliefs",
+    "source": "linkedin"
+  },
+  {
+    "hook": "AI is coming for your tech job! There's no hope for coders in 2024! Do these click bait titles sound familiar?",
+    "impressions": 24654,
+    "pattern": "mock the hype",
+    "source": "linkedin"
+  },
+  {
+    "hook": "I got paid a total of 0 dollars from doing 500 calls with software developers over the last 18 months. It was a great investment.",
+    "impressions": 21423,
+    "pattern": "surprising number + reversal",
+    "source": "linkedin"
+  },
+  {
+    "hook": "2 things: Are CEOs of large companies really begging their eng department for... anything?",
+    "impressions": 20502,
+    "pattern": "skeptical question",
+    "source": "linkedin"
+  },
+  {
+    "hook": "Here's why your company is (probably) struggling to find good developers.",
+    "impressions": 17825,
+    "pattern": "diagnosis",
+    "source": "linkedin"
+  },
+  {
+    "hook": "CEOs want to believe the myth of AI.",
+    "impressions": 16829,
+    "pattern": "myth callout",
+    "source": "linkedin"
+  },
+  {
+    "hook": "Breaking into software as: an 18 year old, a 25 year old with no money, a 30 year old with kids.",
+    "impressions": 16593,
+    "pattern": "segmented advice",
+    "source": "linkedin"
+  },
+  {
+    "hook": "No one is going to pay you thousands of dollars to build a website. But they might pay you to get more clients.",
+    "impressions": 15172,
+    "pattern": "blunt negation + reframe",
+    "source": "linkedin"
+  },
+  {
+    "hook": "The problem with developers in general and content creators specifically:",
+    "impressions": 12780,
+    "pattern": "name the problem",
+    "source": "linkedin"
+  },
+  {
+    "hook": "As usual, software developers greatly underestimate their own skill while greatly OVER-estimating everyone else.",
+    "impressions": 8567,
+    "pattern": "contrarian observation",
+    "source": "linkedin"
+  },
+  {
+    "hook": "If you're a Vibe Coder, I honestly don't think you need to learn to code.",
+    "impressions": 8444,
+    "pattern": "unexpected permission",
+    "source": "linkedin"
+  }
+]

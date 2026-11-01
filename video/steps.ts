@@ -36,6 +36,7 @@ import {
   narrationText,
   segmentTimeline,
 } from "./voice/alignment";
+import { applyLexicon } from "./voice/lexicon";
 import { elevenLabsTTS, mockTTS } from "./voice/tts";
 
 export type RenderOptions = { music?: string | null; label?: string };
@@ -46,7 +47,8 @@ export async function stepVoice(id: string, mode: RenderMode) {
   if (job.voice?.key === key) return { cached: true };
 
   const dir = await ensureDir(workDir(id));
-  const text = narrationText(job.script.segments);
+  // Pronunciation fixes go to TTS only; captions keep the script's spelling.
+  const text = applyLexicon(narrationText(job.script.segments));
   const v =
     mode === "mock" ? await mockTTS(text, dir) : await elevenLabsTTS(text, dir);
   const audio = await store().putFile(
@@ -213,7 +215,13 @@ export async function stepCompose(
   );
   const script = await withAttachedMedia(job.script, job.media, dir);
 
-  const words = charsToWords(await readJson<CharAlignment>(alignPath));
+  const spokenWords = charsToWords(await readJson<CharAlignment>(alignPath));
+  // Show the script's spelling ("AIVARA") at the spoken word's timing ("Eye-vara").
+  const written = narrationText(script.segments).split(/\s+/).filter(Boolean);
+  const words =
+    written.length === spokenWords.length
+      ? spokenWords.map((w, i) => ({ ...w, text: written[i] }))
+      : spokenWords;
   const timeline = segmentTimeline(
     script.segments,
     words,

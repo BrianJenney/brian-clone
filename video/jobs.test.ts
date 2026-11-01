@@ -8,6 +8,7 @@ const script: Script = {
   title: "t",
   formatId: "contrarian-take",
   audience: null,
+  hookOptions: [],
   topic: "t",
   hookOverlay: "h",
   segments: [

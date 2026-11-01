@@ -14,6 +14,7 @@ const script: Script = {
   title: "Test",
   formatId: "contrarian-take",
   audience: null,
+  hookOptions: [],
   topic: "t",
   hookOverlay: "Stop doing LeetCode",
   segments: [
@@ -105,4 +106,14 @@ test("normalizeScript forces an avatar hook and full layout for cards", () => {
   assert.equal(n.segments[0].text, "Hook, here");
   assert.equal(n.segments[1].layout, "full");
   assert.deepEqual(n.hashtags, ["ai", "aiengineering"]);
+});
+
+test("applyLexicon swaps whole words and keeps punctuation", async () => {
+  const { applyLexicon } = await import("../voice/lexicon");
+  const lex = { aivara: "Eye-vara", evals: "ee-vals" };
+  assert.equal(
+    applyLexicon("I built AIVARA, then wrote evals. Aivara rocks", lex),
+    "I built Eye-vara, then wrote ee-vals. Eye-vara rocks",
+  );
+  assert.equal(applyLexicon("medieval interval", lex), "medieval interval");
 });
