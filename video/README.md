@@ -56,7 +56,7 @@ HEYGEN_API_KEY=
 HEYGEN_AVATAR_ID=          # a look id from `yarn video heygen:looks`
 HEYGEN_ENGINE=avatar_iv    # avatar_iv | avatar_v | avatar_iii
 ELEVENLABS_API_KEY=
-ELEVENLABS_VOICE_ID=
+ELEVENLABS_VOICE_ID=       # defaults to FQdOEGfTV7PMYQrRB5zz (Brian's clone); override to try another voice
 # ELEVENLABS_MODEL_ID=eleven_multilingual_v2
 # ELEVENLABS_SPEED=1.05  ELEVENLABS_STABILITY=0.45  ELEVENLABS_STYLE=0.2
 

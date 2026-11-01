@@ -72,7 +72,8 @@ export const env = {
   heygenAvatarId: process.env.HEYGEN_AVATAR_ID,
   heygenEngine: (process.env.HEYGEN_ENGINE ?? "avatar_iv") as HeygenEngine,
   elevenKey: process.env.ELEVENLABS_API_KEY,
-  elevenVoiceId: process.env.ELEVENLABS_VOICE_ID,
+  // Brian's Professional Voice Clone. Not a secret: useless without the API key.
+  elevenVoiceId: process.env.ELEVENLABS_VOICE_ID ?? "FQdOEGfTV7PMYQrRB5zz",
   elevenModel: process.env.ELEVENLABS_MODEL_ID ?? "eleven_multilingual_v2",
   scrapeKey: process.env.SCRAPECREATORS_API_KEY,
   pexelsKey: process.env.PEXELS_API_KEY,
