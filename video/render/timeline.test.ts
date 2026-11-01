@@ -13,6 +13,7 @@ import { assTime, buildAss, chunkWords } from "./captions";
 const script: Script = {
   title: "Test",
   formatId: "contrarian-take",
+  audience: null,
   topic: "t",
   hookOverlay: "Stop doing LeetCode",
   segments: [
@@ -97,11 +98,11 @@ test("normalizeScript forces an avatar hook and full layout for cards", () => {
       },
       ...script.segments.slice(1),
     ],
-    hashtags: ["#AI"],
+    hashtags: ["#AI", "#ai-engineering"],
   };
   const n = normalizeScript(bad, "contrarian-take");
   assert.equal(n.segments[0].visual.kind, "avatar");
   assert.equal(n.segments[0].text, "Hook, here");
   assert.equal(n.segments[1].layout, "full");
-  assert.deepEqual(n.hashtags, ["ai"]);
+  assert.deepEqual(n.hashtags, ["ai", "aiengineering"]);
 });

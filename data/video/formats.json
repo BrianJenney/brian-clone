@@ -15,7 +15,10 @@
       "What to do instead (specific, actionable)",
       "Punchline or CTA that invites disagreement in comments"
     ],
-    "lengthSec": { "min": 20, "max": 40 },
+    "lengthSec": {
+      "min": 20,
+      "max": 40
+    },
     "visualPlan": "Avatar wide on hook, tight on the credential, card for the 'instead' rule, avatar wide for CTA.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -24,7 +27,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["opinion", "shares"]
+    "tags": ["opinion", "shares", "students", "business"]
   },
   {
     "id": "built-it-with-ai",
@@ -41,15 +44,18 @@
       "Result + one gotcha you hit",
       "CTA: comment a keyword for the repo/template"
     ],
-    "lengthSec": { "min": 25, "max": 45 },
-    "visualPlan": "Avatar hook (≤3s), then split layout: screen recording top, avatar bottom. End on avatar wide.",
+    "lengthSec": {
+      "min": 25,
+      "max": 45
+    },
+    "visualPlan": "Avatar hook (\u22643s), then split layout: screen recording top, avatar bottom. End on avatar wide.",
     "cloneSuitable": true,
     "exampleHooks": [
       "I built a RAG chatbot over my own YouTube transcripts in 20 minutes."
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["demo", "screen-recording", "saves"]
+    "tags": ["demo", "screen-recording", "saves", "students"]
   },
   {
     "id": "myth-bust",
@@ -66,7 +72,10 @@
       "So what: what the viewer should do",
       "CTA"
     ],
-    "lengthSec": { "min": 20, "max": 35 },
+    "lengthSec": {
+      "min": 20,
+      "max": 35
+    },
     "visualPlan": "Card with the myth (strike-through feel), avatar for reality, b-roll during proof.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -74,7 +83,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["education"]
+    "tags": ["education", "students", "business"]
   },
   {
     "id": "numbered-tips",
@@ -91,7 +100,10 @@
       "Item 3 (the best one, saved for last)",
       "CTA: save this"
     ],
-    "lengthSec": { "min": 25, "max": 40 },
+    "lengthSec": {
+      "min": 25,
+      "max": 40
+    },
     "visualPlan": "Card per item number, avatar delivering each item, alternate wide/tight framing every beat.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -99,7 +111,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["list", "saves"]
+    "tags": ["list", "saves", "students", "business"]
   },
   {
     "id": "news-react",
@@ -116,7 +128,10 @@
       "Your take (opinion, not summary)",
       "CTA"
     ],
-    "lengthSec": { "min": 20, "max": 40 },
+    "lengthSec": {
+      "min": 20,
+      "max": 40
+    },
     "visualPlan": "Split layout with a screenshot/screen recording of the announcement on top, avatar below. Avatar wide for the take.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -124,7 +139,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["news", "timely"]
+    "tags": ["news", "timely", "students"]
   },
   {
     "id": "explainer-30s",
@@ -141,13 +156,16 @@
       "When you'd use it",
       "CTA"
     ],
-    "lengthSec": { "min": 25, "max": 40 },
+    "lengthSec": {
+      "min": 25,
+      "max": 40
+    },
     "visualPlan": "Cards for each step, avatar between cards. B-roll only if concrete.",
     "cloneSuitable": true,
     "exampleHooks": ["RAG explained in 30 seconds, for developers."],
     "evidence": [],
     "source": "seed",
-    "tags": ["education", "saves"]
+    "tags": ["education", "saves", "students"]
   },
   {
     "id": "hiring-manager-pov",
@@ -164,7 +182,10 @@
       "The fix",
       "CTA"
     ],
-    "lengthSec": { "min": 20, "max": 35 },
+    "lengthSec": {
+      "min": 20,
+      "max": 35
+    },
     "visualPlan": "Avatar tight on the credential, b-roll of resumes/interviews, card for the fix.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -172,7 +193,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["career", "authority"]
+    "tags": ["career", "authority", "students"]
   },
   {
     "id": "mistake-confession",
@@ -189,7 +210,10 @@
       "What you should do",
       "CTA"
     ],
-    "lengthSec": { "min": 25, "max": 45 },
+    "lengthSec": {
+      "min": 25,
+      "max": 45
+    },
     "visualPlan": "Real footage. If using the pipeline, use it only for captions and cutaways over your own clip.",
     "cloneSuitable": false,
     "exampleHooks": ["I spent $40k building a feature nobody used."],
@@ -212,7 +236,10 @@
       "What I'd do",
       "CTA: drop your question"
     ],
-    "lengthSec": { "min": 20, "max": 40 },
+    "lengthSec": {
+      "min": 20,
+      "max": 40
+    },
     "visualPlan": "Card styled as the comment for the hook, avatar for the answer.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -220,7 +247,7 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["community", "comments"]
+    "tags": ["community", "comments", "students", "business"]
   },
   {
     "id": "roadmap",
@@ -238,7 +265,10 @@
       "What to skip",
       "CTA"
     ],
-    "lengthSec": { "min": 30, "max": 50 },
+    "lengthSec": {
+      "min": 30,
+      "max": 50
+    },
     "visualPlan": "Cards for each step with a running checklist feel, avatar between, b-roll of focused work.",
     "cloneSuitable": true,
     "exampleHooks": [
@@ -246,6 +276,91 @@
     ],
     "evidence": [],
     "source": "seed",
-    "tags": ["career", "saves"]
+    "tags": ["career", "saves", "students"]
+  },
+  {
+    "id": "saas-math",
+    "name": "The software bill math",
+    "whenToUse": "Business owners paying monthly for software they half-use. Make the cost concrete, then show owning it is now realistic.",
+    "hookPatterns": [
+      "You're paying [$/mo] for [software] and using 10% of it.",
+      "Add up what you pay for software every year. Now look at what a custom build costs in 2026."
+    ],
+    "beats": [
+      "Hook: the recurring cost, made concrete (clearly framed example math)",
+      "What you actually use vs what you pay for",
+      "Why custom used to be out of reach (months, six figures)",
+      "What changed (AI-assisted builds: scoped and prototyped in days)",
+      "Who this is NOT for (honesty builds trust)",
+      "CTA"
+    ],
+    "lengthSec": {
+      "min": 25,
+      "max": 40
+    },
+    "visualPlan": "Avatar hook, cards for the numbers (big, simple), avatar for what changed, card for who it's not for, avatar CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "You're paying for 40 seats of software your team opens twice a week."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["business"]
+  },
+  {
+    "id": "rebuilt-it",
+    "name": "We rebuilt [software] for one business",
+    "whenToUse": "Show a real replacement (e.g. legacy dealership software, missed-call voice AI). Demo footage or screenshots make it credible.",
+    "hookPatterns": [
+      "This [industry] was paying for [legacy software]. We built them their own.",
+      "Car dealership software is so bad. So we're replacing it."
+    ],
+    "beats": [
+      "Hook: the before (pain, in the owner's words)",
+      "What we built instead (one sentence)",
+      "Show it (screen recording or card per feature)",
+      "The result or what it unlocks (no invented numbers)",
+      "CTA"
+    ],
+    "lengthSec": {
+      "min": 25,
+      "max": 45
+    },
+    "visualPlan": "Avatar hook, split screen with product footage/screenshots on top, avatar for the result and CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "Car dealership software is so bad. So we're building our own."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["business"]
+  },
+  {
+    "id": "spreadsheet-to-app",
+    "name": "Your spreadsheet should be an app",
+    "whenToUse": "Businesses running on spreadsheets, sticky notes, or a rolodex. Speak to the owner who's embarrassed by their duct tape.",
+    "hookPatterns": [
+      "If your business runs on a spreadsheet, watch this.",
+      "A roofer running a million-dollar company off a spreadsheet. That's most businesses."
+    ],
+    "beats": [
+      "Hook: name the duct-tape setup",
+      "Why it works until it doesn't (the breaking point)",
+      "What a simple custom app does instead (3 concrete things)",
+      "Why it's cheaper and faster than they think now",
+      "CTA"
+    ],
+    "lengthSec": {
+      "min": 20,
+      "max": 40
+    },
+    "visualPlan": "Avatar hook, b-roll of messy spreadsheets/paperwork, cards for the 3 things, avatar CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "A roofer running a successful company off spreadsheets and a rolodex. That's normal. It's also fixable."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["business"]
   }
 ]

@@ -69,7 +69,7 @@ TREND ENGINE  (needs SCRAPECREATORS_API_KEY; OPENAI_API_KEY for analysis)
 
 SCRIPTS
   ideas [--n 10]                 Topic ideas from mined outliers × your content
-  script "<topic>" [--format id] [--seconds 30] [--from <outlier url>] [--screen]
+  script "<topic>" [--audience students|business] [--format id] [--seconds 30] [--from <outlier url>] [--screen] [--notes "..."]
   batch <topics.txt> [--format id]   One topic per line → one draft each
   approve <id...>                Mark drafts ready to render (spends money on render)
 
@@ -286,6 +286,8 @@ ${
         targetSec: num("seconds"),
         inspiration,
         hasScreenRecording: !!flags.screen,
+        audience: flag("audience"),
+        notes: flag("notes"),
       });
       const job = await createJob(script);
       console.log(scriptMarkdown(job));
@@ -308,7 +310,11 @@ ${
         });
       for (const { topic, formatId } of topics) {
         try {
-          const script = await writeScript({ topic, formatId });
+          const script = await writeScript({
+            topic,
+            formatId,
+            audience: flag("audience"),
+          });
           const job = await createJob(script);
           const est = estimateCost(script);
           console.log(

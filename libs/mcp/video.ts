@@ -16,7 +16,7 @@ import {
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
 export const VIDEO_INSTRUCTIONS =
-  ' Short-form video (AI clone): `video_write_script` drafts a script from a topic + proven format, grounded in Brian\'s writing. Show Brian the script and revise with `video_update_script` before rendering. `video_render` is asynchronous: it queues the job and returns at once. Start with mode "mock" (free) or "voice" (~$0.05), then "final" (~$2–3, needs maxCostUsd). Poll with `video_get_job`; `video_list_jobs` finds any earlier video. Renders take ~1 min (mock) to ~10 min (final).';
+  ' Short-form video (AI clone): every video should target an audience: "students" (devs who want AI engineering skills) or "business" (owners replacing software). `video_write_script` drafts a script from a topic + proven format + audience, grounded in Brian\'s writing; pass relevant `lookup_writing` results as `notes`. Show Brian the script and revise with `video_update_script` before rendering. `video_render` is asynchronous: it queues the job and returns at once. Start with mode "mock" (free) or "voice" (~$0.05), then "final" (~$2–3, needs maxCostUsd). Poll with `video_get_job`; `video_list_jobs` finds any earlier video. Renders take ~1 min (mock) to ~10 min (final).';
 
 export function registerVideoTools(server: McpServer) {
   server.registerTool(
@@ -68,14 +68,35 @@ export function registerVideoTools(server: McpServer) {
           .describe(
             "True if Brian will provide a screen recording for demo beats.",
           ),
+        audience: z
+          .enum(["students", "business"])
+          .optional()
+          .describe(
+            'Who the video should convert. "students" = developers who want AI engineering skills (CTA: free 5-day RAG course). "business" = owners who want to replace expensive/legacy software or spreadsheets with custom software (CTA: comment REPLACE). Strongly recommended.',
+          ),
+        notes: z
+          .string()
+          .optional()
+          .describe(
+            "Extra facts to use, e.g. relevant lookup_writing results, a client story, or numbers Brian confirmed. Treated as true.",
+          ),
       },
     },
-    async ({ topic, formatId, seconds, hasScreenRecording }) => {
+    async ({
+      topic,
+      formatId,
+      seconds,
+      hasScreenRecording,
+      audience,
+      notes,
+    }) => {
       const script = await writeScript({
         topic,
         formatId,
         targetSec: seconds,
         hasScreenRecording,
+        audience,
+        notes,
       });
       const job = await createJob(script);
       return text(

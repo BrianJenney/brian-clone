@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { env } from "../config";
 import { llmParse } from "../lib/llm";
+import {
+  type Audience,
+  audienceBrief,
+  getAudience,
+} from "../library/audiences";
 import { getFormat, loadFormats } from "../library/formats";
 import {
   type Format,
@@ -29,7 +34,9 @@ const VOICE_RULES = `Voice rules (Brian Jenney: senior dev, bootcamp owner, blun
 - No em dashes. No rhetorical question stacks. No "Not X, but Y" constructions more than once.
 - One idea per video. Cut anything that doesn't serve the hook's promise.
 - Opinions are allowed and encouraged. Don't hedge.
-- Never invent personal anecdotes, numbers, or credentials that aren't in the provided source material.`;
+- Never invent personal anecdotes, numbers, tools Brian used, or credentials that aren't in the provided source material.
+- Write for the ear: this is read aloud by TTS. No URLs, slashes, parentheses, "1)" lists, arrows, emoji or abbreviations that read badly. Say "first, second, third". Links go in the caption, never in speech.
+- Every segment must add something new. Never restate the previous line ("Myth. Nope, total myth.").`;
 
 async function retrieveContext(
   topic: string,
@@ -53,8 +60,16 @@ async function retrieveContext(
   }
 }
 
-async function pickFormat(topic: string, formats: Format[]): Promise<Format> {
-  const usable = formats.filter((f) => f.cloneSuitable);
+async function pickFormat(
+  topic: string,
+  formats: Format[],
+  audience: Audience | null,
+): Promise<Format> {
+  const clone = formats.filter((f) => f.cloneSuitable);
+  const hinted = audience
+    ? clone.filter((f) => audience.formatHints.includes(f.id))
+    : [];
+  const usable = hinted.length ? hinted : clone;
   const { id } = await llmParse(
     z.object({ id: z.enum(usable.map((f) => f.id) as [string, ...string[]]) }),
     "format_choice",
@@ -72,13 +87,18 @@ export type WriteOptions = {
   targetSec?: number;
   inspiration?: StoredAnalysis;
   hasScreenRecording?: boolean;
+  /** "students" | "business" (data/video/audiences.json). Drives pains, claims and CTA. */
+  audience?: string;
+  /** Extra facts/context to use (e.g. pasted from lookup_writing or a call transcript). */
+  notes?: string;
 };
 
 export async function writeScript(opts: WriteOptions): Promise<Script> {
   const formats = await loadFormats();
+  const audience = opts.audience ? await getAudience(opts.audience) : null;
   const format = opts.formatId
     ? await getFormat(opts.formatId)
-    : await pickFormat(opts.topic, formats);
+    : await pickFormat(opts.topic, formats, audience);
   const targetSec =
     opts.targetSec ??
     Math.round((format.lengthSec.min + format.lengthSec.max) / 2);
@@ -103,9 +123,10 @@ ${
 Hook type: ${opts.inspiration.hookType}. Beats: ${opts.inspiration.beats.join(" → ")}. Template: ${opts.inspiration.transferableTemplate}. Why it worked: ${opts.inspiration.whyItWorked}\n`
     : ""
 }
+${audience ? `${audienceBrief(audience)}\n\nThe goal is not views for their own sake: the right viewer should finish this thinking "this guy can fix my problem" and act on the CTA.\n` : ""}
 BRIAN'S OWN MATERIAL (facts, opinions and stories must come from here or be general knowledge):
 ${ctx.text || "(none retrieved — stick to general, verifiable claims)"}
-
+${opts.notes ? `\nEXTRA NOTES FROM BRIAN (treat as true):\n${opts.notes}\n` : ""}
 ${VOICE_RULES}
 
 HARD CONSTRAINTS:
@@ -121,14 +142,17 @@ HARD CONSTRAINTS:
         : 'Only use "screen" if a demo is essential; describe exactly what to record in note.'
     }
 - layout "split" only for broll/screen. avatar and card are always "full".
-- Last segment: a short CTA in Brian's voice (comment a keyword, follow for more AI engineering, or save this). Avatar wide.
+- Last segment: ${audience ? `the audience CTA above, in Brian's voice, keeping the comment keyword exact` : "a short CTA in Brian's voice (comment a keyword, follow for more, or save this)"}. Avatar wide.
 - hookOverlay: ≤ 7 words, punchier than the spoken hook.
 - caption: 1-2 sentences, no hashtags. hashtags: 3-5, lowercase, no #.
-- formatId must be "${format.id}". topic must be the topic above. sources: list the [n] items you drew from as their titles/urls: ${JSON.stringify(ctx.sources)}`,
+- formatId must be "${format.id}". audience must be ${audience ? `"${audience.id}"` : "null"}. topic must be the topic above. sources: list the [n] items you drew from as their titles/urls: ${JSON.stringify(ctx.sources)}`,
     { model: env.llmModel },
   );
 
-  return normalizeScript(script, format.id);
+  return {
+    ...normalizeScript(script, format.id),
+    audience: audience?.id ?? null,
+  };
 }
 
 /** Enforce rules the LLM sometimes bends, so render never breaks on them. */
@@ -154,6 +178,9 @@ export function normalizeScript(script: Script, formatId: string): Script {
     ...script,
     formatId,
     segments,
-    hashtags: script.hashtags.map((h) => h.replace(/^#/, "").toLowerCase()),
+    // Platforms break hashtags at hyphens/punctuation.
+    hashtags: script.hashtags
+      .map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ""))
+      .filter(Boolean),
   };
 }

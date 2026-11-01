@@ -87,8 +87,11 @@ function normalizeJob(raw: Job): Job {
     ...raw,
     media: raw.media ?? {},
     run: raw.run ?? null,
-    // Re-validate in case the script was hand-edited.
-    script: ScriptSchema.parse(raw.script),
+    // Re-validate in case the script was hand-edited. Older jobs predate `audience`.
+    script: ScriptSchema.parse({
+      ...raw.script,
+      audience: (raw.script as { audience?: string | null }).audience ?? null,
+    }),
   };
 }
 
@@ -233,7 +236,7 @@ export function scriptMarkdown(job: Job) {
     .join("\n");
   return `# ${s.title}
 
-- **Job:** \`${job.id}\` · **Status:** ${job.status}${job.run ? ` · **Render:** ${job.run.mode} → ${job.run.stage}` : ""} · **Format:** ${s.formatId}
+- **Job:** \`${job.id}\` · **Audience:** ${s.audience ?? "general"} · **Status:** ${job.status}${job.run ? ` · **Render:** ${job.run.mode} → ${job.run.stage}` : ""} · **Format:** ${s.formatId}
 - **Length:** ~${Math.round(est.secs)}s (${wordCount(s)} words) · **Est. final cost:** ${money(est.total)} (voice ${money(est.voice)}, avatar ${money(est.avatar)})
 - **Hook overlay:** ${s.hookOverlay}
 

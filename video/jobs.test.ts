@@ -7,6 +7,7 @@ import { isRunning } from "./service";
 const script: Script = {
   title: "t",
   formatId: "contrarian-take",
+  audience: null,
   topic: "t",
   hookOverlay: "h",
   segments: [

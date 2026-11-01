@@ -1,0 +1,72 @@
+[
+  {
+    "id": "students",
+    "name": "Developers who want AI engineering skills",
+    "who": "Working full-stack / web developers (and serious career changers) who feel left behind by AI and want production AI skills: RAG, agents, evals, context engineering. Busy, skeptical of bootcamps and hype.",
+    "pains": [
+      "My skills are becoming obsolete and I'm getting left behind",
+      "I think this needs deep math/ML I don't have",
+      "I just use Claude/Cursor and call it progress; I don't understand the system",
+      "I built a tutorial chatbot and don't really understand what I built",
+      "I've heard of RAG, agents, context engineering but can't explain them",
+      "I have a full-time job, I can't take on a second one",
+      "Bootcamps are scammy influencer programs"
+    ],
+    "claims": [
+      "Brian built and led production AI systems (RAG pipelines, production agents) at two different companies",
+      "Parsity's AI Engineering program teaches evals, context engineering, RAG pipelines and production agent architecture",
+      "About 2-4 hours a week, cohort-based, text-first curriculum",
+      "Backed by a U.S. Department of Labor grant; Claude-certified partner",
+      "Capstone can be built from a real work project",
+      "It's adding AI skills on top of full-stack work, not a pivot into ML"
+    ],
+    "never": [
+      "Never promise jobs, placement, or salaries",
+      "Don't call it a bootcamp"
+    ],
+    "cta": "Comment \"AI\" and I'll send you my free 5-day course where you build your first RAG app.",
+    "formatHints": [
+      "contrarian-take",
+      "myth-bust",
+      "explainer-30s",
+      "numbered-tips",
+      "news-react",
+      "built-it-with-ai",
+      "roadmap"
+    ]
+  },
+  {
+    "id": "business",
+    "name": "Business owners who want to replace software",
+    "who": "Owners and operators of small/mid businesses (dealerships, trades, clinics, agencies, local service) paying for clunky or overpriced SaaS, legacy industry software, or running on spreadsheets. Not technical. Care about money, time, and missed customers.",
+    "pains": [
+      "Paying per-seat for software we use 10% of",
+      "Our industry software is ancient and nobody likes it",
+      "We run the business on spreadsheets and sticky notes",
+      "Missed calls and slow lead replies are losing us customers",
+      "Custom software sounds expensive, slow, and risky",
+      "Agencies quote six figures and take months"
+    ],
+    "claims": [
+      "Brian is a senior software engineer who has built production AI systems at two companies",
+      "He co-builds AIVARA, which replaces legacy car-dealership software and answers leads in about 60 seconds",
+      "He installs voice AI for businesses where a missed call is lost money",
+      "AI tools mean a custom build that once took months can now be scoped and prototyped in days",
+      "Send what you use today and get a real estimate within 24 hours, plus a working demo when the project is a fit"
+    ],
+    "never": [
+      "No made-up savings numbers or client results; use 'for example' math clearly framed as an example",
+      "Don't trash specific vendors by name",
+      "Don't promise AI replaces staff"
+    ],
+    "cta": "Comment \"REPLACE\" with the software you hate paying for, and I'll tell you if we can build you your own version.",
+    "formatHints": [
+      "saas-math",
+      "rebuilt-it",
+      "spreadsheet-to-app",
+      "myth-bust",
+      "contrarian-take",
+      "numbered-tips"
+    ]
+  }
+]

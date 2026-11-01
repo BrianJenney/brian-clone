@@ -47,6 +47,8 @@ export type Segment = z.infer<typeof SegmentSchema>;
 export const ScriptSchema = z.object({
   title: z.string(),
   formatId: z.string(),
+  /** Audience id from data/video/audiences.json (students | business), or null. */
+  audience: z.string().nullable(),
   topic: z.string(),
   /** Big text shown over the first ~2s; usually a punchier rewrite of the spoken hook. */
   hookOverlay: z.string(),
