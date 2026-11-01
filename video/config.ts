@@ -69,7 +69,9 @@ export type HeygenEngine = "avatar_iii" | "avatar_iv" | "avatar_v";
 export const env = {
   heygenKey: process.env.HEYGEN_API_KEY,
   /** A look id (GET /v3/avatars/looks?ownership=private) — passed as avatar_id. */
-  heygenAvatarId: process.env.HEYGEN_AVATAR_ID,
+  // Brian's digital twin look ("Brian", supports avatar_iii/iv/v). Not a secret.
+  heygenAvatarId:
+    process.env.HEYGEN_AVATAR_ID ?? "a9102a0a55cf4b138c9d49e10cf34aae",
   heygenEngine: (process.env.HEYGEN_ENGINE ?? "avatar_iv") as HeygenEngine,
   elevenKey: process.env.ELEVENLABS_API_KEY,
   // Brian's Professional Voice Clone. Not a secret: useless without the API key.

@@ -53,7 +53,7 @@ Why ElevenLabs PVC: it's the best at sounding like *you* on long-ish reads, and 
 ```bash
 # required to render
 HEYGEN_API_KEY=
-HEYGEN_AVATAR_ID=          # a look id from `yarn video heygen:looks`
+HEYGEN_AVATAR_ID=          # defaults to a9102a0a55cf4b138c9d49e10cf34aae ("Brian" twin); see `yarn video heygen:looks`
 HEYGEN_ENGINE=avatar_iv    # avatar_iv | avatar_v | avatar_iii
 ELEVENLABS_API_KEY=
 ELEVENLABS_VOICE_ID=       # defaults to FQdOEGfTV7PMYQrRB5zz (Brian's clone); override to try another voice

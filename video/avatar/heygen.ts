@@ -42,7 +42,7 @@ export type Look = {
 
 export async function listMyLooks(): Promise<Look[]> {
   const res = await fetchJson<{ data: Look[] }>(
-    `${BASE}/v3/avatars/looks?ownership=private&limit=100`,
+    `${BASE}/v3/avatars/looks?ownership=private&limit=50`,
     {
       headers: headers(false),
     },
