@@ -26,6 +26,12 @@ const FACE_CROP_Y = Number(process.env.VIDEO_FACE_CROP_Y ?? 260); // top of 1080
 const TIGHT_ZOOM = Number(process.env.VIDEO_TIGHT_ZOOM ?? 1.22);
 
 const COVER = `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}`;
+/**
+ * Brian's twin was trained on selfie-mirrored footage (shirt logos read
+ * backwards), so un-mirror avatar shots. Set VIDEO_FLIP_AVATAR=0 for a twin
+ * trained on unmirrored footage.
+ */
+const AVATAR_PRE = process.env.VIDEO_FLIP_AVATAR === "0" ? "" : "hflip,";
 const enc = [
   "-r",
   String(FPS),
@@ -74,11 +80,11 @@ export async function missingAssets(jobDir: string, script: Script) {
 }
 
 function avatarFilter(framing: "wide" | "tight") {
-  if (framing === "wide") return COVER;
+  if (framing === "wide") return AVATAR_PRE + COVER;
   const zw = Math.round((W * TIGHT_ZOOM) / 2) * 2;
   const zh = Math.round((H * TIGHT_ZOOM) / 2) * 2;
   // Punch in toward the face (upper third), not the center.
-  return `${COVER},scale=${zw}:${zh},crop=${W}:${H}:${(zw - W) / 2}:${Math.round((zh - H) * 0.25)}`;
+  return `${AVATAR_PRE}${COVER},scale=${zw}:${zh},crop=${W}:${H}:${(zw - W) / 2}:${Math.round((zh - H) * 0.25)}`;
 }
 
 async function renderSegment(
@@ -170,7 +176,7 @@ async function renderSegment(
       ...visualIn,
       ...avatarIn,
       "-filter_complex",
-      `[0:v]${top},setsar=1[t];[1:v]${COVER},crop=${W}:${half}:0:${FACE_CROP_Y},setsar=1[b];[t][b]vstack=inputs=2,fps=${FPS}[v]`,
+      `[0:v]${top},setsar=1[t];[1:v]${AVATAR_PRE}${COVER},crop=${W}:${half}:0:${FACE_CROP_Y},setsar=1[b];[t][b]vstack=inputs=2,fps=${FPS}[v]`,
       "-map",
       "[v]",
       "-t",

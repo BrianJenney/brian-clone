@@ -72,7 +72,7 @@ export function registerVideoTools(server: McpServer) {
           .enum(["students", "business"])
           .optional()
           .describe(
-            'Who the video should convert. "students" = developers who want AI engineering skills (CTA: free 5-day RAG course). "business" = owners who want to replace expensive/legacy software or spreadsheets with custom software (CTA: comment REPLACE). Strongly recommended.',
+            'Who the video should convert. "students" = developers who want AI engineering skills (AI Engineering course; CTA: free AI engineer roadmap). "business" = Replace Your Software: owners overpaying for rented per-seat software who could own a fixed-price custom version (CTA: comment REPLACE). Strongly recommended.',
           ),
         notes: z
           .string()

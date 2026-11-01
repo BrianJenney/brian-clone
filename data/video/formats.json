@@ -287,11 +287,11 @@
       "Add up what you pay for software every year. Now look at what a custom build costs in 2026."
     ],
     "beats": [
-      "Hook: the recurring cost, made concrete (clearly framed example math)",
+      "Hook: the recurring bill, made concrete (example math at list price)",
       "What you actually use vs what you pay for",
-      "Why custom used to be out of reach (months, six figures)",
-      "What changed (AI-assisted builds: scoped and prototyped in days)",
-      "Who this is NOT for (honesty builds trust)",
+      "Why owning it used to be unrealistic (six figures, months)",
+      "What changed: AI lets one senior engineer rebuild just the parts you use, for a fixed price",
+      "How it works / who it's for",
       "CTA"
     ],
     "lengthSec": {
@@ -301,64 +301,92 @@
     "visualPlan": "Avatar hook, cards for the numbers (big, simple), avatar for what changed, card for who it's not for, avatar CTA.",
     "cloneSuitable": true,
     "exampleHooks": [
-      "You're paying for 40 seats of software your team opens twice a week."
+      "A 10-person team on four apps pays about fifteen grand a year. Every year.",
+      "Add up what you pay every month for software. Now multiply by forever."
     ],
     "evidence": [],
     "source": "seed",
     "tags": ["business"]
   },
   {
-    "id": "rebuilt-it",
-    "name": "We rebuilt [software] for one business",
-    "whenToUse": "Show a real replacement (e.g. legacy dealership software, missed-call voice AI). Demo footage or screenshots make it credible.",
+    "id": "software-landlord",
+    "name": "Your software is a landlord",
+    "whenToUse": "Reframe SaaS as rent. Emotional, shareable, owner-to-owner tone.",
     "hookPatterns": [
-      "This [industry] was paying for [legacy software]. We built them their own.",
-      "Car dealership software is so bad. So we're replacing it."
+      "Your CRM is a landlord. It collects rent every month and raises it every year.",
+      "Fire your software. It's been on the payroll long enough."
     ],
     "beats": [
-      "Hook: the before (pain, in the owner's words)",
-      "What we built instead (one sentence)",
-      "Show it (screen recording or card per feature)",
-      "The result or what it unlocks (no invented numbers)",
-      "CTA"
-    ],
-    "lengthSec": {
-      "min": 25,
-      "max": 45
-    },
-    "visualPlan": "Avatar hook, split screen with product footage/screenshots on top, avatar for the result and CTA.",
-    "cloneSuitable": true,
-    "exampleHooks": [
-      "Car dealership software is so bad. So we're building our own."
-    ],
-    "evidence": [],
-    "source": "seed",
-    "tags": ["business"]
-  },
-  {
-    "id": "spreadsheet-to-app",
-    "name": "Your spreadsheet should be an app",
-    "whenToUse": "Businesses running on spreadsheets, sticky notes, or a rolodex. Speak to the owner who's embarrassed by their duct tape.",
-    "hookPatterns": [
-      "If your business runs on a spreadsheet, watch this.",
-      "A roofer running a million-dollar company off a spreadsheet. That's most businesses."
-    ],
-    "beats": [
-      "Hook: name the duct-tape setup",
-      "Why it works until it doesn't (the breaking point)",
-      "What a simple custom app does instead (3 concrete things)",
-      "Why it's cheaper and faster than they think now",
+      "Hook: the rent metaphor",
+      "The cost of renting forever (price hikes, per seat)",
+      "The alternative: own one app built around how you work",
+      "What owning means (fixed price, your code, no seats)",
       "CTA"
     ],
     "lengthSec": {
       "min": 20,
-      "max": 40
+      "max": 35
     },
-    "visualPlan": "Avatar hook, b-roll of messy spreadsheets/paperwork, cards for the 3 things, avatar CTA.",
+    "visualPlan": "Avatar hook wide, card for the rent math, avatar tight for 'own it', card for the 3 terms, avatar CTA.",
     "cloneSuitable": true,
     "exampleHooks": [
-      "A roofer running a successful company off spreadsheets and a rolodex. That's normal. It's also fixable."
+      "Your CRM is a landlord.",
+      "Fire your software. It's been on the payroll long enough."
     ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["business"]
+  },
+  {
+    "id": "see-it-first",
+    "name": "See it before you pay",
+    "whenToUse": "Handle the risk objection: custom software means paying before you see anything. The 24-hour demo flips that.",
+    "hookPatterns": [
+      "Most software quotes ask you to pay before you see anything. I flip that.",
+      "What if you could see your own version of your software before paying a cent?"
+    ],
+    "beats": [
+      "Hook: the usual risk (pay first, wait months)",
+      "The flip: see a working demo of your version first",
+      "How it works in 3 steps (form, 10-minute call, demo in 24 hours if it's a fit)",
+      "Like it, I build it. Don't, you owe nothing",
+      "CTA"
+    ],
+    "lengthSec": {
+      "min": 25,
+      "max": 40
+    },
+    "visualPlan": "Avatar hook, cards for the 3 steps, split screen with demo footage if available, avatar CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": [
+      "Most software quotes ask you to pay before you see anything."
+    ],
+    "evidence": [],
+    "source": "seed",
+    "tags": ["business"]
+  },
+  {
+    "id": "per-seat-trap",
+    "name": "The per-seat trap",
+    "whenToUse": "Growing businesses where every hire raises the software bill.",
+    "hookPatterns": [
+      "Every new hire comes with a new software bill.",
+      "Grow your team, not your software bill."
+    ],
+    "beats": [
+      "Hook: hiring = more seats",
+      "Show the math growing with headcount (example)",
+      "The alternative: one app you own, hire as many people as you want",
+      "How to find out what yours would cost",
+      "CTA"
+    ],
+    "lengthSec": {
+      "min": 20,
+      "max": 35
+    },
+    "visualPlan": "Avatar hook, card showing seats x price growing, avatar for the alternative, avatar CTA.",
+    "cloneSuitable": true,
+    "exampleHooks": ["Every new hire comes with a new software bill."],
     "evidence": [],
     "source": "seed",
     "tags": ["business"]

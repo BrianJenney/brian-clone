@@ -1,9 +1,10 @@
 [
   {
     "id": "students",
-    "name": "Developers who want AI engineering skills",
+    "name": "AI Engineering course: developers who want AI engineering skills",
     "who": "Working full-stack / web developers (and serious career changers) who feel left behind by AI and want production AI skills: RAG, agents, evals, context engineering. Busy, skeptical of bootcamps and hype.",
     "pains": [
+      "Recruiters aren't hiring for programming languages anymore; they want RAG and AI agents, and I can't show that",
       "My skills are becoming obsolete and I'm getting left behind",
       "I think this needs deep math/ML I don't have",
       "I just use Claude/Cursor and call it progress; I don't understand the system",
@@ -14,7 +15,8 @@
     ],
     "claims": [
       "Brian built and led production AI systems (RAG pipelines, production agents) at two different companies",
-      "Parsity's AI Engineering program teaches evals, context engineering, RAG pipelines and production agent architecture",
+      "Recruiters are hiring for RAG and AI agents, not just programming languages (Parsity has a recruiting-firm partnership that shows what companies hire for)",
+      "The AI Engineering program teaches evals, context engineering, RAG pipelines and production agent architecture",
       "About 2-4 hours a week, cohort-based, text-first curriculum",
       "Backed by a U.S. Department of Labor grant; Claude-certified partner",
       "Capstone can be built from a real work project",
@@ -22,9 +24,10 @@
     ],
     "never": [
       "Never promise jobs, placement, or salaries",
-      "Don't call it a bootcamp"
+      "Don't call it a bootcamp",
+      "Don't mention any other Parsity offer (Dev30, JavaScript course, app-building services)"
     ],
-    "cta": "Comment \"AI\" and I'll send you my free 5-day course where you build your first RAG app.",
+    "cta": "Comment \"ROADMAP\" and I'll send you my free AI engineer roadmap: exactly what to learn, step by step.",
     "formatHints": [
       "contrarian-take",
       "myth-bust",
@@ -37,36 +40,39 @@
   },
   {
     "id": "business",
-    "name": "Business owners who want to replace software",
-    "who": "Owners and operators of small/mid businesses (dealerships, trades, clinics, agencies, local service) paying for clunky or overpriced SaaS, legacy industry software, or running on spreadsheets. Not technical. Care about money, time, and missed customers.",
+    "name": "Replace Your Software: business owners overpaying for rented software",
+    "who": "Owners of small businesses and teams (roughly 5-50 people: trades, service businesses, agencies, clinics) paying monthly per-seat fees for CRM, scheduling, booking, project boards, dialers and invoicing tools they only partly use. Not technical. Care about the monthly bill, price hikes, and owning what they pay for.",
     "pains": [
-      "Paying per-seat for software we use 10% of",
-      "Our industry software is ancient and nobody likes it",
-      "We run the business on spreadsheets and sticky notes",
-      "Missed calls and slow lead replies are losing us customers",
-      "Custom software sounds expensive, slow, and risky",
-      "Agencies quote six figures and take months"
+      "We pay every month, per seat, forever, and the price goes up every year",
+      "Seats nobody logs into, features nobody touches",
+      "Every new hire comes with a new software bill",
+      "Our tools don't fit how we actually work, so we duct-tape five of them together",
+      "Custom software sounds expensive, slow and risky",
+      "Agencies want money up front before you see anything"
     ],
     "claims": [
-      "Brian is a senior software engineer who has built production AI systems at two companies",
-      "He co-builds AIVARA, which replaces legacy car-dealership software and answers leads in about 60 seconds",
-      "He installs voice AI for businesses where a missed call is lost money",
-      "AI tools mean a custom build that once took months can now be scoped and prototyped in days",
-      "Send what you use today and get a real estimate within 24 hours, plus a working demo when the project is a fit"
+      "Brian is a software engineer with 12+ years of experience",
+      "With AI, he rebuilds the parts of the software your team actually uses, shaped around how you work",
+      "One fixed, one-time price. You own the code. Hosting included. No monthly bill, no per-seat fees",
+      "Booking tool, dialer, CRM, invoicing can become one app you own",
+      "How it works: fill out a 30-second form, his AI assistant calls you for under 10 minutes, and within 24 hours you get a true estimate",
+      "If it's a fit you get a free working demo of your own version first. Like it, he builds it. Don't, you owe nothing",
+      "Example math from his ads: a 10-person team on HubSpot, Jobber, monday.com and Calendly pays about $14,988 a year at list price, and it goes up"
     ],
     "never": [
-      "No made-up savings numbers or client results; use 'for example' math clearly framed as an example",
-      "Don't trash specific vendors by name",
-      "Don't promise AI replaces staff"
+      "Don't invent client results, savings or testimonials; only the example math above, framed as an example at list price",
+      "Name tools only as examples of what people pay for; don't insult them",
+      "Don't mention other offers (voice AI, app building for founders, AIVARA, the coding course)",
+      "Don't promise the demo to everyone: it's 'if it's a fit'"
     ],
-    "cta": "Comment \"REPLACE\" with the software you hate paying for, and I'll tell you if we can build you your own version.",
+    "cta": "Comment \"REPLACE\" and tell me what you're paying for. Within 24 hours you'll know what your own version would cost.",
     "formatHints": [
       "saas-math",
-      "rebuilt-it",
-      "spreadsheet-to-app",
+      "software-landlord",
+      "see-it-first",
+      "per-seat-trap",
       "myth-bust",
-      "contrarian-take",
-      "numbered-tips"
+      "contrarian-take"
     ]
   }
 ]
