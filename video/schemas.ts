@@ -36,7 +36,9 @@ export const VisualSchema = z.discriminatedUnion("kind", [
 export type Visual = z.infer<typeof VisualSchema>;
 
 export const SegmentSchema = z.object({
-  /** Exactly what the clone says during this beat. */
+  /** Who says it. "host" only exists in podcast-style scripts. */
+  speaker: z.enum(["brian", "host"]),
+  /** Exactly what the speaker says during this beat. */
   text: z.string(),
   visual: VisualSchema,
   /** split = visual on top, avatar on the bottom half (only for broll/screen). */
@@ -47,6 +49,8 @@ export type Segment = z.infer<typeof SegmentSchema>;
 export const ScriptSchema = z.object({
   title: z.string(),
   formatId: z.string(),
+  /** solo = Brian alone. podcast = a host asks, Brian answers, both on screen. */
+  style: z.enum(["solo", "podcast"]),
   /** Audience id from data/video/audiences.json (students | business), or null. */
   audience: z.string().nullable(),
   topic: z.string(),

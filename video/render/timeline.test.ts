@@ -13,22 +13,26 @@ import { assTime, buildAss, chunkWords } from "./captions";
 const script: Script = {
   title: "Test",
   formatId: "contrarian-take",
+  style: "solo",
   audience: null,
   hookOptions: [],
   topic: "t",
   hookOverlay: "Stop doing LeetCode",
   segments: [
     {
+      speaker: "brian",
       text: "Stop grinding LeetCode for your first job.",
       visual: { kind: "avatar", framing: "wide" },
       layout: "full",
     },
     {
+      speaker: "brian",
       text: "I have hired developers for years.",
       visual: { kind: "card", headline: "3 things instead", sub: null },
       layout: "full",
     },
     {
+      speaker: "brian",
       text: "Build one real project, and ship it.",
       visual: { kind: "broll", query: "developer typing", file: null },
       layout: "split",
@@ -93,6 +97,7 @@ test("normalizeScript forces an avatar hook and full layout for cards", () => {
     ...script,
     segments: [
       {
+        speaker: "brian",
         text: "Hook — here",
         visual: { kind: "card", headline: "x", sub: null },
         layout: "split",

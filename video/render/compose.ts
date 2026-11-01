@@ -10,7 +10,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fetchBroll } from "../broll/pexels";
-import { FONTS_DIR, X264_PRESET } from "../config";
+import { env, FONTS_DIR, X264_PRESET } from "../config";
 import { ensureDir, exists, run } from "../lib/util";
 import type { Script, Segment } from "../schemas";
 import type { SegmentTiming } from "../voice/alignment";
@@ -51,6 +51,8 @@ export type ComposeInput = {
   script: Script;
   timeline: SegmentTiming[];
   avatarPath: string;
+  /** Podcast style: the co-host's lip-synced video. Avatar beats become a two-up. */
+  hostAvatarPath?: string | null;
   audioPath: string;
   durationSec: number;
   musicPath?: string | null;
@@ -87,6 +89,59 @@ function avatarFilter(framing: "wide" | "tight") {
   return `${AVATAR_PRE}${COVER},scale=${zw}:${zh},crop=${W}:${H}:${(zw - W) / 2}:${Math.round((zh - H) * 0.25)}`;
 }
 
+/** Where the host's face sits in her 9:16 render (top of the 1080x960 crop). */
+const HOST_CROP_Y = Number(process.env.VIDEO_HOST_CROP_Y ?? 380);
+const ACCENT = "0xFFD60A";
+
+function nameTag(text: string) {
+  if (!text) return "";
+  const font = escFilterPath(path.join(FONTS_DIR, "Inter-Bold.otf"));
+  const t = text.replace(/[':\\]/g, "");
+  return `,drawtext=fontfile='${font}':text='${t}':x=36:y=h-th-44:fontsize=34:fontcolor=white:box=1:boxcolor=0x000000@0.55:boxborderw=14`;
+}
+
+/**
+ * Podcast two-up: host on top, Brian below, both always visible (the silent one
+ * is "listening"). The speaker gets an accent frame; the listener is dimmed.
+ */
+async function renderTwoUp(
+  seg: Segment,
+  start: number,
+  d: string,
+  input: ComposeInput,
+  out: string,
+) {
+  const half = H / 2;
+  const hostTalking = seg.speaker === "host";
+  const on = `,drawbox=x=0:y=0:w=iw:h=ih:color=${ACCENT}@0.95:t=8`;
+  const off = ",eq=brightness=-0.07:saturation=0.8";
+  await run("ffmpeg", [
+    "-y",
+    "-ss",
+    start.toFixed(3),
+    "-t",
+    d,
+    "-i",
+    input.hostAvatarPath as string,
+    "-ss",
+    start.toFixed(3),
+    "-t",
+    d,
+    "-i",
+    input.avatarPath,
+    "-filter_complex",
+    `[0:v]${COVER},crop=${W}:${half}:0:${HOST_CROP_Y},setsar=1${hostTalking ? on : off}${nameTag(env.hostName)}[t];` +
+      `[1:v]${AVATAR_PRE}${COVER},crop=${W}:${half}:0:${FACE_CROP_Y},setsar=1${hostTalking ? off : on}${nameTag("Brian Jenney")}[b];` +
+      `[t][b]vstack=inputs=2,fps=${FPS}[v]`,
+    "-map",
+    "[v]",
+    "-t",
+    d,
+    ...enc,
+    out,
+  ]);
+}
+
 async function renderSegment(
   i: number,
   seg: Segment,
@@ -98,7 +153,17 @@ async function renderSegment(
 ): Promise<{ file: string; fellBack: boolean }> {
   const out = path.join(tmp, `seg-${String(i).padStart(2, "0")}.mp4`);
   const d = dur.toFixed(3);
-  const avatarIn = ["-ss", start.toFixed(3), "-t", d, "-i", input.avatarPath];
+  // In a split layout the bottom half shows whoever is speaking.
+  const speakerIsHost = seg.speaker === "host" && !!input.hostAvatarPath;
+  const speakerPath = speakerIsHost
+    ? (input.hostAvatarPath as string)
+    : input.avatarPath;
+  const avatarIn = ["-ss", start.toFixed(3), "-t", d, "-i", speakerPath];
+  const podcast = !!input.hostAvatarPath;
+  if (podcast && seg.visual.kind === "avatar") {
+    await renderTwoUp(seg, start, d, input, out);
+    return { file: out, fellBack: false };
+  }
 
   // Resolve the non-avatar visual (if any) to a file on disk.
   let visualFile: string | null = null;
@@ -145,6 +210,10 @@ async function renderSegment(
     return { file: out, fellBack: false };
   }
 
+  if (!visualFile && podcast) {
+    await renderTwoUp(seg, start, d, input, out);
+    return { file: out, fellBack: true };
+  }
   if (!visualFile) {
     // Fallback: alternate framing so the cut is still visible.
     await run("ffmpeg", [
@@ -176,7 +245,7 @@ async function renderSegment(
       ...visualIn,
       ...avatarIn,
       "-filter_complex",
-      `[0:v]${top},setsar=1[t];[1:v]${AVATAR_PRE}${COVER},crop=${W}:${half}:0:${FACE_CROP_Y},setsar=1[b];[t][b]vstack=inputs=2,fps=${FPS}[v]`,
+      `[0:v]${top},setsar=1[t];[1:v]${speakerIsHost ? "" : AVATAR_PRE}${COVER},crop=${W}:${half}:0:${speakerIsHost ? HOST_CROP_Y : FACE_CROP_Y},setsar=1[b];[t][b]vstack=inputs=2,fps=${FPS}[v]`,
       "-map",
       "[v]",
       "-t",
@@ -216,6 +285,8 @@ export async function compose(input: ComposeInput): Promise<ComposeResult> {
   // and captions must follow that, not the original plan.
   const rendered: Script = {
     ...input.script,
+    // Podcast: the host's opening line already is the hook, and an overlay would cover her face.
+    hookOverlay: input.hostAvatarPath ? "" : input.script.hookOverlay,
     segments: [...input.script.segments],
   };
   for (const [i, t] of input.timeline.entries()) {
@@ -233,7 +304,16 @@ export async function compose(input: ComposeInput): Promise<ComposeResult> {
       warnings,
     );
     parts.push(r.file);
-    if (r.fellBack)
+    const twoUp =
+      !!input.hostAvatarPath && (seg.visual.kind === "avatar" || r.fellBack);
+    if (twoUp)
+      // Captions sit on the seam between the two faces.
+      rendered.segments[t.index] = {
+        ...seg,
+        visual: { kind: "avatar", framing: "wide" },
+        layout: "split",
+      };
+    else if (r.fellBack)
       rendered.segments[t.index] = {
         ...seg,
         visual: { kind: "avatar", framing: "tight" },

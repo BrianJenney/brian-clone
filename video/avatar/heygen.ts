@@ -152,16 +152,20 @@ export async function heygenCheck(videoId: string): Promise<HeygenCheck> {
 export async function mockAvatar(
   audioPath: string,
   outDir: string,
+  {
+    name = "avatar",
+    color = "0x1e293b",
+  }: { name?: string; color?: string } = {},
 ): Promise<AvatarResult> {
   const duration = await probeDuration(audioPath);
-  const dest = path.join(outDir, "avatar.mp4");
+  const dest = path.join(outDir, `${name}.mp4`);
   // A "head" box that drifts slightly so punch-ins and splits are visible in previews.
   await run("ffmpeg", [
     "-y",
     "-f",
     "lavfi",
     "-i",
-    `color=c=0x1e293b:s=1080x1920:r=30:d=${duration.toFixed(2)}`,
+    `color=c=${color}:s=1080x1920:r=30:d=${duration.toFixed(2)}`,
     "-i",
     audioPath,
     "-vf",

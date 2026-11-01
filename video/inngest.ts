@@ -64,24 +64,29 @@ export const renderVideo = inngest.createFunction(
       return stepVoice(jobId, mode);
     });
 
-    const videoId = await step.run("avatar-start", async () => {
+    const ids = await step.run("avatar-start", async () => {
       await setRun(jobId, { stage: "avatar" });
       return stepAvatarStart(jobId, mode);
     });
 
-    if (videoId) {
-      // ~45 min ceiling at 30s intervals. Each check is its own short invocation.
-      let done = false;
-      for (let i = 0; i < 90 && !done; i++) {
-        const state = await step.run(`avatar-check-${i}`, () =>
-          stepAvatarCheck(jobId, videoId),
-        );
-        done = state === "done";
-        if (!done) await step.sleep(`avatar-wait-${i}`, "30s");
-      }
-      if (!done)
-        throw new Error(`HeyGen render ${videoId} still not done after 45 min`);
+    // ~45 min ceiling at 30s intervals. Each check is its own short invocation.
+    let pending = ids;
+    for (let i = 0; i < 90 && pending.length; i++) {
+      const states = await step.run(`avatar-check-${i}`, async () =>
+        Promise.all(
+          pending.map(async (vid) => ({
+            vid,
+            state: await stepAvatarCheck(jobId, vid),
+          })),
+        ),
+      );
+      pending = states.filter((x) => x.state === "pending").map((x) => x.vid);
+      if (pending.length) await step.sleep(`avatar-wait-${i}`, "30s");
     }
+    if (pending.length)
+      throw new Error(
+        `HeyGen render(s) ${pending.join(", ")} still not done after 45 min`,
+      );
 
     const result = await step.run("compose", async () => {
       await setRun(jobId, { stage: "compositing", detail: null });

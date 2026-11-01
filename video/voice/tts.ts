@@ -17,12 +17,25 @@ export type VoiceResult = {
  * captions and the cut points between visuals, so we never need a separate
  * transcription pass.
  */
+export type TTSOptions = {
+  voiceId?: string;
+  /** File name stem (default "narration"). */
+  name?: string;
+  /** Neighbouring lines, so per-line synthesis keeps natural intonation. */
+  previousText?: string;
+  nextText?: string;
+};
+
 export async function elevenLabsTTS(
   text: string,
   outDir: string,
+  opts: TTSOptions = {},
 ): Promise<VoiceResult> {
   const key = requireEnv(env.elevenKey, "ELEVENLABS_API_KEY");
-  const voiceId = requireEnv(env.elevenVoiceId, "ELEVENLABS_VOICE_ID");
+  const voiceId = requireEnv(
+    opts.voiceId ?? env.elevenVoiceId,
+    "ELEVENLABS_VOICE_ID",
+  );
   const res = await fetchJson<{
     audio_base64: string;
     alignment: CharAlignment;
@@ -34,6 +47,8 @@ export async function elevenLabsTTS(
       body: JSON.stringify({
         text,
         model_id: env.elevenModel,
+        ...(opts.previousText ? { previous_text: opts.previousText } : {}),
+        ...(opts.nextText ? { next_text: opts.nextText } : {}),
         voice_settings: {
           stability: Number(process.env.ELEVENLABS_STABILITY ?? 0.5),
           similarity_boost: Number(process.env.ELEVENLABS_SIMILARITY ?? 0.85),
@@ -44,8 +59,8 @@ export async function elevenLabsTTS(
       }),
     },
   );
-  const audioPath = path.join(outDir, "narration.mp3");
-  const alignmentPath = path.join(outDir, "alignment.json");
+  const audioPath = path.join(outDir, `${opts.name ?? "narration"}.mp3`);
+  const alignmentPath = path.join(outDir, `${opts.name ?? "narration"}.json`);
   await fs.writeFile(audioPath, Buffer.from(res.audio_base64, "base64"));
   await writeJson(alignmentPath, res.alignment);
   return {
@@ -61,17 +76,18 @@ export async function elevenLabsTTS(
 export async function mockTTS(
   text: string,
   outDir: string,
+  opts: Pick<TTSOptions, "name"> & { frequency?: number } = {},
 ): Promise<VoiceResult> {
   const alignment = syntheticAlignment(text);
   const duration = (alignment.character_end_times_seconds.at(-1) ?? 1) + 0.4;
-  const audioPath = path.join(outDir, "narration.mp3");
-  const alignmentPath = path.join(outDir, "alignment.json");
+  const audioPath = path.join(outDir, `${opts.name ?? "narration"}.mp3`);
+  const alignmentPath = path.join(outDir, `${opts.name ?? "narration"}.json`);
   await run("ffmpeg", [
     "-y",
     "-f",
     "lavfi",
     "-i",
-    `sine=frequency=180:sample_rate=44100:duration=${duration.toFixed(2)}`,
+    `sine=frequency=${opts.frequency ?? 180}:sample_rate=44100:duration=${duration.toFixed(2)}`,
     "-af",
     "volume=0.03",
     "-c:a",

@@ -77,6 +77,13 @@ export const env = {
   // Brian's Professional Voice Clone. Not a secret: useless without the API key.
   elevenVoiceId: process.env.ELEVENLABS_VOICE_ID ?? "FQdOEGfTV7PMYQrRB5zz",
   elevenModel: process.env.ELEVENLABS_MODEL_ID ?? "eleven_multilingual_v2",
+  /** Podcast co-host: a stock HeyGen look + a stock ElevenLabs voice. */
+  // "Zofia Studio Streamer 4" (stock photo avatar; supports avatar_iv/v). Picked by Brian.
+  hostAvatarId:
+    process.env.VIDEO_HOST_AVATAR_ID ?? "9f3280f2401844e0bd1f5ba986b43ba3",
+  hostEngine: (process.env.VIDEO_HOST_ENGINE ?? "avatar_iv") as HeygenEngine,
+  hostVoiceId: process.env.VIDEO_HOST_VOICE_ID ?? "cgSgspJ2msm6clMCkdW9", // "Jessica", conversational
+  hostName: process.env.VIDEO_HOST_NAME ?? "",
   scrapeKey: process.env.SCRAPECREATORS_API_KEY,
   pexelsKey: process.env.PEXELS_API_KEY,
   llmModel: process.env.VIDEO_LLM_MODEL ?? "gpt-5",

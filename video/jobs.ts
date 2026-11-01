@@ -27,6 +27,18 @@ export type Stage =
   | "done"
   | "failed";
 
+export type AvatarState = {
+  provider: "heygen" | "mock";
+  videoId: string | null;
+  engine: HeygenEngine | null;
+  file: string | null;
+  durationSec: number;
+  /** voice.key this avatar was rendered against. */
+  key: string;
+  /** Submitted to HeyGen but not downloaded yet — resume instead of paying twice. */
+  pending: boolean;
+};
+
 export type Job = {
   id: string;
   createdAt: string;
@@ -37,6 +49,8 @@ export type Job = {
   media: Record<string, string>;
   voice: {
     provider: "elevenlabs" | "mock";
+    /** Podcast only: each speaker's lines in place, silence elsewhere (lip-sync input). */
+    tracks?: { brian: string; host: string } | null;
     audio: string;
     alignment: string;
     durationSec: number;
@@ -44,17 +58,9 @@ export type Job = {
     /** Hash of text + voice settings: the cache key for everything downstream. */
     key: string;
   } | null;
-  avatar: {
-    provider: "heygen" | "mock";
-    videoId: string | null;
-    engine: HeygenEngine | null;
-    file: string | null;
-    durationSec: number;
-    /** voice.key this avatar was rendered against. */
-    key: string;
-    /** Submitted to HeyGen but not downloaded yet — resume instead of paying twice. */
-    pending: boolean;
-  } | null;
+  avatar: AvatarState | null;
+  /** Podcast co-host avatar (same shape as `avatar`). */
+  hostAvatar?: AvatarState | null;
   render: {
     mode: RenderMode;
     video: string;
@@ -93,6 +99,13 @@ function normalizeJob(raw: Job): Job {
       ...raw.script,
       audience: (raw.script as { audience?: string | null }).audience ?? null,
       hookOptions: (raw.script as { hookOptions?: string[] }).hookOptions ?? [],
+      style: (raw.script as { style?: string }).style ?? "solo",
+      segments: (raw.script.segments as Array<Record<string, unknown>>).map(
+        (seg) => ({
+          speaker: "brian",
+          ...seg,
+        }),
+      ),
     }),
   };
 }
@@ -185,7 +198,7 @@ export async function createJob(script: Script): Promise<Job> {
 
 export function voiceKey(script: Script, mode: RenderMode) {
   return sha1(
-    `${applyLexicon(narrationText(script.segments))}|${mode === "mock" ? "mock" : `${env.elevenVoiceId}|${env.elevenModel}`}`,
+    `${script.style}|${script.segments.map((g) => `${g.speaker}:${applyLexicon(g.text)}`).join("|")}|${mode === "mock" ? "mock" : `${env.elevenVoiceId}|${env.hostVoiceId}|${env.elevenModel}`}`,
   );
 }
 
@@ -196,7 +209,12 @@ export function estimateCost(
   const secs = estimateSeconds(script);
   const voice =
     (narrationText(script.segments).length / 1000) * PRICING.elevenPer1kChars;
-  const avatar = (secs / 60) * PRICING.heygenPerMin[engine];
+  // Podcast: both faces are on screen the whole time, so the host renders full length too.
+  const host =
+    script.style === "podcast"
+      ? (secs / 60) * PRICING.heygenPerMin[env.hostEngine]
+      : 0;
+  const avatar = (secs / 60) * PRICING.heygenPerMin[engine] + host;
   return { secs, voice, avatar, total: voice + avatar };
 }
 
@@ -227,16 +245,22 @@ export function scriptMarkdown(job: Job) {
       const vis = attached
         ? `📎 attached media${seg.layout === "split" ? "" : ""}`
         : v.kind === "avatar"
-          ? `avatar (${v.framing})`
+          ? s.style === "podcast"
+            ? "podcast two-up"
+            : `avatar (${v.framing})`
           : v.kind === "card"
             ? `card: **${v.headline}**${v.sub ? ` / ${v.sub}` : ""}`
             : v.kind === "broll"
               ? `b-roll: "${v.query}"${v.file ? ` [${v.file}]` : ""}`
               : `🎥 SCREEN (needs recording): ${v.note}`;
+      const who =
+        s.style === "podcast"
+          ? `**${seg.speaker === "host" ? "HOST" : "BRIAN"}:** `
+          : "";
       const spoken = applyLexicon(seg.text);
       const said =
         spoken === seg.text ? seg.text : `${seg.text} _(says: ${spoken})_`;
-      return `| ${i + 1} | ${said.replace(/\|/g, "/")} | ${vis}${seg.layout === "split" ? " · split" : ""} |`;
+      return `| ${i + 1} | ${who}${said.replace(/\|/g, "/")} | ${vis}${seg.layout === "split" ? " · split" : ""} |`;
     })
     .join("\n");
   return `# ${s.title}

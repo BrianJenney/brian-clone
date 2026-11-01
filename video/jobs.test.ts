@@ -7,12 +7,14 @@ import { isRunning } from "./service";
 const script: Script = {
   title: "t",
   formatId: "contrarian-take",
+  style: "solo",
   audience: null,
   hookOptions: [],
   topic: "t",
   hookOverlay: "h",
   segments: [
     {
+      speaker: "brian",
       text: "One two three four five six seven eight nine ten.",
       visual: { kind: "avatar", framing: "wide" },
       layout: "full",

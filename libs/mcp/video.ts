@@ -74,6 +74,12 @@ export function registerVideoTools(server: McpServer) {
           .describe(
             'Who the video should convert. "students" = developers who want AI engineering skills (AI Engineering course; CTA: free AI engineer roadmap). "business" = Replace Your Software: owners overpaying for rented per-seat software who could own a fixed-price custom version (CTA: comment REPLACE). Strongly recommended.',
           ),
+        style: z
+          .enum(["solo", "podcast"])
+          .optional()
+          .describe(
+            '"podcast" = a clip from a fake podcast: a co-host asks, Brian answers, both faces on screen (about 2x avatar cost). Default "solo".',
+          ),
         notes: z
           .string()
           .optional()
@@ -89,6 +95,7 @@ export function registerVideoTools(server: McpServer) {
       hasScreenRecording,
       audience,
       notes,
+      style,
     }) => {
       const script = await writeScript({
         topic,
@@ -97,6 +104,7 @@ export function registerVideoTools(server: McpServer) {
         hasScreenRecording,
         audience,
         notes,
+        style,
       });
       const job = await createJob(script);
       return text(
@@ -110,7 +118,7 @@ export function registerVideoTools(server: McpServer) {
     {
       title: "Edit a video script",
       description:
-        'Replace parts of a draft script. Pass only the fields to change. `segments` replaces the whole segment list (each: text, visual, layout). Visual kinds: {kind:"avatar",framing:"wide"|"tight"}, {kind:"card",headline,sub|null}, {kind:"broll",query,file:null}, {kind:"screen",note,file:null}. layout "split" only for broll/screen.',
+        'Replace parts of a draft script. Pass only the fields to change. `segments` replaces the whole segment list (each: text, visual, layout). Each segment needs speaker ("brian", or "host" in podcast scripts). Visual kinds: {kind:"avatar",framing:"wide"|"tight"}, {kind:"card",headline,sub|null}, {kind:"broll",query,file:null}, {kind:"screen",note,file:null}. layout "split" only for broll/screen.',
       inputSchema: {
         jobId: z.string(),
         title: z.string().optional(),

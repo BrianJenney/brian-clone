@@ -69,7 +69,7 @@ TREND ENGINE  (needs SCRAPECREATORS_API_KEY; OPENAI_API_KEY for analysis)
 
 SCRIPTS
   ideas [--n 10]                 Topic ideas from mined outliers × your content
-  script "<topic>" [--audience students|business] [--format id] [--seconds 30] [--from <outlier url>] [--screen] [--notes "..."]
+  script "<topic>" [--audience students|business] [--format id] [--seconds 30] [--from <outlier url>] [--screen] [--podcast] [--notes "..."]
   batch <topics.txt> [--format id]   One topic per line → one draft each
   approve <id...>                Mark drafts ready to render (spends money on render)
 
@@ -288,6 +288,7 @@ ${
         hasScreenRecording: !!flags.screen,
         audience: flag("audience"),
         notes: flag("notes"),
+        style: flags.podcast ? "podcast" : "solo",
       });
       const job = await createJob(script);
       console.log(scriptMarkdown(job));

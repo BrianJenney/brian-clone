@@ -108,6 +108,8 @@ export type WriteOptions = {
   audience?: string;
   /** Extra facts/context to use (e.g. pasted from lookup_writing or a call transcript). */
   notes?: string;
+  /** solo (default) or podcast: a co-host asks, Brian answers, both on screen. */
+  style?: "solo" | "podcast";
 };
 
 export async function writeScript(opts: WriteOptions): Promise<Script> {
@@ -147,7 +149,15 @@ ${ctx.text || "(none retrieved — stick to general, verifiable claims)"}
 ${opts.notes ? `\nEXTRA NOTES FROM BRIAN (treat as true):\n${opts.notes}\n` : ""}
 ${VOICE_RULES}
 
-HOOK (the most important line in the video):
+${
+  opts.style === "podcast"
+    ? `PODCAST STYLE: a clip from a podcast. Two speakers: "host" (sharp, curious, a little skeptical; asks what the target viewer is thinking, in short punchy lines) and "brian" (answers with conviction). The host usually opens with the hook as a question or a provocative line; Brian's first answer must pay it off immediately. Alternate naturally; Brian says at least 60% of the words. The host never claims Brian's credentials for him and never pitches. Dialogue beats use visual kind "avatar" (renders both faces); still use cards for numbers and b-roll where it adds something. The CTA is Brian's line. Avatar-count limits below don't apply to dialogue beats, but use at least 2 non-avatar beats.
+
+`
+    : `SOLO STYLE: every segment's speaker is "brian".
+
+`
+}HOOK (the most important line in the video):
 Brian's best LinkedIn openers, ranked by impressions. Match their energy: blunt, specific, opinionated, a twist or a number, never generic. The first sentence alone must make the target viewer stop scrolling.
 ${hooks}
 Bad hooks (too soft, never do this): "Your CRM is a landlord." "Let's talk about software costs." "Here are some tips."
@@ -173,6 +183,7 @@ HARD CONSTRAINTS:
 - Last segment: ${audience ? `the audience CTA above, in Brian's voice, keeping the comment keyword exact` : "a short CTA in Brian's voice (comment a keyword, follow for more, or save this)"}. Avatar wide.
 - hookOverlay: ≤ 7 words, punchier than the spoken hook.
 - caption: 1-2 sentences, no hashtags. hashtags: 3-5, lowercase, no #.
+- style must be "${opts.style ?? "solo"}".
 - formatId must be "${format.id}". audience must be ${audience ? `"${audience.id}"` : "null"}. topic must be the topic above. sources: list the [n] items you drew from as their titles/urls: ${JSON.stringify(ctx.sources)}`,
     { model: env.llmModel },
   );
